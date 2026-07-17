@@ -22,10 +22,12 @@
 @import "./lib/elements.css"   layer(base);    /* aspect-ratio media boxes */
 
 /* ─────────────── OPTIONAL — uncomment when the markup is present ───────────────
-   Opt-in per project; commented = zero bytes shipped. */
-/* @import "./palettes/_users.css";               brand-palette template */
-/* @import "./lib/prose.css"     layer(bespoke);  rich-text `.text`   (extract pending) */
-/* @import "./lib/accordion.css" layer(bespoke);  accordion          (extract pending) */
-/* @import "./lib/form.css"      layer(bespoke);  forms              (extract pending) */
-/* @import "./lib/effects.css"   layer(bespoke);  effects            (extract pending) */
-/* @import "./lib/media.css"     layer(bespoke);  media / indicators (extract pending) */
+   Opt-in per project; commented = zero bytes shipped. The lib files below are
+   TOKEN SEEDS (generically useful custom properties distilled from the full
+   components) with guidance comments — build markup on them per project. */
+/* @import "./palettes/_users.css";                brand-palette template */
+/* @import "./lib/transitions.css";                generic motion tokens */
+/* @import "./lib/form.css";                        form field/button tokens */
+/* @import "./lib/accordion.css";                   disclosure motion tokens */
+/* @import "./lib/cards.css";                        card tokens */
+/* @import "./lib/prose.css"     layer(bespoke);    rich-text `.text` (extract pending) */

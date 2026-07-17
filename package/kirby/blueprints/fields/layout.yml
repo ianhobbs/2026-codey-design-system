@@ -1,0 +1,44 @@
+##
+# Codey layout field (core) — the Panel layout field that pairs with
+# snippets/layouts.php and the .layout / .blocks-grid CSS.
+#
+# Use in a page blueprint:
+#   layout:
+#     extends: fields/codey-layout
+#
+# Decoupled on extraction: project-specific fieldsets (my-products, my-plans,
+# swiper, animations, etc.) were dropped for a generic block set. The row
+# "theme" select maps to the content-grid variants a project styles.
+##
+label: Layout
+type: layout
+settings:
+  fields:
+    theme:
+      label: Layout Theme
+      type: select
+      default: plain-blocks-padded
+      options:
+        - value: plain-blocks
+          text: Plain grid — no background or padding
+        - value: plain-blocks-padded
+          text: Plain grid — with padding
+        - value: card-blocks
+          text: Cards grid — background + padding
+layouts:
+  - "1/1"
+  - "1/2, 1/2"
+  - "1/3, 1/3, 1/3"
+  - "1/4, 1/4, 1/4, 1/4"
+  - "2/3, 1/3"
+  - "1/3, 2/3"
+fieldsets:
+  - heading
+  - text
+  - image
+  - line
+  - list
+  - markdown
+  - quote
+  - gallery
+  - code

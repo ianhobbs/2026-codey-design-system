@@ -80,3 +80,18 @@ header {
   grid-column: content;
 }
 .track.bleed { grid-column: full; }
+
+/* ── Kirby layout-field columns — pairs with snippets/layouts.php ──────
+   Each rendered row is a 12-track grid; a .column spans its --columns width
+   (set inline by the renderer from the Panel layout field). This is the
+   generic content grid that replaces the opinionated .grid-home; the
+   redundant .full-bleed-grid is handled by .layout > .bleed above. */
+.blocks-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gutter, var(--spacing-4-m));
+}
+.blocks-grid > .column { grid-column: span var(--columns, 12); }
+@media (max-width: 60rem) {
+  .blocks-grid > .column { grid-column: 1 / -1; }   /* stack on narrow */
+}

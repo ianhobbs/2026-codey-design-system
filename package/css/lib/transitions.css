@@ -1,0 +1,19 @@
+/* ════════════════════════════════════════════════════════════════════
+   Codey motion tokens (OPTIONAL) — seeds, not a full component.
+
+   Generic transition/easing values distilled from effects.css. Reusable by
+   any interactive element so motion stays consistent across the system.
+
+   FUTURE USERS: e.g. transition: color var(--transition-base) var(--ease-standard);
+   The --rise-from/--rise-to pair seeds a fade-rise entrance keyframe.
+   ════════════════════════════════════════════════════════════════════ */
+:root {
+  --transition-fast: 0.2s;
+  --transition-base: 0.35s;
+  --transition-slow: 0.4s;
+  --ease-standard:   ease-in-out;
+  --ease-out:        ease-out;
+  --anim-duration:   1s;                       /* entrance animations */
+  --rise-from:       translate3d(0, 40px, 0);  /* fade-rise start transform */
+  --rise-to:         translate3d(0, 0, 0);
+}
