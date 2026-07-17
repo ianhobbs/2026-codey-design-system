@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build output (compiled from src — regenerated, not committed by default)
+packages/css/dist/*.css
+packages/tokens/dist/*.css
+packages/tokens/dist/*.json
+!packages/**/dist/.gitkeep
+
+# Kirby runtime (only relevant inside starterkit if it becomes runnable)
+starterkit/site/cache/
+starterkit/site/sessions/
+starterkit/site/logs/
+starterkit/media/
+starterkit/kirby/
+
+# Editor / OS
+.DS_Store
+*.map
+.codekit-cache/
+.vscode/*
+!.vscode/extensions.json

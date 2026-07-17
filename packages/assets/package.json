@@ -1,0 +1,7 @@
+{
+  "name": "@codey/assets",
+  "version": "0.1.0",
+  "description": "Codey shared static assets — fonts and system icons.",
+  "license": "UNLICENSED",
+  "files": ["fonts", "icons"]
+}

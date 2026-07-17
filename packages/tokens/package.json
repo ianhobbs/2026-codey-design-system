@@ -1,0 +1,15 @@
+{
+  "name": "@codey/tokens",
+  "version": "0.1.0",
+  "description": "Codey design tokens — colour palettes, spacing, and the Utopia fluid type scale as CSS custom properties.",
+  "license": "UNLICENSED",
+  "main": "dist/tokens.css",
+  "files": ["dist", "src"],
+  "exports": {
+    ".": "./dist/tokens.css",
+    "./src/*": "./src/*"
+  },
+  "scripts": {
+    "build": "echo \"TODO: compile src tokens -> dist/tokens.css (+ tokens.json)\" && exit 0"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "ianhobbsmedia/codey-design-system",
+  "description": "Kirby plugin for the Codey design system — snippets, blocks, blueprints, templates, and models.",
+  "type": "kirby-plugin",
+  "license": "proprietary",
+  "authors": [
+    { "name": "Ian Hobbs", "email": "admin@ianhobbsmedia.com" }
+  ],
+  "keywords": ["kirby", "kirby-plugin", "design-system", "codey"],
+  "require": {
+    "php": ">=8.2",
+    "getkirby/composer-installer": "^1.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "Codey\\DesignSystem\\": "src/"
+    }
+  },
+  "extra": {
+    "kirby-cms-path": false
+  },
+  "config": {
+    "allow-plugins": {
+      "getkirby/composer-installer": true
+    }
+  }
+}

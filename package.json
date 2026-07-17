@@ -1,0 +1,19 @@
+{
+  "name": "codey-design-system",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Codey universal design system — tokens, CSS primitives, assets, and a Kirby plugin. Monorepo of consumable packages.",
+  "author": "Ian Hobbs Media",
+  "license": "UNLICENSED",
+  "workspaces": [
+    "packages/tokens",
+    "packages/css",
+    "packages/assets"
+  ],
+  "scripts": {
+    "build": "npm run build:tokens && npm run build:css",
+    "build:tokens": "npm run build --workspace=packages/tokens --if-present",
+    "build:css": "npm run build --workspace=packages/css --if-present",
+    "watch": "echo \"TODO: wire Stylus/CodeKit watch pipeline\" && exit 0"
+  }
+}
