@@ -12,14 +12,30 @@ package/
 ├── codey-sync.json    the sync manifest (source→dest zone map = clobber-safety contract)
 ├── scripts/
 │   └── codey-sync.js  the copy script (run by Composer post-install / npm postinstall)
-├── css/               → src/assets/css/codey/   (index.css, theme.css tokens, lib/, templates/)
-├── kirby/             → src/site/plugins/codey/  (index.php + snippets/blocks/blueprints)
-└── fonts/             → src/assets/fonts/codey/  (licensed core fonts)
+├── css/               → src/assets/css/codey/
+│   ├── index.css      opinionated manifest (core on, optional components commented)
+│   ├── theme.css      @theme Utopia type/space tokens
+│   ├── globals.css    :root globals + @font-face
+│   ├── palettes/      raw palettes: _codey, _caramel, _users (template)
+│   ├── themes/        semantic colour maps: theme-codey, theme-caramel
+│   ├── lib/           layout, typography, elements + form/accordion/transitions/cards (seeds)
+│   └── templates/     core per-template defaults (e.g. note.css)
+├── kirby/             → src/site/plugins/codey/
+│   ├── index.php      registers codey/* snippets + fields/codey-layout
+│   ├── snippets/      layout (shell), header, footer, layouts (renderer), card
+│   ├── blueprints/    fields/layout.yml
+│   └── templates/     default.php (example, not registered)
+└── fonts/             → src/assets/fonts/codey/  (licensed core fonts — pending)
 ```
 
 **Authoring model:** refine the theme *here*, tag a release, then
 `composer update` in each project pulls it and re-syncs. You never hand-edit the
 synced copy inside a project — those folders are restored on every sync.
 
-See [../docs/DESIGN-SYSTEM.md](../docs/DESIGN-SYSTEM.md) for the full mechanism,
-the override contract, and the zone boundary.
+**Opinionated manifest:** `css/index.css` keeps optional components commented so
+they ship zero bytes; a project uncomments only the markup it uses. The optional
+`lib/{form,accordion,transitions,cards}.css` are token *seeds* with guidance
+comments, not full components.
+
+See [../docs/DESIGN-SYSTEM.md](../docs/DESIGN-SYSTEM.md) for the full mechanism and
+[../docs/ROADMAP.md](../docs/ROADMAP.md) for extraction status.

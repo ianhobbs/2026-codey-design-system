@@ -24,7 +24,8 @@ npm run build:css     # compiles src/assets/css/main.css → build/assets/css/ma
 
 1. **Core** — `main.css` does `@import "./codey/index.css"` (tier 1).
 2. **Project global** — `@import "./brand.css"` last in `main.css` (tier 2). Its
-   `@theme` overrides Utopia + accent tokens; last declaration wins.
+   `@theme` overrides Utopia + colour tokens (e.g. `--text-base`,
+   `--color-active-1`); last declaration wins.
 3. **Per-template** — `templates/{template}.css` via `css('@auto')` (tier 3),
    scoped to that template only.
 

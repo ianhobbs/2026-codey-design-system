@@ -1,105 +1,92 @@
 # Extraction Roadmap
 
-How the design system gets populated from the source project without dragging
-its complexity across. Source: `/Volumes/2000/Sites/codey-new-2025` (the
-hand-authored layer is `src/`; `build/` is the compiled runnable Kirby install
-and is **not** an extraction source).
+How the design system gets populated from the source project without dragging its
+complexity across. Source: `/Volumes/2000/Sites/codey-new-2025` (the hand-authored
+layer is `src/`; `build/` is the compiled runnable Kirby install and is **not** an
+extraction source).
 
-The sequence matters: **tokens → CSS → Kirby → starterkit → migrate.** Each
-phase leaves both repos in a working state, so you are never mid-air.
+Sequence: **tokens → colour → CSS core → Kirby → assets → tools → dogfood.** Each
+step leaves the package compiling and the mechanism verifiable.
+
+Status legend: ✅ done · 🟡 partial · ⬜ pending.
 
 ---
 
-## Phase 0 — Audit & tag
+## ✅ Phase 1 — Tokens (`package/css/theme.css`, `globals.css`)
 
-Walk `src/` and label every file as one of:
+- ✅ `@theme` Utopia fluid type + spacing scale → `theme.css`.
+- ✅ Theme-independent `:root` globals (black/white, active colours, report
+  colours, note-width) + secondary `@font-face` → `globals.css`.
+- Decouple: font URLs repointed to the synced `fonts/codey/` zone; first-paint
+  hex literals kept with why-comments.
 
-- **primitive** — reusable, portable → promote to a package
-- **coupled** — reusable but wired to project specifics → decouple, then promote
-- **project** — stays in the source site → do not move
+## ✅ Phase 2a — Colour system (`package/css/palettes/`, `themes/`)
 
-The inventory below is the first pass at this tagging.
+- ✅ Raw palettes: `_codey.css`, `_caramel.css` (incl. wide-gamut `lab()`
+  `@supports`), `_users.css` (kept as a fill-in-the-brand template).
+- ✅ Semantic mapping layer: `theme-codey.css`, `theme-caramel.css` (aliases
+  `--link`/`--hover`/`--blockquote-*`/`--nav-*` etc.), decorative leaf-SVG
+  backgrounds + products-block overrides stripped to commented placeholders.
 
-## Phase 1 — Tokens first (`packages/tokens`)
+## ✅ Phase 2b — CSS core (`package/css/lib/`)
 
-Everything depends on tokens, so they move first.
+- ✅ `layout.css` — two-axis page frame (skeleton rows + `.layout`/`.track`
+  column grid, `data-layout`/`data-pad` modes) + the generic `.blocks-grid`
+  content grid (replaces opinionated `.grid-home`; `.full-bleed-grid` dropped as
+  redundant to `.layout > .bleed`).
+- ✅ `typography.css` — element type base on the Utopia/TW scale.
+- ✅ `elements.css` — aspect-ratio media boxes.
 
-| Source | Target | Notes |
-|--------|--------|-------|
-| `src/assets/css/themes/_palette-codey.css` | `packages/tokens/src/` | Base palette |
-| `src/assets/css/themes/_palette-caramel.css` | `packages/tokens/src/` | Alt palette (brand variant) |
-| `src/assets/css/themes/_palette-users.css` | `packages/tokens/src/` | User/account palette |
-| `src/assets/css/themes/theme-*.css` | `packages/tokens/src/` | Theme compositions (space/text/dark/light) |
-| `src/assets/css/utopia/utopia-pre.scss`, `src/assets/css/lib/utopia-*.css` | `packages/tokens/src/` | Fluid type + space scale |
+## ✅ Phase 2c — Component token seeds (`package/css/lib/`, optional)
 
-**Decouple step:** as you move, replace any hardcoded value still living in the
-source CSS with a token reference *in place*. This also cleans the source
-project — it is not throwaway work.
+Distilled the *generically useful tokens* from each component (not full CSS),
+shipped commented-out in the manifest as opt-in seeds with guidance comments:
 
-## Phase 2 — CSS primitives (`packages/css`)
+- ✅ `form.css`, `accordion.css`, `transitions.css`, `cards.css`.
 
-Move the framework, cutting each dependency on project-specific markup as you go.
+## ✅ Phase 3 — Kirby layout plugin (`package/kirby/`)
 
-| Source | Target | Notes |
-|--------|--------|-------|
-| `src/assets/css/layout.css` | `packages/css/src/lib/` | Grid + container system (12-col, subgrid) |
-| `src/assets/css/lib/elements.css` / `elements.styl` | `packages/css/src/lib/` | Base elements |
-| `src/assets/css/lib/typography.css` / `typography.styl` | `packages/css/src/lib/` | Type primitives |
-| `src/assets/css/lib/effects.css` / `effects.styl` | `packages/css/src/lib/` | Effects (incl. off-screen transforms) |
-| `src/assets/css/lib/form.css`, `_form.css` | `packages/css/src/lib/` | Form primitives |
-| `src/assets/css/lib/_accordion.css`, `lightbox.css` | `packages/css/src/lib/` | Standalone components |
-| `src/assets/css/component/*.styl` (content, indicators, media) | `packages/css/src/lib/component/` | Component CSS |
+- ✅ `snippets/layout.php` (slot-based two-axis shell), `header.php`, `footer.php`
+  (structural, decoration stripped), `layouts.php` (layout-field renderer →
+  `.blocks-grid`).
+- ✅ `blueprints/fields/layout.yml` (generic column presets + block set; project
+  blocks like `my-products`/`swiper` dropped).
+- ✅ `templates/default.php` (example, not registered — projects own `default.php`).
+- ✅ Registered in `kirby/index.php` as `codey/*`.
 
-**Watch for:** the off-screen / off-page / menu-stack / push-stack utilities
-(documented in the source `codey-arch.md`). These are the crown jewels — verify
-they reference tokens only and carry no site-specific selectors before promoting.
+## ⬜ Remaining CSS components (optional, full CSS)
 
-## Phase 3 — Kirby plugin (`packages/kirby`)
+- ⬜ `prose.css` — the `.text` rich-text block (source `lib/typography.css`).
+- ⬜ Full `form` / `accordion` / `effects` / `media` component CSS to back the
+  token seeds, if/when a project wants the ready-made component rather than seeds.
 
-Promote reusable Kirby pieces; register each in `index.php`.
+## ⬜ Phase 4 — Assets (`package/fonts/`, icons)
 
-| Source | Target | Notes |
-|--------|--------|-------|
-| `src/site/snippets/accordion.php`, `image.php`, `cover-image.php`, `cta-shape.php`, etc. | `packages/kirby/snippets/` | Generalise hardcoded paths/content |
-| `src/site/snippets/blocks/*` | `packages/kirby/snippets/blocks/` | Reusable block renderers |
-| `src/site/blueprints/blocks/*`, `fields/*`, `sections/*` | `packages/kirby/blueprints/` | Field/section/block definitions |
-| `build/site/templates/*` (reusable ones, e.g. note/notes) | `packages/kirby/templates/` | Only generic templates |
-| `src/site/models/note.php`, `service.php` | `packages/kirby/models/` | Only generic models |
+- ⬜ Add the licensed core fonts (Gotham/Gradual) referenced by `globals.css`
+  (check EULAs before bundling).
+- ⬜ System icons (leaf set) — not client logos.
 
-**Exclude:** account/auth snippets tied to this site, config with licenses/keys,
-collections that assume this site's content model. Those are **project**.
+## ⬜ Phase 5 — Tools (`package/` — out of scope of the extraction so far)
 
-## Phase 4 — Assets (`packages/assets`)
+- ⬜ Utopia regen + `convertVariables.js`, SVG colour-harmony/`svg-render`,
+  styleguide-builder. The sync script is the one new tool this design adds.
 
-| Source | Target |
-|--------|--------|
-| `src/assets/fonts/*` | `packages/assets/fonts/` (licensed fonts only — check EULAs before redistributing) |
-| `src/assets/icons/*` (system icons, not client logos) | `packages/assets/icons/` |
+## ⬜ Phase 6 — Run in a real Kirby install
 
-Client logos (RosieBoylan, MHNSW, TCS, etc.) are **project** — leave them out.
+- ⬜ `composer require` the package into a Kirby project, sync, render. The
+  templates are structurally decoupled but not yet execution-tested (no PHP
+  runtime in the build sandbox).
 
-## Phase 5 — Build tooling (`build/`)
+## ⬜ Phase 7 — Dogfood
 
-Reproduce the Stylus → CSS pipeline (currently driven by CodeKit
-`config.codekit3`) as a scriptable build so `npm run build` works without CodeKit.
-Wire `packages/tokens` and `packages/css` build scripts to it.
-
-## Phase 6 — Prove it (`starterkit/`)
-
-Stand up the minimal Kirby starterkit consuming both packages and render it. If
-it runs standalone, the extraction is sound.
-
-## Phase 7 — Dogfood
-
-Migrate `codey-new-2025` to consume the published packages instead of its local
-copies. If the original site still works pulling from the kit, you are done —
-and every future site starts here.
+- ⬜ Migrate `codey-new-2025` to consume the package instead of its local copies.
 
 ---
 
 ## Guardrails
 
 - Nothing hardcoded that a token could express.
-- Nothing site-specific in a package (content, licenses, client logos, keys).
-- Versioned releases; sites pin a major version.
+- Nothing project-specific in the package (content, licenses, client logos,
+  decorative backgrounds, keys).
+- Versioned releases via Composer; projects pin a version.
 - `build/` in the source is never an extraction source — only `src/`.

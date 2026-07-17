@@ -67,9 +67,36 @@ name* — Kirby resolves site-level over plugin-registered, so vendored PHP is
 never edited either.
 
 Verified token resolution: with the core default and the `brand.css` override
-both present, `--text-base` and `--color-accent` resolve to the brand values.
+both present, `--text-base` and `--color-active-1` resolve to the brand values.
 
-## Tools (in `package/`, out of scope to rebuild here)
+## What's extracted so far
+
+The package is populated, not stubbed. Verified through the sync → import →
+Tailwind v4 compile chain (see [ROADMAP.md](ROADMAP.md) for full status):
+
+- **Tokens** — `theme.css` (`@theme` Utopia type/space scale) + `globals.css`
+  (`:root` globals + secondary `@font-face`).
+- **Colour system** — raw palettes (`_codey`, `_caramel`, `_users` template) +
+  semantic themes (`theme-codey`, `theme-caramel`), decoration stripped.
+- **CSS core** (`lib/`) — `layout.css` (two-axis frame + `.blocks-grid`),
+  `typography.css`, `elements.css`.
+- **Component seeds** (`lib/`, opt-in) — `form`, `accordion`, `transitions`,
+  `cards`: generically useful tokens with guidance comments, commented in the
+  manifest so they ship zero bytes until a project uncomments them.
+- **Kirby plugin** — `codey/layout` shell + `codey/header` / `codey/footer` /
+  `codey/layouts` renderer + `fields/codey-layout` blueprint, registered in
+  `index.php`.
+
+Still pending: the `.text` prose component, full optional-component CSS, the
+licensed fonts + icons, the generator tools, and a real Kirby run.
+
+## Opinionated manifest
+
+`package/css/index.css` is the toggle sheet: core imports are always on; optional
+components sit as **commented imports**. A project uncomments only what its markup
+uses — no accordion markup, no accordion bytes.
+
+## Tools (in `package/`, out of scope of the extraction so far)
 
 Utopia regen + `convertVariables.js` (token scale), SVG colour-harmony +
 `svg-render` (icon variants), styleguide-builder (preview). The sync script is
