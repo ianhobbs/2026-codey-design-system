@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.0.1",
   "comment": "Declarative sync manifest. The sync script writes ONLY into these dest zones (relative to the consuming project root). Everything else in the project's src/ is project-owned and never touched. This is the clobber-safety contract.",
   "zones": [
     { "from": "css",   "to": "src/assets/css/codey" },
