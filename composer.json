@@ -11,6 +11,6 @@
     "php": ">=8.2"
   },
   "bin": [
-    "package/scripts/codey-sync.js"
+    "package/scripts/codey-sync.cjs"
   ]
 }

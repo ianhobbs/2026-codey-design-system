@@ -13,7 +13,7 @@
  * templates/*, site snippets) live outside those zones and are never touched.
  *
  * Usage:
- *   node codey-sync.js [--from <packageDir>] [--to <projectRoot>] [--dry]
+ *   node codey-sync.cjs [--from <packageDir>] [--to <projectRoot>] [--dry]
  * Defaults:
  *   --from  the package dir containing codey-sync.json (…/vendor/ianhobbsmedia/codey-design-system)
  *   --to    process.cwd() — the consuming project root

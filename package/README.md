@@ -2,16 +2,15 @@
 
 This is the single source of truth you version and `composer require`. Its
 contents are synced into a consuming project's `src/` by
-[`scripts/codey-sync.js`](scripts/codey-sync.js), scoped strictly to the zones
+[`scripts/codey-sync.cjs`](scripts/codey-sync.cjs), scoped strictly to the zones
 declared in [`codey-sync.json`](codey-sync.json).
 
 ```
-package/
-├── composer.json      name: ianhobbsmedia/codey-design-system (type: library → vendor/)
+package/                (the root composer.json — name: ianhobbsmedia/codey-design-system — points its bin here)
 ├── VERSION            semver, echoed into the project's src/.codey-version on sync
 ├── codey-sync.json    the sync manifest (source→dest zone map = clobber-safety contract)
 ├── scripts/
-│   └── codey-sync.js  the copy script (run by Composer post-install / npm postinstall)
+│   └── codey-sync.cjs the copy script (run by Composer post-install / npm postinstall)
 ├── css/               → src/assets/css/codey/
 │   ├── index.css      opinionated manifest (core on, optional components commented)
 │   ├── theme.css      @theme Utopia type/space tokens
