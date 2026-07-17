@@ -1,66 +1,40 @@
 # Codey Design System
 
-A universal, versioned design system for Kirby projects. It exists so a new
-Codey site starts from a shared, battle-tested foundation instead of copy-paste
-archaeology from the last project.
+A versioned design system for Codey Kirby projects, authored once and synced into
+each project's `src/` so the project's own build (CodeKit / Tailwind CLI / Vite)
+compiles it — without fighting the `src/ → build/` mirror.
 
-The system is **consumed**, not cloned. Individual sites pull it in as versioned
-packages; they never fork it.
+It is delivered as a **Composer package + a copy script**: Composer versions and
+fetches it into `vendor/`; a `post-install` script copies its source into `src/`.
+npm lives beside Composer at root for the build toolchain (Tailwind, Alpine).
 
-## Model
-
-The repo is a monorepo of independently consumable packages, layered by how
-often each changes and how it ships:
-
-| Layer | Package | Ships as | Depends on |
-|-------|---------|----------|------------|
-| **Tokens** | `packages/tokens` (`@codey/tokens`) | CSS custom properties (+ JSON) via npm | — |
-| **CSS primitives** | `packages/css` (`@codey/css`) | Compiled CSS bundle via npm | tokens |
-| **Assets** | `packages/assets` (`@codey/assets`) | Fonts + icons via npm | — |
-| **Kirby** | `packages/kirby` (`ianhobbsmedia/codey-design-system`) | Kirby plugin via Composer | — |
-| **Starterkit** | `starterkit/` | Template to copy for a new site | all of the above |
-
-The rule that keeps it from collapsing back into complexity: **each layer only
-references the layer below it, never hardcoded values, and never
-project-specific content.** A CSS primitive references tokens; it does not bake
-in a colour. A Kirby snippet is a reusable shape; it does not assume a
-particular site's content.
-
-## Distribution
-
-Two channels, because Kirby spans PHP and the front-end:
-
-- **Composer** — `composer require ianhobbsmedia/codey-design-system` installs
-  the Kirby plugin (snippets, blocks, blueprints, templates, models).
-- **npm** — `npm install @codey/tokens @codey/css @codey/assets` installs the
-  front-end layer.
-
-Both are versioned with semver so a site pins a major version and upgrades
-deliberately.
-
-## Spinning up a new site
-
-1. Copy `starterkit/` to a new project folder.
-2. `composer require ianhobbsmedia/codey-design-system`
-3. `npm install @codey/tokens @codey/css @codey/assets`
-4. Wire the CSS bundle + fonts into your template head; override tokens per brand.
-
-## Repo layout
+## Layout
 
 ```
-packages/
-  tokens/     colour palettes, spacing, Utopia fluid type scale
-  css/        grid, containers, off-screen/off-page, effects, elements, type, forms
-  assets/     fonts, icons
-  kirby/      Kirby plugin: snippets, blocks, blueprints, templates, models
-starterkit/   minimal runnable Kirby site that consumes all packages
-docs/         architecture notes + the extraction roadmap
-build/        shared build tooling (Stylus/CodeKit pipeline)
+package/          the canonical theme — versioned, `composer require`d
+  css/            → src/assets/css/codey/   (core + @theme tokens)
+  kirby/          → src/site/plugins/codey/ (plugin: snippets/blocks/blueprints)
+  fonts/          → src/assets/fonts/codey/
+  scripts/codey-sync.js   the copy script (Composer post-install / npm postinstall)
+  codey-sync.json         source→dest zone map (the clobber-safety contract)
+example-project/  a consuming project demonstrating the whole mechanism
+docs/DESIGN-SYSTEM.md     the decision trail, zone boundary, override contract
 ```
 
-## Status
+## How it works (see docs/DESIGN-SYSTEM.md for detail)
 
-Scaffold stage. Structure, manifests, and the plugin entry point are in place;
-the packages are not yet populated. See **[docs/ROADMAP.md](docs/ROADMAP.md)**
-for the phased extraction plan and the exact source files each package pulls
-from.
+- **Zone boundary** — the sync writes only into `src/**/codey/`; everything else
+  in `src/` is project-owned and never touched. Synced zones are gitignored and
+  restored on install, like `vendor/`.
+- **Override contract** — `main.css` imports the core first, then the project's
+  `brand.css` last (tier 2 token overrides win), plus per-template `@auto` CSS
+  (tier 3). Kirby snippets/templates override by name.
+
+## Demonstrated
+
+`example-project/` + the sync script prove it end-to-end: a re-sync restores a
+tampered vendored file while project overrides survive, and overridden tokens
+(`--text-base`, `--color-accent`) resolve to the project's brand values.
+
+> Note: the earlier `packages/` and `starterkit/` folders are superseded by this
+> shape and should be deleted (they couldn't be removed from the build sandbox).

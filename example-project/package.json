@@ -1,0 +1,18 @@
+{
+  "name": "codey-example-project",
+  "private": true,
+  "description": "Root npm toolchain (Tailwind, Alpine) living beside Composer. Build-agnostic: swap the build script for CodeKit or Vite without changing the synced source.",
+  "scripts": {
+    "codey-sync": "node vendor/ianhobbsmedia/codey-design-system/scripts/codey-sync.js",
+    "postinstall": "node vendor/ianhobbsmedia/codey-design-system/scripts/codey-sync.js || true",
+    "build:css": "tailwindcss -i ./src/assets/css/main.css -o ./build/assets/css/main.css",
+    "watch:css": "tailwindcss -i ./src/assets/css/main.css -o ./build/assets/css/main.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.0.0",
+    "tailwindcss": "^4.0.0"
+  },
+  "dependencies": {
+    "alpinejs": "^3.14.0"
+  }
+}

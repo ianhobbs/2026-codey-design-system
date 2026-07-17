@@ -1,0 +1,18 @@
+/* Codey core elements (vendored). Token-referencing only — no hardcoded
+   colours/sizes a token already expresses. */
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-size: var(--text-base);
+}
+
+h1 {
+  font-family: var(--head-font);
+  font-size: var(--text-2xl);
+  margin-block: var(--spacing-6);
+}
+
+a {
+  color: var(--color-accent);
+}

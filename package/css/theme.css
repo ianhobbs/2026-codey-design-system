@@ -1,0 +1,33 @@
+/* ════════════════════════════════════════════════════════════════════
+   Codey tokens (vendored core). Ships the DEFAULT Utopia scale + brand
+   tokens as a Tailwind v4 @theme block. A project overrides any token by
+   declaring the same name in a later-loaded @theme (brand.css) — Tailwind
+   merges @theme blocks and the last declaration wins.
+   ════════════════════════════════════════════════════════════════════ */
+
+@font-face {
+  font-family: "Codey Head";
+  src: url("../fonts/codey/placeholder.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@theme {
+  /* ── Utopia fluid type scale — DEFAULT preset (override per project) ── */
+  --text-sm:   clamp(0.844rem, 0.90rem + -0.07vw, 0.885rem);
+  --text-base: clamp(1.0625rem, 1.04rem + 0.11vw, 1.125rem);
+  --text-lg:   clamp(1.275rem, 1.20rem + 0.39vw, 1.50rem);
+  --text-xl:   clamp(1.53rem, 1.37rem + 0.82vw, 1.999rem);
+  --text-2xl:  clamp(1.836rem, 1.55rem + 1.44vw, 2.665rem);
+
+  /* ── Fluid spacing — DEFAULT preset ── */
+  --spacing-4: clamp(1.0625rem, 1.04rem + 0.11vw, 1.125rem);
+  --spacing-6: clamp(2.125rem, 2.08rem + 0.22vw, 2.25rem);
+  --spacing-8: clamp(4.25rem, 4.16rem + 0.43vw, 4.5rem);
+
+  /* ── Brand tokens ── */
+  --color-ink: #1c1b1a;
+  --color-paper: #f2f0e5;
+  --color-accent: #b9a062; /* caramel — the Codey default */
+  --head-font: "Codey Head", system-ui, sans-serif;
+}

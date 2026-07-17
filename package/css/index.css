@@ -1,0 +1,15 @@
+/* ════════════════════════════════════════════════════════════════════
+   Codey core — CSS entry (vendored, OVERWRITE ZONE).
+   A consuming project imports this ONE line into its own main.css:
+
+       @import "./codey/index.css";
+
+   then loads its project brand.css AFTER, so project overrides win.
+   Do not edit files in this folder — they are restored on every sync.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Tokens first — the vocabulary everything else references. */
+@import "./theme.css";
+
+/* Core element/component layer (utility-overridable via @layer base). */
+@import "./lib/elements.css" layer(base);

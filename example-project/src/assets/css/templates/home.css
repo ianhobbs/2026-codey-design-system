@@ -1,0 +1,9 @@
+/* PROJECT per-template override (tier 3) — scoped to the `home` template only,
+   auto-loaded via css('@auto'). Tokens resolve via var() at runtime with no
+   Tailwind context needed. (If this file used @apply, it would begin with
+   `@reference "tailwindcss";` because it compiles standalone.) */
+
+.home-hero {
+  padding-block: var(--spacing-8);
+  background: color-mix(in srgb, var(--color-accent) 12%, var(--color-paper));
+}
