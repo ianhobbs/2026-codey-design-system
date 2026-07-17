@@ -1,0 +1,16 @@
+{
+  "name": "ianhobbsmedia/codey-design-system",
+  "description": "Codey design system — versioned source kit (CSS core, tokens, Kirby plugin, fonts) synced into a project's src/ by a post-install script.",
+  "type": "library",
+  "license": "proprietary",
+  "authors": [
+    { "name": "Ian Hobbs", "email": "admin@ianhobbsmedia.com" }
+  ],
+  "keywords": ["kirby", "design-system", "codey", "tokens"],
+  "require": {
+    "php": ">=8.2"
+  },
+  "bin": [
+    "package/scripts/codey-sync.js"
+  ]
+}

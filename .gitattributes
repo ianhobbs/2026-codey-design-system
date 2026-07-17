@@ -1,0 +1,9 @@
+# Keep the Composer dist archive lean — ship only the package payload.
+# Everything below is excluded from `composer archive` / Packagist dist zips.
+/build            export-ignore
+/docs             export-ignore
+/example-project  export-ignore
+/.editorconfig    export-ignore
+/.gitignore       export-ignore
+/.gitattributes   export-ignore
+/package.json     export-ignore
