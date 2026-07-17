@@ -15,7 +15,7 @@
 /* ─────────────── CORE — always on ─────────────── */
 @import "./theme.css"  layer(base);            /* @theme: Utopia type/space + font tokens */
 @import "./globals.css";                       /* :root globals + @font-face (unlayered) */
-@import "./themes/theme-codey.css";            /* colour flavor (pulls _codey palette) */
+@import "./themes/theme-codey.css";            /* default colour flavor (pulls _codey palette) */
 @import "./lib/layout.css"     layer(bespoke); /* two-axis grid / page frame */
 @import "./lib/typography.css" layer(base);    /* typographic base (Utopia/TW) */
 @import "./lib/elements.css"   layer(base);    /* aspect-ratio media boxes */
@@ -24,6 +24,7 @@
    Opt-in per project; commented = zero bytes shipped. The lib files below are
    TOKEN SEEDS (generically useful custom properties distilled from the full
    components) with guidance comments — build markup on them per project. */
+/* @import "./palettes/_users.css";                   brand-palette template */
 /* @import "./lib/transitions.css";                   generic motion tokens */
 /* @import "./lib/form.css";                          form field/button tokens */
 /* @import "./lib/accordion.css";                     disclosure motion tokens */
