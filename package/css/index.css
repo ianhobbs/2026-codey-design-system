@@ -14,7 +14,7 @@
 
 /* ─────────────── CORE — always on ─────────────── */
 @import "./theme.css" ;            /* @theme: Utopia type/space + font tokens */
-@import "./globals.css";                       /* :root globals + @font-face (unlayered) */
+@import "./globals.css";                       /* :root globals (unlayered); fonts = project override */
 @import "./themes/theme-codey.css";            /* default colour flavor (pulls _codey palette) */
 @import "./lib/layout.css"     layer(bespoke); /* two-axis grid / page frame */
 @import "./lib/typography.css" layer(base);    /* typographic base (Utopia/TW) */

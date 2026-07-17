@@ -24,7 +24,7 @@ package/                (the root composer.json — name: ianhobbsmedia/codey-de
 │   ├── snippets/      layout (shell), header, footer, layouts (renderer), card
 │   ├── blueprints/    fields/layout.yml
 │   └── templates/     default.php (example, not registered)
-└── fonts/             → src/assets/fonts/codey/  (licensed core fonts — pending)
+└── fonts/             guidance only — fonts are a project override, NOT synced
 ```
 
 **Authoring model:** refine the theme *here*, tag a release, then

@@ -17,7 +17,8 @@ Status legend: ✅ done · 🟡 partial · ⬜ pending.
 - ✅ `@theme` Utopia fluid type + spacing scale → `theme.css`.
 - ✅ Theme-independent `:root` globals (black/white, active colours, report
   colours, note-width) + secondary `@font-face` → `globals.css`.
-- Decouple: font URLs repointed to the synced `fonts/codey/` zone; first-paint
+- Decouple: fonts removed from the package (project override — see below);
+  first-paint
   hex literals kept with why-comments.
 
 ## ✅ Phase 2a — Colour system (`package/css/palettes/`, `themes/`)
@@ -60,10 +61,10 @@ shipped commented-out in the manifest as opt-in seeds with guidance comments:
 - ⬜ Full `form` / `accordion` / `effects` / `media` component CSS to back the
   token seeds, if/when a project wants the ready-made component rather than seeds.
 
-## ⬜ Phase 4 — Assets (`package/fonts/`, icons)
+## Phase 4 — Assets (icons)
 
-- ⬜ Add the licensed core fonts (Gotham/Gradual) referenced by `globals.css`
-  (check EULAs before bundling).
+- ✅ Fonts: **decided as a project override.** The package ships no fonts and no
+  `@font-face` — typefaces are brand-specific. See `package/fonts/README.md`.
 - ⬜ System icons (leaf set) — not client logos.
 
 ## ⬜ Phase 5 — Tools (`package/` — out of scope of the extraction so far)

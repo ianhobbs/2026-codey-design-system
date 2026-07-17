@@ -1,9 +1,9 @@
 /* ════════════════════════════════════════════════════════════════════
    Codey globals (vendored core) — theme-INDEPENDENT brand values that must
    outrank even bespoke, so they live UNLAYERED (per the cascade contract):
-   :root brand constants + @font-face. Palettes (theme-dependent) live in
-   ./palettes/. Critical fonts (Gradual, Gotham book) are inlined per-page in
-   the project head; these are the non-critical secondary weights.
+   :root brand constants. Palettes (theme-dependent) live in ./palettes/.
+   Fonts are a PROJECT override — no font files ship with the package (they are
+   brand-specific). See the note below.
    ════════════════════════════════════════════════════════════════════ */
 
 :root {
@@ -30,27 +30,12 @@
   --note-width: 47rem;
 }
 
-/* ── Secondary font weights (non-critical, loaded with main.css) ──
-   Paths are project-relative to the compiled build/assets/css location and
-   resolve to the synced fonts at assets/fonts/codey/. */
-@font-face {
-  font-family: "Gotham-Med";
-  src: url(../fonts/codey/GothamHTF-Medium.woff2) format("woff2");
-  font-style: normal;
-  font-display: swap;
-  font-weight: 400;
-}
-@font-face {
-  font-family: "Gotham-Ital";
-  src: url(../fonts/codey/GothamHTF-BookItalic.woff2) format("woff2");
-  font-style: normal;
-  font-display: swap;
-  font-weight: 400;
-}
-@font-face {
-  font-family: "Gotham-Med-Cond";
-  src: url(../fonts/codey/GothamHTF-MediumCondensed.woff2) format("woff2");
-  font-style: normal;
-  font-display: swap;
-  font-weight: 400;
-}
+/* ── Fonts are a PROJECT override ──────────────────────────────────────
+   No @font-face and no font files ship with the package — typefaces are
+   brand-specific. The design system only names the EXPECTED families in the
+   theme.css tokens (--head-font, --med-font, --ital-font, --cond-font), each
+   with a system fallback. Every project either:
+     • declares its own @font-face for those family names (in its own CSS, or
+       inlined in the <head> for critical first-paint weights), OR
+     • overrides the --*-font tokens in brand.css to point at its own faces.
+   Until then, the tokens resolve to the system fallback. */

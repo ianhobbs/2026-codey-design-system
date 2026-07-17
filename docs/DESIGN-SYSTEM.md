@@ -21,7 +21,7 @@ fighting the `src/ → build/` (or `public/`) (CodeKit / Tailwind CLI / Vite) co
 ## The two repos
 
 **`package/`** — the canonical theme (versioned, `composer require`d). Holds the
-CSS core + tokens, the Kirby plugin, fonts, the sync manifest, and the sync
+CSS core + tokens, the Kirby plugin, the sync manifest, and the sync
 script. You refine the theme *here* and tag releases.
 
 **A consuming project** — authors only its own files; the `codey/` folders arrive
@@ -45,7 +45,6 @@ never touched.
 |------------------------------------|--------------|
 | `src/assets/css/codey/`            | `package/css/` |
 | `src/site/plugins/codey/`          | `package/kirby/` |
-| `src/assets/fonts/codey/`          | `package/fonts/` |
 
 Because the write set is a fixed, declared list, clobbering a project file is
 structurally impossible — proven by re-syncing over a tampered vendored file:
@@ -87,7 +86,8 @@ Tailwind v4 compile chain (see [ROADMAP.md](ROADMAP.md) for full status):
   `index.php`.
 
 Still pending: the `.text` prose component, full optional-component CSS, the
-licensed fonts + icons, the generator tools, and a real Kirby run.
+icons, the generator tools, and a real Kirby run. (Fonts are a deliberate project
+override, not bundled.)
 
 ## Opinionated manifest
 

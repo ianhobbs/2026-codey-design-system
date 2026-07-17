@@ -1,7 +1,25 @@
-# Codey core fonts (vendored zone)
+# Fonts are a project override
 
-Ship licensed core/brand font files here (e.g. `placeholder.woff2` referenced
-by `../css/theme.css`). They sync to a project at `src/assets/fonts/codey/`.
+The design system ships **no font files** and no `@font-face` rules — typefaces
+are brand-specific, so bundling them would push project-specific content into the
+shared package. This folder is intentionally empty of fonts and is **not synced**
+into a consuming project.
 
-Only redistribute fonts whose licence permits bundling. Project-specific fonts
-belong in the project's own `src/assets/fonts/` — never here.
+## How fonts work
+
+`package/css/theme.css` names the expected families as tokens, each with a system
+fallback:
+
+```
+--head-font  --med-font  --ital-font  --cond-font
+```
+
+`package/css/globals.css` carries no `@font-face`. Each project supplies its own:
+
+1. Put the font files in the project's own `src/assets/fonts/` (never here).
+2. Declare `@font-face` for the family names in the project's CSS — or inline the
+   critical weights in the Kirby `<head>` for first-paint.
+3. Optionally override the `--*-font` tokens in `brand.css` to point at entirely
+   different faces.
+
+Until a project does this, the font tokens resolve to their system fallback.

@@ -31,7 +31,7 @@ package/                   the payload synced into a consuming project
     templates/             core per-template defaults (note.css)
     index.css              opinionated manifest (core on, optional commented)
   kirby/   → src/site/plugins/codey/   index.php + snippets/ + blueprints/ + templates/
-  fonts/   → src/assets/fonts/codey/   (licensed core fonts — pending)
+  fonts/                 guidance only — fonts are a project override (not synced)
 docs/                      ARCHITECTURE · DESIGN-SYSTEM · IMPLEMENTATION-GUIDE · ROADMAP
 ```
 
@@ -59,13 +59,15 @@ docs/                      ARCHITECTURE · DESIGN-SYSTEM · IMPLEMENTATION-GUIDE
 ```
 
 `composer install` fetches the package and the script syncs its source into
-`src/assets/css/codey`, `src/site/plugins/codey`, `src/assets/fonts/codey`.
+`src/assets/css/codey` and `src/site/plugins/codey`. Fonts are a project override
+(see `package/fonts/README.md`).
 
 ## Status
 
 Core extracted and compile-verified: `@theme` Utopia tokens, `:root` globals, the
 codey colour system, the two-axis layout frame + `.blocks-grid`, typographic base,
 aspect-ratio elements, four opt-in component token seeds, and the Kirby layout
-plugin. Pending: the prose component, full optional-component CSS, bundled
-fonts/icons, generator tools, and a live Kirby run. See
+plugin. Fonts are a deliberate project override (not bundled). Pending: the prose
+component, full optional-component CSS, bundled icons, generator tools, and a live
+Kirby run. See
 [docs/ROADMAP.md](docs/ROADMAP.md).
