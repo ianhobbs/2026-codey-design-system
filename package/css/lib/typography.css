@@ -1,0 +1,54 @@
+/* ════════════════════════════════════════════════════════════════════
+   Codey typographic base (core) — element defaults on the Utopia/TW scale.
+   Token-referencing only. Semantic colours (--color-text/--link/--hover)
+   resolve from the active .theme-* scope on <body>. Imported layer(base).
+   ════════════════════════════════════════════════════════════════════ */
+
+body {
+  color: var(--color-text);
+  background: var(--color-background);
+  line-height: var(--leading-base);
+  font-variation-settings: "wght" 400;
+  text-rendering: geometricPrecision;
+  font-size: var(--text-base);
+  scroll-behavior: smooth;
+  font-variant: normal;
+}
+
+/* Headings default to Gotham-Med; add .decor to opt into --head-font. */
+h1, h2, h3, h4, h5, h6 { font-family: var(--med-font); font-weight: 400; }
+h1 { font-size: var(--text-4xl); line-height: var(--leading-head); }
+h2 {
+  font-size: var(--text-3xl);
+  line-height: var(--leading-mad);
+  font-weight: inherit;
+  margin-bottom: var(--spacing-6);
+}
+h2.down-step    { font-size: var(--text-2xl); line-height: var(--leading-mad); }
+h2.down-step-x2 { font-size: var(--text-xl);  line-height: var(--leading-mad); }
+h2.up-step      { font-size: var(--text-4xl); line-height: var(--leading-head); }
+h3 { font-size: var(--text-2xl); line-height: var(--leading-mad); }
+h4 { font-size: var(--text-xl);  line-height: var(--leading-mid); }
+h5 { font-size: var(--text-lg);  line-height: var(--leading-mid); }
+h6 { font-size: var(--text-base); }
+h1.super { font-size: var(--text-6xl); }
+h3 + p { margin-top: var(--spacing-3-s); }
+
+/* Inline elements */
+p { font-size: var(--text-base); line-height: var(--leading-base); }
+strong, b, .font-medium { font-family: var(--med-font); font-weight: 400; }
+em { font-family: var(--ital-font); font-style: normal; font-weight: 400; }
+a { color: var(--link); text-decoration: none; }
+a:hover { color: var(--hover); }
+button:not([class]) { font: inherit; background: none; border: 0; color: var(--link); cursor: pointer; }
+small, .small { font-size: var(--text-sm); color: inherit; }
+
+/* Typography helpers */
+.heads          { font-family: var(--head-font); }
+.leading-tighter { line-height: var(--leading-tighter); }
+.mysans         { font-family: var(--med-font); font-weight: 400; }
+.decor          { font-family: var(--head-font); font-weight: 400; }
+
+@media screen and (min-width: 60rem) {
+  body { --padding: var(--spacing-5-l); }
+}

@@ -1,0 +1,56 @@
+/* =============================================================
+   THEME: Codey (core) — default flavor.
+   Semantic alias layer over the codey palette. Meant to be inlined into
+   <head> by PHP before main.css for first-paint bg/text correctness (or
+   imported via index.css for the compiled bundle).
+
+   Project decoration (leaf SVG background, products-block overrides) was
+   stripped on extraction — add per project via the commented block below.
+   ============================================================= */
+
+@import "../palettes/_codey.css";
+
+/* ── Semantic aliases ── */
+.theme-codey {
+  --logo:                var(--color-4);
+  --hover:               var(--color-active-3);
+  --link:                var(--color-4);
+  --cta-fill:            var(--color-active-2);
+  --cta-text:            var(--color-8);
+  --color-grey:          var(--color-2);
+  --color-light:         var(--color-0);
+  --color-dark:          var(--color-8);
+  --date-col:            var(--color-2);
+  --nav-text:            var(--color-1);
+  --nav-social:          var(--color-1);
+  --nav-item-bg:         var(--color-8);
+  --nav-item-bg-current: var(--color-7);
+  --nav-item-bgPC:       40%;
+  --product-card-bg:     var(--color-65);
+  --blockquote-color:    var(--color-3);
+  --blockquote-border:   var(--color-4);
+  --shadow-color:        var(--color-75);
+  --saturate:            110%;
+  --nav-xsvg:            var(--keycolor-7);
+  --nav-dark:            var(--keycolor-8);
+  --color-button-bg:     var(--color-8);
+  --color-button-text:   var(--color-1);
+  --color-text-muted:    var(--color-4);
+  --colour-hr:           var(--color-5);
+}
+
+/* ── Critical: apply background + text from first paint ── */
+.theme-codey {
+  background-color: var(--color-background);
+  color:            var(--color-text);
+}
+
+/* ── Optional decorative background (project-specific) ──
+.theme-codey:not(.products-block) {
+  background-image:    url('/assets/icons/your-leaf.svg');
+  background-position: 30vw -34vw;
+  background-repeat:   no-repeat;
+  background-size:     88%;
+  height:              110vh;
+}
+*/

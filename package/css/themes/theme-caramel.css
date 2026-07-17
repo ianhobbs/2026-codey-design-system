@@ -1,0 +1,50 @@
+/* =============================================================
+   THEME: Caramel (core) — warm alt flavor.
+   Semantic alias layer over the caramel palette. Also covers the
+   -text / -space variant scopes. Inlined per-page by PHP (first paint)
+   or imported via index.css.
+
+   Project decoration (leaf SVG background, products-block overrides)
+   stripped on extraction — add per project via the commented block below.
+   ============================================================= */
+
+@import "../palettes/_caramel.css";
+
+/* ── Semantic aliases (shared by caramel + -text + -space scopes) ── */
+.theme-caramel,
+.theme-caramel-text,
+.theme-caramel-space {
+  --logo:                var(--color-7);
+  --hover:               var(--color-active-2);
+  --link:                var(--color-65);
+  --cta-fill:            var(--color-active-3);
+  --cta-text:            var(--color-caramel-1);
+  --color-grey:          var(--color-5);
+  --color-light:         var(--color-6);
+  --color-dark:          var(--color-8);
+  --date-col:            var(--color-4);
+  --nav-text:            #fff;
+  --nav-social:          #fff;
+  --nav-item-bg:         var(--color-7);
+  --nav-item-bg-current: var(--color-7);
+  --nav-item-bgPC:       46%;
+  --product-card-bg:     var(--color-4);
+  --blockquote-color:    var(--color-6);
+  --blockquote-border:   var(--color-3);
+  --shadow-color:        var(--color-5);
+  --saturate:            150%;
+  --nav-xsvg:            var(--keycolor-7);
+  --nav-dark:            var(--keycolor-8);
+  --color-button-bg:     var(--color-7);
+  --color-button-text:   var(--color-0);
+  --color-text-muted:    var(--color-65);
+  --colour-hr:           var(--color-5);
+}
+
+/* ── Critical: apply background + text from first paint ── */
+.theme-caramel,
+.theme-caramel-text,
+.theme-caramel-space {
+  background-color: var(--color-background);
+  color:            var(--color-text);
+}

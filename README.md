@@ -35,6 +35,3 @@ docs/DESIGN-SYSTEM.md     the decision trail, zone boundary, override contract
 `example-project/` + the sync script prove it end-to-end: a re-sync restores a
 tampered vendored file while project overrides survive, and overridden tokens
 (`--text-base`, `--color-accent`) resolve to the project's brand values.
-
-> Note: the earlier `packages/` and `starterkit/` folders are superseded by this
-> shape and should be deleted (they couldn't be removed from the build sandbox).
