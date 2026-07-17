@@ -44,6 +44,7 @@ never touched.
 | Synced zone (gitignored, restored) | From package |
 |------------------------------------|--------------|
 | `src/assets/css/codey/`            | `package/css/` |
+| `src/assets/js/codey/`             | `package/js/` |
 | `src/site/plugins/codey/`          | `package/kirby/` |
 
 Because the write set is a fixed, declared list, clobbering a project file is

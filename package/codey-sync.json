@@ -1,8 +1,9 @@
 {
-  "version": "1.0.3",
+  "version": "1.0.5",
   "comment": "Declarative sync manifest. The sync script writes ONLY into these dest zones (relative to the consuming project root). Everything else in the project's src/ is project-owned and never touched. This is the clobber-safety contract.",
   "zones": [
     { "from": "css",   "to": "src/assets/css/codey" },
+    { "from": "js",    "to": "src/assets/js/codey" },
     { "from": "kirby", "to": "src/site/plugins/codey" }
   ]
 }

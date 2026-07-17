@@ -6,7 +6,7 @@ the sync/override model, and every part of the system — tokens, colour, layout
 typography, elements, component seeds, and the Kirby plugin — with the reasoning
 behind each so you know not just *what* to type but *why*.
 
-> **Version note.** Written against Codey `v1.0.3`. The package is published on
+> **Version note.** Written against Codey `v1.0.5`. The package is published on
 > Packagist and pulled in via Composer; a post-install script copies its source
 > into your project's `src/`.
 
@@ -129,6 +129,7 @@ npm run build:css     # compiles src/assets/css/main.css → build/assets/css/ma
 | Synced zone (vendored)      | From package    | Contents                                   |
 |-----------------------------|-----------------|--------------------------------------------|
 | `src/assets/css/codey/`     | `package/css/`  | tokens, palettes, themes, `lib/`, `index.css` |
+| `src/assets/js/codey/`      | `package/js/`   | shared JS (e.g. Alpine init) |
 | `src/site/plugins/codey/`   | `package/kirby/`| plugin: snippets, blueprint field, `index.php` |
 | `src/assets/fonts/codey/`   | `package/fonts/`| core font files (see the font caveat, §9)  |
 
@@ -145,6 +146,7 @@ Treat the synced zones like `vendor/` — they're reproducible from `composer.lo
 # Codey — vendored, synced on install. Reproducible via committed composer.lock.
 # NEVER hand-edit these; overrides live in your project-owned brand layer.
 src/assets/css/codey/
+src/assets/js/codey/
 src/site/plugins/codey/
 src/assets/fonts/codey/
 src/.codey-version

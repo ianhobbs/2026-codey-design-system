@@ -19,6 +19,7 @@ package/                (the root composer.json — name: ianhobbsmedia/codey-de
 │   ├── themes/        semantic colour map: theme-codey
 │   ├── lib/           layout, typography, elements + form/accordion/transitions/cards (seeds)
 │   └── templates/     core per-template defaults (e.g. note.css)
+├── js/                → src/assets/js/codey/   shared JS (e.g. Alpine init)
 ├── kirby/             → src/site/plugins/codey/
 │   ├── index.php      registers codey/* snippets + fields/codey-layout
 │   ├── snippets/      layout (shell), header, footer, layouts (renderer), card

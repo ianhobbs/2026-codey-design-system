@@ -30,6 +30,7 @@ package/                   the payload synced into a consuming project
     lib/                   layout, typography, elements (+ form/accordion/transitions/cards seeds, opt-in)
     templates/             core per-template defaults (note.css)
     index.css              opinionated manifest (core on, optional commented)
+  js/      → src/assets/js/codey/      shared JS (e.g. Alpine init)
   kirby/   → src/site/plugins/codey/   index.php + snippets/ + blueprints/ + templates/
   fonts/                 guidance only — fonts are a project override (not synced)
 docs/                      ARCHITECTURE · DESIGN-SYSTEM · IMPLEMENTATION-GUIDE · ROADMAP
