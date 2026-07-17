@@ -1,6 +1,6 @@
 {
   "name": "codey-design-system",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "description": "Codey universal design system — tokens, CSS primitives, assets, and a Kirby plugin. Monorepo of consumable packages.",
   "author": "Ian Hobbs Media",
