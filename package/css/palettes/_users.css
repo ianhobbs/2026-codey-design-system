@@ -1,0 +1,29 @@
+/* =============================================================
+   PALETTE: Users (vendored core) — TEMPLATE brand palette.
+   Copy this into a project and replace the placeholder values with the
+   project's real brand colours. Shared by light + dark variants, which add
+   their own semantic (background/text) mappings. Import only.
+   ============================================================= */
+
+.theme-users-light,
+.theme-users-dark {
+
+  /* ── Brand palette: 9-step scale (0 = lightest, 8/9 = darkest) ──
+     Replace these placeholders with the project's actual brand colours. */
+  --color-0: #f5f7fa;   /* TODO: replace */
+  --color-1: #e8edf5;   /* TODO: replace */
+  --color-2: #c8d4e8;   /* TODO: replace */
+  --color-3: #9db0d4;   /* TODO: replace */
+  --color-4: #6a8cbf;   /* TODO: replace */
+  --color-5: #3d6aaa;   /* TODO: replace */
+  --color-6: #2a4d80;   /* TODO: replace */
+  --color-7: #1a3257;   /* TODO: replace */
+  --color-8: #0d1d35;   /* TODO: replace */
+  --color-9: #050d19;   /* darkest — extrapolated step */
+
+  /* ── Accent / active colours (override the global --color-active-*) ── */
+  --color-active-1: #7eb3f0;   /* TODO: replace */
+  --color-active-2: #5a9be0;   /* TODO: replace */
+  --color-active-3: #3a82cc;   /* TODO: replace */
+  --color-active-4: #2268b0;   /* TODO: replace */
+}

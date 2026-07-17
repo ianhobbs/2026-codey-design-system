@@ -8,8 +8,18 @@
    Do not edit files in this folder — they are restored on every sync.
    ════════════════════════════════════════════════════════════════════ */
 
-/* Tokens first — the vocabulary everything else references. */
+/* 1 ── Token vocabulary (Tailwind v4 @theme: Utopia type/space + fonts). */
 @import "./theme.css";
 
-/* Core element/component layer (utility-overridable via @layer base). */
+/* 2 ── Theme-independent globals + @font-face (unlayered — outranks bespoke). */
+@import "./globals.css";
+
+/* 3 ── Selectable palette flavors (class-scoped: .theme-codey / -caramel / -users). */
+@import "./palettes/_codey.css";
+@import "./palettes/_caramel.css";
+@import "./palettes/_users.css";
+
+/* 4 ── Core elements/components (utility-overridable → layer base). */
 @import "./lib/elements.css" layer(base);
+
+/* Phase 2 (next): typography, effects, form, accordion, layout promoted here. */

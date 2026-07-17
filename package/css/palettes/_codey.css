@@ -1,0 +1,32 @@
+/* =============================================================
+   PALETTE: Codey (vendored core) — deep ocean blues.
+   Selectable theme flavor: add class="theme-codey" to a scope.
+   Single source of truth for codey hex values. Import only.
+   ============================================================= */
+
+.theme-codey {
+
+  /* ── Base palette: deep ocean blues ── */
+  --color-0: #eef6fe;
+  --color-1: #c8e2fc;
+  --color-2: #9fcef9;
+  --color-3: #6fbaf6;
+  --color-4: #1fa7f3;
+  --color-5: #257fb7;
+  --color-6: #23597e;
+  --color-65: #204a66;
+  --color-7: #1c3549;
+  --color-75: #172c3b;
+  --color-8: #0f151b;
+
+  /* ── Keycolors: self-referential for codey (same blue family) ── */
+  --keycolor-5: #257fb7;
+  --keycolor-6: #23597e;
+  --keycolor-7: #1c3549;
+  --keycolor-8: #0f151b;
+
+  /* ── Critical: hardcoded for first-paint correctness ──
+     Final hex values of var(--color-7) and var(--color-1). */
+  --color-background: #1c3549;
+  --color-text:       #c8e2fc;
+}

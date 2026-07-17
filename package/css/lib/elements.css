@@ -1,18 +1,23 @@
-/* Codey core elements (vendored). Token-referencing only — no hardcoded
-   colours/sizes a token already expresses. */
+/* Codey core elements (vendored) — aspect-ratio media boxes.
+   @apply resolves in the project's Tailwind context; colours via var(). */
 
-body {
-  background-color: var(--color-paper);
-  color: var(--color-ink);
-  font-size: var(--text-base);
+.video,
+.img {
+  @apply relative block;
+  --w: 1;
+  --h: 1;
+  padding-bottom: calc(100% / var(--w) * var(--h));
+  background: var(--color-black);
 }
-
-h1 {
-  font-family: var(--head-font);
-  font-size: var(--text-2xl);
-  margin-block: var(--spacing-6);
+.img img,
+.video iframe {
+  @apply absolute w-full h-full object-cover;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border: 0;
 }
-
-a {
-  color: var(--color-accent);
+.img[data-contain] img {
+  @apply object-contain;
 }

@@ -9,6 +9,6 @@
   --text-base: clamp(1.125rem, 1.09rem + 0.18vw, 1.25rem);
   --text-2xl:  clamp(2.20rem, 1.80rem + 2.0vw, 3.20rem);
 
-  /* Rebrand the accent — ocean instead of the caramel default. */
-  --color-accent: #4a90b9;
+  /* Rebrand the primary active colour (real Codey token). */
+  --color-active-1: oklch(72% 0.12 235);
 }
