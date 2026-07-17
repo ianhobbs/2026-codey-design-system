@@ -13,7 +13,7 @@
    ════════════════════════════════════════════════════════════════════ */
 
 /* ─────────────── CORE — always on ─────────────── */
-@import "./theme.css"  layer(base);            /* @theme: Utopia type/space + font tokens */
+@import "./theme.css" ;            /* @theme: Utopia type/space + font tokens */
 @import "./globals.css";                       /* :root globals + @font-face (unlayered) */
 @import "./themes/theme-codey.css";            /* default colour flavor (pulls _codey palette) */
 @import "./lib/layout.css"     layer(bespoke); /* two-axis grid / page frame */

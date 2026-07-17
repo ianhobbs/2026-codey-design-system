@@ -15,8 +15,8 @@ package/                (the root composer.json — name: ianhobbsmedia/codey-de
 │   ├── index.css      opinionated manifest (core on, optional components commented)
 │   ├── theme.css      @theme Utopia type/space tokens
 │   ├── globals.css    :root globals + @font-face
-│   ├── palettes/      raw palettes: _codey, _caramel, _users (template)
-│   ├── themes/        semantic colour maps: theme-codey, theme-caramel
+│   ├── palettes/      raw palette: _codey
+│   ├── themes/        semantic colour map: theme-codey
 │   ├── lib/           layout, typography, elements + form/accordion/transitions/cards (seeds)
 │   └── templates/     core per-template defaults (e.g. note.css)
 ├── kirby/             → src/site/plugins/codey/

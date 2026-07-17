@@ -15,13 +15,13 @@ the system, the system depends on nothing project-specific — is the whole poin
 The theme is **not** referenced in place from `vendor/`/`node_modules/`. It must
 land as plain source under a project's `src/` so the project's own pipeline
 (CodeKit, Tailwind CLI, or Vite) compiles it exactly like the project's own
-files — honouring the `src/ → build/` mirror.
+files — honouring the `src/ → build/` (or `public/`) mirror.
 
 Two mechanisms, each doing one job:
 
 - **Composer** fetches and semver-pins the package into `vendor/`. This is the
   *version* channel (`composer.lock` records the exact release).
-- **`scripts/codey-sync.js`** (run by Composer `post-install-cmd` / npm
+- **`package/scripts/codey-sync.cjs`** (run by Composer `post-install-cmd` / npm
   `postinstall`) copies the package source from `vendor/` into `src/`. This is
   the *placement* channel.
 - **npm** lives beside Composer at root purely for the build toolchain (Tailwind,

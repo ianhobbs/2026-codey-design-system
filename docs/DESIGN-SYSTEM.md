@@ -1,7 +1,7 @@
 # Codey Design System — mechanism
 
 How the theme is authored once and consumed by many Codey Kirby projects without
-fighting the `src/ → build/` (CodeKit / Tailwind CLI) convention.
+fighting the `src/ → build/` (or `public/`) (CodeKit / Tailwind CLI / Vite) convention.
 
 ## Decision trail (why this shape)
 
@@ -24,9 +24,8 @@ fighting the `src/ → build/` (CodeKit / Tailwind CLI) convention.
 CSS core + tokens, the Kirby plugin, fonts, the sync manifest, and the sync
 script. You refine the theme *here* and tag releases.
 
-**A consuming project** (`example-project/` demonstrates it) — authors only its
-own files; the `codey/` folders arrive via Composer and are gitignored +
-restored on install, exactly like `vendor/`.
+**A consuming project** — authors only its own files; the `codey/` folders arrive
+via Composer and are gitignored + restored on install, exactly like `vendor/`.
 
 ## Install flow
 

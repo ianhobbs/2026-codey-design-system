@@ -6,7 +6,7 @@ the sync/override model, and every part of the system — tokens, colour, layout
 typography, elements, component seeds, and the Kirby plugin — with the reasoning
 behind each so you know not just *what* to type but *why*.
 
-> **Version note.** Written against Codey `v1.0.0`. The package is published on
+> **Version note.** Written against Codey `v1.0.3`. The package is published on
 > Packagist and pulled in via Composer; a post-install script copies its source
 > into your project's `src/`.
 
