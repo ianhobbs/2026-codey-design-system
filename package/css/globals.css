@@ -10,7 +10,6 @@
   /* Fixed brand constants — literal hex/oklch by design (first-paint safe). */
   --color-black: #000;
   --color-white: #fff;
-  --color-caramel-1: #242115;
 
   /* Active/interaction brand colours (theme-independent default;
      a palette may override --color-active-* for its scope). */

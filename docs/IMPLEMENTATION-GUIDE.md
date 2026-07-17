@@ -223,10 +223,9 @@ markup means the accordion line stays commented and ships zero bytes.
 Core (always imported):
 
 ```css
-@import "./theme.css";                        /* @theme Utopia type/space + font tokens */
+@import "./theme.css"  layer(base);            /* @theme Utopia type/space + font tokens */
 @import "./globals.css";                       /* :root globals + @font-face (unlayered) */
-@import "./themes/theme-codey.css";            /* default colour flavour */
-@import "./themes/theme-caramel.css";          /* alt colour flavour */
+@import "./themes/theme-codey.css";            /* colour flavour (pulls _codey palette) */
 @import "./lib/layout.css"     layer(bespoke); /* two-axis grid / page frame */
 @import "./lib/typography.css" layer(base);    /* typographic base */
 @import "./lib/elements.css"   layer(base);    /* aspect-ratio media boxes */
@@ -235,7 +234,6 @@ Core (always imported):
 Optional (shipped commented — uncomment when the markup is present):
 
 ```css
-/* @import "./palettes/_users.css";       brand-palette template */
 /* @import "./lib/transitions.css";       generic motion tokens */
 /* @import "./lib/form.css";              form field/button tokens */
 /* @import "./lib/accordion.css";         disclosure motion tokens */
@@ -301,8 +299,8 @@ to change in your `brand.css` `@theme` — because it loads last, it wins:
 `globals.css` holds theme-**independent** brand values that must outrank even
 `bespoke`, so they live *unlayered* (top of the cascade):
 
-- **Fixed brand constants** — `--color-black`, `--color-white`, `--color-caramel-1`
-  (literal hex, first-paint safe).
+- **Fixed brand constants** — `--color-black`, `--color-white` (literal hex,
+  first-paint safe).
 - **Active/interaction colours** — `--color-active-1` … `--color-active-4` (a
   theme may override these within its scope).
 - **Report status colours** — `--report-green/-orange/-red` and their `-bg`
@@ -331,21 +329,23 @@ Colour is two layers: raw **palettes** (hex values) and **semantic themes**
 
 ### 9.1 Palettes
 
+The core ships a single palette; a project adds its own brand palette alongside it
+(see §9.4).
+
 - **`_codey.css`** (`.theme-codey`) — deep ocean blues. A 0–8 scale
   (`--color-0` lightest … `--color-8` darkest), plus half-steps (`--color-65`,
   `--color-75`), `--keycolor-*`, and first-paint `--color-background` /
   `--color-text` literals.
-- **`_caramel.css`** (`.theme-caramel`, `.theme-caramel-text`,
-  `.theme-caramel-space`) — warm earthy tones, with a wide-gamut `@supports
-  (color: lab())` block that upgrades the scale to `lab()` on capable browsers.
-- **`_users.css`** (`.theme-users-light`, `.theme-users-dark`) — a **template**.
-  It's a 9-step brand scale of placeholder colours you copy and replace.
+
+> The system previously bundled `_caramel` and a `_users` template palette; those
+> have been removed to keep the core lean. `_codey` / `theme-codey` is now the
+> single reference implementation you model your own brand palette on.
 
 ### 9.2 Semantic themes
 
-`theme-codey.css` / `theme-caramel.css` import their palette and map it to a
-**semantic vocabulary** — the aliases the components actually consume, so a rule
-says `var(--link)` not `var(--color-4)`. Key aliases:
+`theme-codey.css` imports its palette and maps it to a **semantic vocabulary** —
+the aliases the components actually consume, so a rule says `var(--link)` not
+`var(--color-4)`. Key aliases:
 
 ```
 --logo        --link         --hover        --cta-fill    --cta-text
@@ -368,24 +368,29 @@ The theme is a class on `<body>`. The plugin's layout shell sets it from a Kirby
 <body class="<?= $page->theme()->or('theme-codey') ?>">
 ```
 
-Add a `theme` field to your site/page blueprint returning `theme-codey` or
-`theme-caramel` to switch flavours per page, or hardcode the class.
+Add a `theme` field to your site/page blueprint returning `theme-codey` (or your
+own brand theme, §9.4) to switch flavours per page, or hardcode the class.
 
 ### 9.4 Making your own brand palette
 
-1. Enable the template: from `main.css`, after the core import, add
-   `@import "./codey/palettes/_users.css";` (don't uncomment it inside `index.css`
-   — that edit is in a synced zone and gets wiped).
-2. Copy `_users.css` into a project-owned file (e.g.
-   `src/assets/css/brand-palette.css`), rename the class to your brand
-   (`.theme-acme`), and replace the placeholder `--color-0…9` and
-   `--color-active-*` values with real brand colours.
-3. Add a semantic mapping (mirror `theme-codey.css`) in your project so
-   `--link`, `--hover`, `--nav-*`, etc. resolve for your brand.
-4. Set `class="theme-acme"` on `<body>`.
+With the `_users` template removed, model your brand palette on the `_codey`
+palette + `theme-codey` theme as the reference pair. All of this lives in
+**project-owned** files (never in a synced zone), so it survives `composer update`:
 
-Because these are project-owned files loaded after core, they win — and survive
-`composer update`.
+1. Create a project palette, e.g. `src/assets/css/brand-palette.css`, with a class
+   for your brand (`.theme-acme`) declaring the `--color-0…8` scale (plus
+   `--color-65` / `--color-75` half-steps and `--keycolor-*` if you use them) and
+   the first-paint `--color-background` / `--color-text` literals — mirror the
+   structure of `codey/palettes/_codey.css`.
+2. Add a semantic mapping (mirror `codey/themes/theme-codey.css`) so `--link`,
+   `--hover`, `--nav-*`, `--cta-*`, etc. resolve for your brand.
+3. Import both from `main.css` **after** `codey/index.css` (or from `brand.css`),
+   so they load last and win.
+4. Set `class="theme-acme"` on `<body>` (via the Kirby `theme` field or hardcoded).
+
+If you only need to *tweak* the shipped codey colours rather than define a new
+brand, skip the new palette and just override the specific `--color-*` /
+`--color-active-*` / semantic tokens in `brand.css`.
 
 ---
 
@@ -693,7 +698,7 @@ that.
 
 **Semantic aliases:** `--link · --hover · --logo · --cta-fill · --cta-text · --nav-text · --nav-social · --nav-item-bg · --nav-item-bg-current · --blockquote-color · --blockquote-border · --shadow-color · --saturate · --color-button-bg · --color-button-text · --color-text-muted · --colour-hr · --color-background · --color-text`.
 
-**Global constants:** `--color-black · --color-white · --color-caramel-1 · --report-{green,orange,red}(-bg) · --note-width`.
+**Global constants:** `--color-black · --color-white · --report-{green,orange,red}(-bg) · --note-width`.
 
 ## Appendix B — Layout attributes
 
