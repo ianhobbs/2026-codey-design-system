@@ -590,14 +590,33 @@ becomes `<div class="column" style="--columns: {span}">` wrapping a `.text` bloc
 region. The row's `theme` attr (from the blueprint) lands as a class so you can
 style the `plain-blocks` / `plain-blocks-padded` / `card-blocks` variants.
 
-### 15.5 The layout blueprint field — `fields/codey-layout`
+### 15.5 The layout blueprint field — `codey/fields/layout`
 
 Extend it in a page blueprint:
 
 ```yaml
-layout:
-  extends: fields/codey-layout
+fields:
+  layout:                       # field key → $page->layout() in the template
+    extends: codey/fields/layout
 ```
+
+> **Production note — how the reference resolves** (verified against Kirby core,
+> `Blueprint::find()`). An `extends:` value is a path **relative to
+> `site/blueprints/`, minus the `.yml`** — Kirby builds
+> `root('blueprints') . '/' . $name . '.yml'`. So `codey/fields/layout` →
+> `site/blueprints/codey/fields/layout.yml` (the synced zone), mirrored to
+> `build/` for the running site. It is **not** `fields/codey-layout` — that name
+> does not exist and throws `blueprint.notFound`.
+>
+> - `layout` is a Kirby **field type**, not a core blueprint, so there is no
+>   default `layout.yml` to collide with; the `codey/` namespace keeps it unique.
+> - The field **key** (`layout`) is the method you call: `$page->layout()`. Rename
+>   the key and you rename the method.
+> - Override any key *after* `extends:` (a page-specific `label:`, different
+>   `layouts:` presets, etc.) — later keys win.
+> - The blueprint lives in a synced (vendored) zone, so don't edit it in the
+>   project. Change presets/fieldsets upstream in the package, or override them
+>   inline in the page blueprint after `extends:`.
 
 It provides a layout field with column presets (`1/1`, `1/2,1/2`, `1/3,1/3,1/3`,
 `1/4×4`, `2/3,1/3`, `1/3,2/3`), a per-row **Layout Theme** select
@@ -684,7 +703,7 @@ that.
    `theme` field or hardcoded).
 9. Author your `head` snippet with `css('assets/css/main.css')` + `css('@auto')`.
 10. Author `default.php` using `codey/layout` + `codey/layouts`; add
-    `layout: { extends: fields/codey-layout }` to your page blueprint.
+    `layout: { extends: codey/fields/layout }` to your page blueprint.
 11. `npm run build:css`, point Kirby at `build/`, run.
 
 ---

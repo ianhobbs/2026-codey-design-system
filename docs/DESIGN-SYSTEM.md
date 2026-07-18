@@ -86,9 +86,9 @@ Tailwind v4 compile chain (see [ROADMAP.md](ROADMAP.md) for full status):
 - **Component seeds** (`lib/`, opt-in) — `form`, `accordion`, `transitions`,
   `cards`: generically useful tokens with guidance comments, commented in the
   manifest so they ship zero bytes until a project uncomments them.
-- **Kirby plugin** — `codey/layout` shell + `codey/header` / `codey/footer` /
-  `codey/layouts` renderer + `fields/codey-layout` blueprint, registered in
-  `index.php`.
+- **Kirby snippets + blueprint** (vanilla, no plugin) — `codey/layout` shell +
+  `codey/header` / `codey/footer` / `codey/layouts` renderer, and the
+  `codey/fields/layout` blueprint field, all auto-discovered by Kirby.
 
 Still pending: the `.text` prose component, full optional-component CSS, the
 icons, the generator tools, and a real Kirby run. (Fonts are a deliberate project
