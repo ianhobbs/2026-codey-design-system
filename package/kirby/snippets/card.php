@@ -1,6 +1,6 @@
 <?php
-/** Codey core snippet: card. Overridable — a project's own snippet named
- *  `codey/card` (in src/site/snippets/) wins by Kirby precedence. */
+/** Codey core snippet: card — vanilla snippet at site/snippets/codey/card.php.
+ *  Call via snippet('codey/card'). */
 ?>
 <article class="codey-card">
   <?php if ($title ?? false): ?><h2><?= esc($title) ?></h2><?php endif ?>

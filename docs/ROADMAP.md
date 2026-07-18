@@ -45,7 +45,7 @@ shipped commented-out in the manifest as opt-in seeds with guidance comments:
 
 - ✅ `form.css`, `accordion.css`, `transitions.css`, `cards.css`.
 
-## ✅ Phase 3 — Kirby layout plugin (`package/kirby/`)
+## ✅ Phase 3 — Kirby layout snippets + blueprint (`package/kirby/`)
 
 - ✅ `snippets/layout.php` (slot-based two-axis shell), `header.php`, `footer.php`
   (structural, decoration stripped), `layouts.php` (layout-field renderer →

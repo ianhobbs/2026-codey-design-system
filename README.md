@@ -31,7 +31,8 @@ package/                   the payload synced into a consuming project
     templates/             core per-template defaults (note.css)
     index.css              opinionated manifest (core on, optional commented)
   js/      → src/assets/js/codey/      shared JS (e.g. Alpine init)
-  kirby/   → src/site/plugins/codey/   index.php + snippets/ + blueprints/ + templates/
+  kirby/snippets/   → src/site/snippets/codey/     vanilla snippets (Kirby auto-discovers)
+  kirby/blueprints/ → src/site/blueprints/codey/   layout field (codey/fields/layout)
   fonts/                 guidance only — fonts are a project override (not synced)
 docs/                      ARCHITECTURE · DESIGN-SYSTEM · IMPLEMENTATION-GUIDE · ROADMAP
 ```
@@ -60,7 +61,8 @@ docs/                      ARCHITECTURE · DESIGN-SYSTEM · IMPLEMENTATION-GUIDE
 ```
 
 `composer install` fetches the package and the script syncs its source into
-`src/assets/css/codey` and `src/site/plugins/codey`. Fonts are a project override
+`src/assets/css/codey`, `src/assets/js/codey`, `src/site/snippets/codey`, and
+`src/site/blueprints/codey`. Fonts are a project override
 (see `package/fonts/README.md`).
 
 ## Status

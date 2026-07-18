@@ -20,11 +20,10 @@ package/                (the root composer.json — name: ianhobbsmedia/codey-de
 │   ├── lib/           layout, typography, elements + form/accordion/transitions/cards (seeds)
 │   └── templates/     core per-template defaults (e.g. note.css)
 ├── js/                → src/assets/js/codey/   shared JS (e.g. Alpine init)
-├── kirby/             → src/site/plugins/codey/
-│   ├── index.php      registers codey/* snippets + fields/codey-layout
-│   ├── snippets/      layout (shell), header, footer, layouts (renderer), card
-│   ├── blueprints/    fields/layout.yml
-│   └── templates/     default.php (example, not registered)
+├── kirby/
+│   ├── snippets/      → src/site/snippets/codey/    vanilla snippets: layout, header, footer, layouts, card
+│   ├── blueprints/    → src/site/blueprints/codey/  fields/layout.yml (→ extends codey/fields/layout)
+│   └── templates/     default.php — EXAMPLE only, NOT synced (templates are project-owned)
 └── fonts/             guidance only — fonts are a project override, NOT synced
 ```
 

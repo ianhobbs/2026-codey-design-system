@@ -16,7 +16,7 @@
      *
      * Decoupled on extraction: the project's members/accounts/user-theme logic
      * was removed. The <head> is the PROJECT's own `head` snippet; the header
-     * and footer are `codey/header` / `codey/footer` (override by name).
+     * and footer are the vanilla snippets `codey/header` / `codey/footer`.
      * `$page->theme()` expects a project `theme` field/model returning a
      * .theme-* class; falls back to the default flavor.
      */

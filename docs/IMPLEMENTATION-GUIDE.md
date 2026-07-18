@@ -6,7 +6,7 @@ the sync/override model, and every part of the system — tokens, colour, layout
 typography, elements, component seeds, and the Kirby plugin — with the reasoning
 behind each so you know not just *what* to type but *why*.
 
-> **Version note.** Written against Codey `v1.0.5`. The package is published on
+> **Version note.** Written against Codey `v1.1.0`. The package is published on
 > Packagist and pulled in via Composer; a post-install script copies its source
 > into your project's `src/`.
 
@@ -22,7 +22,7 @@ files you wrote yourself. Two channels do two jobs:
 - **Composer** fetches and semver-pins the package into `vendor/` — the *version*
   channel (`composer.lock` records the exact release).
 - **`codey-sync`** (a script Composer runs on install) copies the package source
-  from `vendor/` into three fixed zones in `src/` — the *placement* channel.
+  from `vendor/` into four fixed zones in `src/` — the *placement* channel.
 
 Everything the system ships points **downward only**: a rule references a token
 below it, never up into your project. That inversion — your project depends on the
@@ -124,13 +124,14 @@ npm install          # Tailwind + Alpine
 npm run build:css     # compiles src/assets/css/main.css → build/assets/css/main.css
 ```
 
-`codey-sync` writes **only** these three zones, plus a `src/.codey-version` stamp:
+`codey-sync` writes **only** these four zones, plus a `src/.codey-version` stamp:
 
 | Synced zone (vendored)      | From package    | Contents                                   |
 |-----------------------------|-----------------|--------------------------------------------|
 | `src/assets/css/codey/`     | `package/css/`  | tokens, palettes, themes, `lib/`, `index.css` |
 | `src/assets/js/codey/`      | `package/js/`   | shared JS (e.g. Alpine init) |
-| `src/site/plugins/codey/`   | `package/kirby/`| plugin: snippets, blueprint field, `index.php` |
+| `src/site/snippets/codey/`  | `package/kirby/snippets/`   | vanilla snippets (Kirby auto-discovers) |
+| `src/site/blueprints/codey/`| `package/kirby/blueprints/` | layout field (`codey/fields/layout`) |
 | `src/assets/fonts/codey/`   | `package/fonts/`| core font files (see the font caveat, §9)  |
 
 **Clobber-safety contract:** the script *wipes and re-copies only those exact dest
@@ -147,7 +148,8 @@ Treat the synced zones like `vendor/` — they're reproducible from `composer.lo
 # NEVER hand-edit these; overrides live in your project-owned brand layer.
 src/assets/css/codey/
 src/assets/js/codey/
-src/site/plugins/codey/
+src/site/snippets/codey/
+src/site/blueprints/codey/
 src/assets/fonts/codey/
 src/.codey-version
 ```
@@ -176,10 +178,11 @@ decides who wins**:
    at runtime; if it needs `@apply`, it must begin with `@reference "tailwindcss";`
    because it compiles standalone.
 
-On the **Kirby side** the same idea applies by *name*: a project snippet, template,
-or blueprint with the same name as a core one wins, because Kirby resolves
-site-level definitions over plugin-registered ones. So vendored PHP is never edited
-either — you shadow it.
+On the **Kirby side**, the core snippets and blueprint land as **vanilla files**
+under `site/snippets/codey/` and `site/blueprints/codey/`, which Kirby
+auto-discovers (`snippet('codey/layout')`, `extends: codey/fields/layout`) — no
+plugin registration. They live in synced (vendored) zones, so you customise by
+wrapping or calling your own snippet, not by editing the vendored PHP in place.
 
 To refine the system itself, you change it *upstream* in the package repo, tag a
 release, and `composer update`. You never fork it into your project.
@@ -528,12 +531,14 @@ system dictating your component markup. Override any literal in `brand.css`.
 
 ---
 
-## 15. The Kirby plugin (`codey/`)
+## 15. The Kirby snippets + blueprint (`codey/`)
 
-Registered as `Kirby::plugin('ianhobbsmedia/codey', …)`, it provides snippets, a
-blueprint field, and an example template. **Everything is overridable by name** — a
-site-level snippet/template/blueprint wins over the plugin's, so you never edit
-vendored PHP.
+The Kirby layer ships as **vanilla files** — no `Kirby::plugin()` registration.
+Snippets sync to `site/snippets/codey/` and the layout field to
+`site/blueprints/codey/`, where Kirby auto-discovers them (`snippet('codey/layout')`,
+`extends: codey/fields/layout`). They live in synced (vendored) zones, so you
+customise by wrapping a snippet or overriding CSS/tokens rather than editing them
+in place.
 
 ### 15.1 The layout shell — `snippet('codey/layout')`
 
@@ -635,8 +640,8 @@ through Tailwind v4 and that `src/` mirrors to `build/`, which Kirby serves.
 - **Tailwind CLI** (simplest): `npm run build:css` →
   `build/assets/css/main.css`.
 - **CodeKit**: point it at `src/`, output to `build/`; it mirrors PHP and compiles
-  CSS/JS. The plugin at `src/site/plugins/codey/` mirrors to
-  `build/site/plugins/codey/`.
+  CSS/JS. The synced snippets/blueprints at
+  `src/site/{snippets,blueprints}/codey/` mirror to `build/site/…`.
 - **Vite / custom (e.g. a `build.mjs`)**: compile `main.css`, bundle JS, copy
   images — any pipeline works as long as the `src → build` contract holds.
 
@@ -667,8 +672,8 @@ that.
 1. `composer.json` with the Codey require + `codey-sync` scripts (`.cjs` path,
    including `/package/`).
 2. `package.json` with Tailwind v4 + Alpine and a `build:css` script.
-3. `composer install` → `npm install` → confirm the three zones synced.
-4. Gitignore the three zones + `.codey-version`; commit `composer.lock`.
+3. `composer install` → `npm install` → confirm the four zones synced.
+4. Gitignore the four zones + `.codey-version`; commit `composer.lock`.
 5. Author `src/assets/css/main.css` — `@import "tailwindcss"`, `@layer` order,
    `@source` globs, `@import "./codey/index.css"`, then `@import "./brand.css"`.
 6. Author `src/assets/css/brand.css` — `@theme` token overrides (type rescale,

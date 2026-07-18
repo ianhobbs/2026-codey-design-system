@@ -4,7 +4,7 @@
 #
 # Use in a page blueprint:
 #   layout:
-#     extends: fields/codey-layout
+#     extends: codey/fields/layout
 #
 # Decoupled on extraction: project-specific fieldsets (my-products, my-plans,
 # swiper, animations, etc.) were dropped for a generic block set. The row

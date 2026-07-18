@@ -39,7 +39,7 @@ semver.
 │ consuming project  (own main.css, brand.css,  │  ← authors only its own files
 │                     templates, snippets)      │
 ├──────────────────────────────────────────────┤
-│ Kirby plugin  (layout shell, header/footer,   │  ← package/kirby → src/site/plugins/codey
+│ Kirby plugin  (layout shell, header/footer,   │  ← package/kirby → site/{snippets,blueprints}/codey
 │                layout-field renderer, layout.yml) │
 ├──────────────────────────────────────────────┤
 │ CSS core  (layout frame, typography, elements)│  ← package/css/lib → src/assets/css/codey
@@ -60,9 +60,9 @@ ride the same sync:
 
 - **CSS/tokens/fonts** → `src/assets/css/codey/` + `src/assets/fonts/codey/`,
   compiled in place by the project's Tailwind pipeline.
-- **Kirby plugin** → `src/site/plugins/codey/`, mirrored to `build/` by CodeKit
-  and loaded by Kirby. A project overrides any snippet/template/blueprint *by
-  name* (Kirby resolves site-level over plugin-registered).
+- **Kirby snippets + blueprint** → `src/site/snippets/codey/` and
+  `src/site/blueprints/codey/`, mirrored to `build/` and auto-discovered by Kirby
+  (`snippet('codey/…')`) — vanilla files, no plugin registration.
 
 ## The invariant that prevents re-complexification
 

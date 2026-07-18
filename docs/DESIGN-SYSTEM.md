@@ -45,7 +45,8 @@ never touched.
 |------------------------------------|--------------|
 | `src/assets/css/codey/`            | `package/css/` |
 | `src/assets/js/codey/`             | `package/js/` |
-| `src/site/plugins/codey/`          | `package/kirby/` |
+| `src/site/snippets/codey/`         | `package/kirby/snippets/` |
+| `src/site/blueprints/codey/`       | `package/kirby/blueprints/` |
 
 Because the write set is a fixed, declared list, clobbering a project file is
 structurally impossible — proven by re-syncing over a tampered vendored file:
@@ -61,9 +62,12 @@ the vendored file is restored, `brand.css` and `templates/*.css` survive.
    auto-loaded only on that template via `css('@auto')`. Uses `var(--token)` at
    runtime; if it needs `@apply`, it starts with `@reference "tailwindcss";`.
 
-**Kirby side:** a project overrides any core snippet/template/blueprint *by
-name* — Kirby resolves site-level over plugin-registered, so vendored PHP is
-never edited either.
+**Kirby side:** snippets and blueprints land as **vanilla files** under
+`site/snippets/codey/` and `site/blueprints/codey/`, which Kirby auto-discovers
+(`snippet('codey/layout')`, `extends: codey/fields/layout`) — no plugin
+registration. These are synced (vendored) zones, so a project customises by
+overriding CSS/tokens or by calling its own wrapper snippet, not by editing the
+vendored PHP in place.
 
 Verified token resolution: with the core default and the `brand.css` override
 both present, `--text-base` and `--color-active-1` resolve to the brand values.
