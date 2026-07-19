@@ -6,7 +6,7 @@ the sync/override model, and every part of the system — tokens, colour, layout
 typography, elements, component seeds, and the Kirby plugin — with the reasoning
 behind each so you know not just *what* to type but *why*.
 
-> **Version note.** Written against Codey `v1.1.1`. The package is published on
+> **Version note.** Written against Codey `v1.1.2`. The package is published on
 > Packagist and pulled in via Composer; a post-install script copies its source
 > into your project's `src/`.
 
@@ -132,7 +132,6 @@ npm run build:css     # compiles src/assets/css/main.css → build/assets/css/ma
 | `src/assets/js/codey/`      | `package/js/`   | shared JS (e.g. Alpine init) |
 | `src/site/snippets/codey/`  | `package/kirby/snippets/`   | vanilla snippets (Kirby auto-discovers) |
 | `src/site/blueprints/codey/`| `package/kirby/blueprints/` | layout field (`codey/fields/layout`) |
-| `src/assets/fonts/codey/`   | `package/fonts/`| core font files (see the font caveat, §9)  |
 
 **Clobber-safety contract:** the script *wipes and re-copies only those exact dest
 paths*. Everything else in `src/` — your `main.css`, `brand.css`, templates,
@@ -150,7 +149,6 @@ src/assets/css/codey/
 src/assets/js/codey/
 src/site/snippets/codey/
 src/site/blueprints/codey/
-src/assets/fonts/codey/
 src/.codey-version
 ```
 
@@ -229,7 +227,7 @@ Core (always imported):
 
 ```css
 @import "./theme.css"  layer(base);            /* @theme Utopia type/space + font tokens */
-@import "./globals.css";                       /* :root globals + @font-face (unlayered) */
+@import "./globals.css";                       /* :root globals (unlayered); fonts = project override */
 @import "./themes/theme-codey.css";            /* colour flavour (pulls _codey palette) */
 @import "./lib/layout.css"     layer(bespoke); /* two-axis grid / page frame */
 @import "./lib/typography.css" layer(base);    /* typographic base */
@@ -312,18 +310,12 @@ to change in your `brand.css` `@theme` — because it loads last, it wins:
   variants, for score/report components.
 - **`--note-width`** — the default text measure (47rem).
 
-It also declares the **secondary** `@font-face` weights (`Gotham-Med`,
-`Gotham-Ital`, `Gotham-Med-Cond`) pointing at `../fonts/codey/`. Critical fonts
-(the headline and book weights) are meant to be inlined per-page in your `<head>`
-for first paint; these secondary weights load with `main.css`.
-
-> **Font caveat.** The package ships the `fonts/codey/` *zone* but **not** the
-> licensed Gotham/Gradual files themselves (a licensing matter). Out of the box the
-> `@font-face` `src` URLs will 404 and text falls back to `--font-fallback`
-> (system UI). For a real site you must either (a) drop your own licensed font
-> files into the package's `fonts/` so they sync in, or (b) point the font tokens
-> at fonts you supply in your project's own `src/assets/fonts/`. Plan for this — it
-> is the one part of the system that isn't turnkey.
+`globals.css` declares **no `@font-face`** and the package ships **no font files** —
+typefaces are brand-specific and licence-bound, so they live in a project-owned
+**brand typography sheet** (see §11.1) and in `head.php` for critical weights. The
+package only *names* the expected families in the font tokens (`--head-font`,
+`--med-font`, `--ital-font`, `--cond-font`), each falling back to
+`--font-fallback` (system UI) until your project supplies the faces.
 
 ---
 
@@ -470,6 +462,66 @@ from the active theme.
 - **Helpers** — `.heads` and `.decor` opt into the display font (`--head-font`),
   `.mysans` forces the medium font, `.leading-tighter` tightens line-height,
   `.small` steps down to `--text-sm`.
+
+Note that `typography.css` contains **no `@font-face`** — it only *references* the
+font tokens. The faces themselves are yours; see below.
+
+### 11.1 Brand typography sheet (`brand-typography.css`) — project-owned
+
+All `@font-face` rules live **outside the package**, in a customizable sheet you
+own. The package ships no fonts and no face declarations (typefaces are
+brand-specific and licence-bound), so nothing here is ever overwritten by a sync.
+
+Create `src/assets/css/brand-typography.css` — a starter is provided at
+`package/fonts/brand-typography.example.css`; copy it once (that folder is
+guidance only and is **not** synced):
+
+```css
+/* Project-owned. Never place this inside a codey/ zone — those get wiped. */
+@font-face {
+  font-family: "Gotham-Med";
+  src: url("../fonts/GothamHTF-Medium.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+/* …one @font-face per weight/style you ship… */
+
+/* Point the design-system tokens at your faces (or keep the defaults). */
+@theme {
+  --head-font: "YourDisplay", var(--font-fallback);
+  --med-font:  "Gotham-Med",  var(--font-fallback);
+}
+```
+
+Load it **after** the codey core in `main.css` so its `@theme` wins:
+
+```css
+@import "./codey/index.css";        /* core (tier 1) */
+@import "./brand-typography.css";   /* faces + font-token overrides */
+@import "./brand.css";              /* the rest of your brand overrides (tier 2) */
+```
+
+**Critical faces are also declared in `head.php`.** Fonts needed for first paint
+should be preloaded (or their `@font-face` inlined) in the Kirby head snippet, so
+text doesn't flash the fallback while `main.css` loads:
+
+```php
+<?php /* src/site/snippets/head.php — project-owned */ ?>
+<link rel="preload" as="font" type="font/woff2"
+      href="<?= url('assets/fonts/GothamHTF-Medium.woff2') ?>" crossorigin>
+<style>
+  /* inline ONLY the critical face(s) — keep this tiny */
+  @font-face {
+    font-family: "Gotham-Med";
+    src: url("<?= url('assets/fonts/GothamHTF-Medium.woff2') ?>") format("woff2");
+    font-display: swap;
+  }
+</style>
+```
+
+Rule of thumb: **critical faces → preloaded/inlined in `head.php`; everything else
+→ `brand-typography.css`.** Both are project-owned; neither is ever synced. Until
+you supply faces, every font token resolves to `--font-fallback` and the site
+renders correctly in system UI.
 
 ---
 

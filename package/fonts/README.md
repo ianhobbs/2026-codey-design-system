@@ -5,6 +5,13 @@ are brand-specific, so bundling them would push project-specific content into th
 shared package. This folder is intentionally empty of fonts and is **not synced**
 into a consuming project.
 
+## Starter template
+
+[`brand-typography.example.css`](brand-typography.example.css) is a copyable
+starter. Copy it to `src/assets/css/brand-typography.css` in your project and
+uncomment what you need. Because this folder isn't synced, your copy is never
+overwritten.
+
 ## How fonts work
 
 `package/css/theme.css` names the expected families as tokens, each with a system

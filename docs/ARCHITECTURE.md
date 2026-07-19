@@ -58,8 +58,9 @@ reaches up into a consumer or sideways into another project.
 Kirby projects are half PHP, half front-end, so the package ships both, and both
 ride the same sync:
 
-- **CSS/tokens/fonts** → `src/assets/css/codey/` + `src/assets/fonts/codey/`,
-  compiled in place by the project's Tailwind pipeline.
+- **CSS/tokens** → `src/assets/css/codey/` (+ shared JS at
+  `src/assets/js/codey/`), compiled in place by the project's Tailwind pipeline.
+  Fonts are **not** shipped — they live in a project-owned brand typography sheet.
 - **Kirby snippets + blueprint** → `src/site/snippets/codey/` and
   `src/site/blueprints/codey/`, mirrored to `build/` and auto-discovered by Kirby
   (`snippet('codey/…')`) — vanilla files, no plugin registration.

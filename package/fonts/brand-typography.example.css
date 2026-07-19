@@ -1,0 +1,69 @@
+/* ════════════════════════════════════════════════════════════════════
+   BRAND TYPOGRAPHY — starter template (PROJECT-OWNED)
+
+   Copy this file into your project as:
+       src/assets/css/brand-typography.css
+
+   It is NOT synced — this folder is guidance only, so your copy is never
+   overwritten by `composer update` / codey-sync. Do not place it inside a
+   codey/ zone (those are wiped and re-copied on every sync).
+
+   Load it AFTER the codey core in main.css so its @theme wins:
+
+       @import "tailwindcss";
+       @import "./codey/index.css";        // core
+       @import "./brand-typography.css";   // this file — faces + font tokens
+       @import "./brand.css";              // remaining brand overrides
+
+   Critical first-paint faces should ALSO be preloaded / inlined in
+   src/site/snippets/head.php — see §11.1 of the implementation guide.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Declare your faces ─────────────────────────────────────────────
+   Paths are relative to the COMPILED stylesheet location
+   (e.g. build/assets/css/main.css → ../fonts/…). Ship woff2 where possible. */
+
+/*
+@font-face {
+  font-family: "Gotham-Med";
+  src: url("../fonts/GothamHTF-Medium.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gotham-Ital";
+  src: url("../fonts/GothamHTF-BookItalic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;          // real italic face, not a synthetic slant
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gotham-Med-Cond";
+  src: url("../fonts/GothamHTF-MediumCondensed.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+*/
+
+/* ── 2. Point the design-system tokens at your faces ───────────────────
+   Uncomment and edit. Anything you leave alone keeps the Codey default and
+   falls back to --font-fallback (system UI) if the face isn't supplied. */
+
+/*
+@theme {
+  --head-font: "YourDisplay",    var(--font-fallback);   // .heads / .decor
+  --med-font:  "Gotham-Med",     var(--font-fallback);   // headings, strong
+  --ital-font: "Gotham-Ital",    var(--font-fallback);   // em
+  --cond-font: "Gotham-Med-Cond", var(--font-fallback);  // condensed accents
+}
+*/
+
+/* ── 3. Optional: brand-specific type tweaks ───────────────────────────
+   Element defaults live in codey/lib/typography.css; override here only
+   what genuinely differs for this brand. */
+
+/*
+h1 { letter-spacing: -0.02em; }
+*/
