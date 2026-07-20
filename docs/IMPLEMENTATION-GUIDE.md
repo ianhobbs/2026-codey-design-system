@@ -336,6 +336,20 @@ Colour is two layers: raw **palettes** (the ramp) and **semantic themes**
 
 ### 9.0 Generating a brand palette
 
+> **Finding the tool.** It is **not** synced into `src/` — it runs from
+> `vendor/ianhobbsmedia/codey-design-system/package/scripts/`. `vendor/` is
+> gitignored, so most editors exclude it from search and the script appears to be
+> missing. Add an npm alias once and forget the path:
+>
+> ```json
+> "scripts": {
+>   "codey:palette": "node vendor/ianhobbsmedia/codey-design-system/package/scripts/brand-palette.cjs"
+> }
+> ```
+>
+> then `npm run codey:palette -- --dark "#…" --light "#…"` (the `--` passes the
+> flags through). Run it with no arguments to print every option.
+
 Palettes are **generated**, not hand-picked, so the steps are perceptually even.
 `package/scripts/brand-palette.cjs` interpolates in OKLCH between the two poles
 of a spectrum and writes a project-owned stylesheet:

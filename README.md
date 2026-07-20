@@ -120,19 +120,34 @@ the four `codey/` folders; `composer.lock` pins the version.
 
 ## Tools
 
-Both are plain Node, no dependencies.
-<sub>→ [§9.0 Generating a brand palette](docs/IMPLEMENTATION-GUIDE.md#90-generating-a-brand-palette)</sub>
+> **Where they live:** the scripts are **not synced into `src/`** — they stay in
+> `vendor/ianhobbsmedia/codey-design-system/package/scripts/`. Since `vendor/` is
+> gitignored, **your editor's search will skip it by default**, so the tools look
+> like they're missing. They're not; only their *output* lands in your project.
 
+Add these once to your project's `package.json` and you never need the path again:
+
+```json
+"scripts": {
+  "codey:sync":    "node vendor/ianhobbsmedia/codey-design-system/package/scripts/codey-sync.cjs",
+  "codey:palette": "node vendor/ianhobbsmedia/codey-design-system/package/scripts/brand-palette.cjs"
+}
+```
 
 ```bash
-# re-sync the package into src/ (Composer runs this for you)
-node vendor/…/package/scripts/codey-sync.cjs
+npm run codey:palette            # prints all options
+npm run codey:sync               # re-sync (Composer also runs this on install)
 
 # generate a brand palette in OKLCH from two poles
-node vendor/…/package/scripts/brand-palette.cjs \
+npm run codey:palette -- \
   --dark "#0f151b" --light "#eef6fe" --mid "#1fa7f3" \
+  --half 1.5,2.5 --scope ".theme-acme" \
   --out src/assets/css/brand-palette.css
 ```
+
+Note the `--` before the flags: npm needs it to pass arguments through to the
+script. Both tools are plain Node with **no dependencies**.
+<sub>→ [§9.0 Generating a brand palette](docs/IMPLEMENTATION-GUIDE.md#90-generating-a-brand-palette)</sub>
 
 ## Docs
 
