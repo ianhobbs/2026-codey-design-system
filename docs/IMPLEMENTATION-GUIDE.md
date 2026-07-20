@@ -313,8 +313,8 @@ to change in your `brand.css` `@theme` — because it loads last, it wins:
 `globals.css` declares **no `@font-face`** and the package ships **no font files** —
 typefaces are brand-specific and licence-bound, so they live in a project-owned
 **brand typography sheet** (see §11.1) and in `head.php` for critical weights. The
-package only *names* the expected families in the font tokens (`--head-font`,
-`--med-font`, `--ital-font`, `--cond-font`), each falling back to
+package only *names* the expected families in the font tokens (`--body-font`,
+`--head-font`, `--head-font`, `--ital-font`, `--cond-font`), each falling back to
 `--font-fallback` (system UI) until your project supplies the faces.
 
 ---
@@ -449,9 +449,9 @@ Element-level defaults on the Utopia/Tailwind scale, imported into `layer(base)`
 utilities can still override them. Token-referencing only — semantic colours resolve
 from the active theme.
 
-- **`body`** — `--color-text` on `--color-background`, `--leading-base`,
-  `--text-base`, `geometricPrecision`, smooth scroll.
-- **Headings** default to `--med-font` (Gotham-Med). Scale: `h1`=`--text-4xl`,
+- **`body`** — `--body-font` in `--color-text` on `--color-background`,
+  `--leading-base`, `--text-base`, `geometricPrecision`, smooth scroll.
+- **Headings** default to `--head-font` (Gotham-Med). Scale: `h1`=`--text-4xl`,
   `h2`=`--text-3xl`, `h3`=`--text-2xl`, `h4`=`--text-xl`, `h5`=`--text-lg`,
   `h6`=`--text-base`; `h1.super`=`--text-6xl`.
 - **Heading step modifiers** — `h2.down-step`, `h2.down-step-x2`, `h2.up-step`
@@ -487,8 +487,9 @@ guidance only and is **not** synced):
 
 /* Point the design-system tokens at your faces (or keep the defaults). */
 @theme {
+  --body-font: "Gotham-Book", var(--font-fallback);
   --head-font: "YourDisplay", var(--font-fallback);
-  --med-font:  "Gotham-Med",  var(--font-fallback);
+  --head-font:  "Gotham-Med",  var(--font-fallback);
 }
 ```
 
@@ -768,7 +769,7 @@ that.
 
 **Line-heights:** `--leading-tight · mid · mad · big · tighter · base · head`.
 
-**Fonts:** `--head-font` (Gradual) · `--med-font` (Gotham-Med) · `--ital-font` (Gotham-Ital) · `--cond-font` (Gotham-Med-Cond) · `--font-fallback`.
+**Fonts:** `--body-font` (Gotham-Book) · `--head-font` (Gradual) · `--head-font` (Gotham-Med) · `--ital-font` (Gotham-Ital) · `--cond-font` (Gotham-Med-Cond) · `--font-fallback`.
 
 **Effect tokens:** `--blur` · `--glass-transparency` · `--radius-lg` · `--border-radius` · `--padding`.
 

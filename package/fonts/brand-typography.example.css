@@ -25,6 +25,13 @@
 
 /*
 @font-face {
+  font-family: "Gotham-Book";
+  src: url("../fonts/GothamHTF-Book.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
   font-family: "Gotham-Med";
   src: url("../fonts/GothamHTF-Medium.woff2") format("woff2");
   font-weight: 400;
@@ -53,8 +60,9 @@
 
 /*
 @theme {
+  --body-font: "Gotham-Book",    var(--font-fallback);   // body copy
   --head-font: "YourDisplay",    var(--font-fallback);   // .heads / .decor
-  --med-font:  "Gotham-Med",     var(--font-fallback);   // headings, strong
+  --head-font:  "Gotham-Med",     var(--font-fallback);   // headings, strong
   --ital-font: "Gotham-Ital",    var(--font-fallback);   // em
   --cond-font: "Gotham-Med-Cond", var(--font-fallback);  // condensed accents
 }
