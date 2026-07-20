@@ -2,7 +2,7 @@
    BRAND TYPOGRAPHY — starter template (PROJECT-OWNED)
 
    Copy this file into your project as:
-       src/assets/css/brand-typography.css
+       src/assets/css/_brand-typography.css
 
    It is NOT synced — this folder is guidance only, so your copy is never
    overwritten by `composer update` / codey-sync. Do not place it inside a
@@ -12,8 +12,8 @@
 
        @import "tailwindcss";
        @import "./codey/index.css";        // core
-       @import "./brand-typography.css";   // this file — faces + font tokens
-       @import "./brand.css";              // remaining brand overrides
+       @import "./_brand-typography.css";   // this file — faces + font tokens
+       @import "./_brand.css";              // remaining brand overrides
 
    Critical first-paint faces should ALSO be preloaded / inlined in
    src/site/snippets/head.php — see §11.1 of the implementation guide.

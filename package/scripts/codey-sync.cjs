@@ -9,7 +9,7 @@
  * Vite, or a pure npm/Tailwind pipeline all compile them identically.
  *
  * Clobber-safety contract: the script wipes and re-copies ONLY the exact dest
- * zones declared in the manifest. Project-owned files (main.css, brand.css,
+ * zones declared in the manifest. Project-owned files (main.css, _brand.css,
  * templates/*, site snippets) live outside those zones and are never touched.
  *
  * Usage:
@@ -95,6 +95,34 @@ function main() {
     const n = countFiles(to);
     total += n;
     console.log(`  synced ${zone.from}  ->  ${zone.to}  (${n} files)`);
+  }
+
+  /* ── Single FILES ──────────────────────────────────────────────────────
+     Individually placed files (e.g. the user-invoked brand-palette tool,
+     dropped at the project root where it's actually findable).
+
+     These are copied, never wiped: a `files` entry may land beside project
+     files — at the project root, say — so directory-wiping would be
+     catastrophic. Zones wipe; files only overwrite themselves. They are
+     package-owned tools, so overwriting keeps them in step with the installed
+     version rather than silently going stale. */
+  for (const file of manifest.files || []) {
+    const from = path.join(packageDir, file.from);
+    const to = path.join(projectDir, file.to);
+    assertInside(projectDir, to);
+
+    if (!fs.existsSync(from)) {
+      console.warn(`  skip (missing source): ${file.from}`);
+      continue;
+    }
+    if (args.dry) {
+      console.log(`  [dry] ${file.from}  ->  ${file.to}`);
+      continue;
+    }
+    fs.mkdirSync(path.dirname(to), { recursive: true });
+    fs.copyFileSync(from, to);
+    total += 1;
+    console.log(`  placed ${file.from}  ->  ${file.to}`);
   }
 
   if (!args.dry) {

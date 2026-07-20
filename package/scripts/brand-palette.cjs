@@ -1,5 +1,27 @@
 #!/usr/bin/env node
 /**
+ * ════════════════════════════════════════════════════════════════════════
+ *  codey-palette.cjs — GENERATE YOUR BRAND PALETTE
+ *
+ *  QUICK USE (run from your project root):
+ *
+ *    node codey-palette.cjs --dark "#111318" --light "#f6f8fb" --mid "#c8452f"
+ *
+ *  → writes src/assets/css/_brand-palette.css
+ *  → then add  @import "./_brand-palette.css";  to src/assets/css/main.css
+ *    (after codey/index.css) and put your theme class on <body>.
+ *
+ *    node codey-palette.cjs            # no args: print every option
+ *
+ *  --dark / --light are the two poles of your brand's spectrum (required).
+ *  --mid is your brand's vivid colour; it keeps the mid-tones from washing out.
+ *  Add --half 1.5,2.5 for half steps (--color-15, --color-25).
+ *
+ *  This file is PLACED HERE BY codey-sync and is overwritten on every
+ *  composer install/update, so it always matches the installed version.
+ *  Don't edit it — pass flags instead.
+ * ════════════════════════════════════════════════════════════════════════
+ *
  * codey brand-palette — generate a perceptually even brand palette in OKLCH
  * from the TWO POLES of a colour spectrum.
  *
@@ -12,14 +34,14 @@
  * lerp does. Hue takes the shortest arc between the poles.
  *
  * OUTPUT LOCATION: writes OUTSIDE the codey/ zones — by default
- * src/assets/css/brand-palette.css — because it is a PROJECT-OWNED brand
+ * src/assets/css/_brand-palette.css — because it is a PROJECT-OWNED brand
  * artefact. Never write it into src/assets/css/codey/, which is wiped on sync.
  *
  * Usage:
  *   node brand-palette.cjs --dark "#0f151b" --light "#eef6fe" \
  *        [--mid "#1fa7f3"] [--cusp] [--gamut p3|srgb] \
  *        [--half 1.5,2.5] [--scope ".theme-brand"] [--prefix color] \
- *        [--steps 10] [--out src/assets/css/brand-palette.css] [--stdout]
+ *        [--steps 10] [--out src/assets/css/_brand-palette.css] [--stdout]
  *
  * Half steps: the decimal point is dropped, so --half 1.5,2.5 emits
  *   --color-15 and --color-25 (matching the codey palette's dark-end steps).
@@ -254,7 +276,7 @@ function main() {
       "                  Omit for a flat linear ramp.\n" +
       "  --scope <sel>   CSS selector to scope to (default :root)\n" +
       "  --prefix <name> custom-property prefix (default color)\n" +
-      "  --out <path>    output file (default src/assets/css/brand-palette.css)\n" +
+      "  --out <path>    output file (default src/assets/css/_brand-palette.css)\n" +
       "  --stdout        print instead of writing\n"
     );
     process.exit(1);
@@ -318,7 +340,7 @@ ${lines.join("\n")}
     process.stdout.write(css);
     return;
   }
-  const out = path.resolve(args.out || "src/assets/css/brand-palette.css");
+  const out = path.resolve(args.out || "src/assets/css/_brand-palette.css");
   if (/[\\/]codey[\\/]/.test(out)) {
     console.error(
       `codey brand-palette: refusing to write into a synced codey/ zone:\n  ${out}\n` +

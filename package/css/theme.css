@@ -7,7 +7,7 @@
    the clamp() values.
 
    A project overrides any token by redeclaring it in a later-loaded @theme
-   (its brand.css) — Tailwind merges @theme blocks; the last declaration wins.
+   (its _brand.css) — Tailwind merges @theme blocks; the last declaration wins.
    ════════════════════════════════════════════════════════════════════ */
 @theme {
   /* ── Utopia fluid type scale ── */
@@ -81,7 +81,7 @@
   --font-fallback: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   /* Font families NAME the expected faces (Codey defaults). The package ships no
      @font-face or font files — a project supplies matching @font-face or overrides
-     these tokens in brand.css; until then they fall back to --font-fallback. */
+     these tokens in _brand.css; until then they fall back to --font-fallback. */
   --body-font:    "Gotham-Book",     var(--font-fallback);  /* body copy */
   --bodymed-font: "Gotham-Med",      var(--font-fallback);  /* strong/b — body's medium cut */
   --head-font:    "Gradual",         var(--font-fallback);  /* h1–h3 display */
@@ -100,7 +100,7 @@
   /* ── Font WEIGHTS — the seam between the two ways a brand ships type ──
      Defaults assume PRE-WEIGHTED (static) faces: each cut is its own file, so
      the weight stays 400 and the family does the work. A VARIABLE-font project
-     keeps one family and raises the axis instead, e.g. in brand-typography.css:
+     keeps one family and raises the axis instead, e.g. in _brand-typography.css:
          --bodymed-font: var(--body-font);  --bodymed-weight: 500;
          --med-font:     var(--body-font);  --med-weight:     500;
      Why 400 for a medium cut: the typographer builds the weight into the stroke

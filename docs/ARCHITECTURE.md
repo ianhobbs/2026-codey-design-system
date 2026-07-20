@@ -36,7 +36,7 @@ semver.
 
 ```
 ┌──────────────────────────────────────────────┐
-│ consuming project  (own main.css, brand.css,  │  ← authors only its own files
+│ consuming project  (own main.css, _brand.css,  │  ← authors only its own files
 │                     templates, snippets)      │
 ├──────────────────────────────────────────────┤
 │ Kirby plugin  (layout shell, header/footer,   │  ← package/kirby → site/{snippets,blueprints}/codey

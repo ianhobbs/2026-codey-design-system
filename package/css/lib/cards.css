@@ -7,7 +7,7 @@
    adjust per project rather than "harmonising" them into a visual change.
 
    FUTURE USERS: build .card / .pricing-card markup on these, or override the
-   literals in a project brand.css.
+   literals in a project _brand.css.
    ════════════════════════════════════════════════════════════════════ */
 :root {
   --card-bg:          var(--color-white);

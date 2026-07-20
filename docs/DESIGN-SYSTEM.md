@@ -50,12 +50,12 @@ never touched.
 
 Because the write set is a fixed, declared list, clobbering a project file is
 structurally impossible — proven by re-syncing over a tampered vendored file:
-the vendored file is restored, `brand.css` and `templates/*.css` survive.
+the vendored file is restored, `_brand.css` and `templates/*.css` survive.
 
 ## Override contract (load order = precedence)
 
 1. **Core** (tier 1) — `main.css` does `@import "./codey/index.css"`.
-2. **Project global** (tier 2) — `@import "./brand.css"` *last* in `main.css`.
+2. **Project global** (tier 2) — `@import "./_brand.css"` *last* in `main.css`.
    Its `@theme` overrides tokens; Tailwind v4 merges `@theme` blocks and the
    last declaration wins. This is where a per-project Utopia rescale lives.
 3. **Per-template** (tier 3) — `src/assets/css/templates/{template}.css`,
@@ -69,7 +69,7 @@ registration. These are synced (vendored) zones, so a project customises by
 overriding CSS/tokens or by calling its own wrapper snippet, not by editing the
 vendored PHP in place.
 
-Verified token resolution: with the core default and the `brand.css` override
+Verified token resolution: with the core default and the `_brand.css` override
 both present, `--text-base` and `--color-active-1` resolve to the brand values.
 
 ## What's extracted so far

@@ -63,11 +63,18 @@ Order matters — the core loads first, your overrides last:
 
 @source "../../site/**/*.php";
 
-@import "./codey/index.css";        /* the design system */
-@import "./brand-typography.css";   /* your fonts        (optional) */
-@import "./brand-palette.css";      /* your colours      (optional) */
-@import "./brand.css";              /* your overrides    (optional) */
+@import "./codey/index.css";         /* the design system */
+@import "./_brand-typography.css";   /* your fonts     (optional) */
+@import "./_brand-palette.css";      /* your colours   (optional) */
+@import "./_brand.css";              /* your overrides (optional) */
 ```
+
+**Why the `_` prefix?** These are `@import`-ed *partials*, not standalone
+stylesheets. CodeKit (and Sass-style tooling generally) skips files beginning with
+`_`, so they don't get compiled into stray `build/assets/css/_brand-*.css` outputs.
+That matters here because each contains an `@theme` block with no
+`@import "tailwindcss"` of its own — compiled alone they'd emit broken CSS.
+`main.css` is the only entry point that should compile.
 
 ### 5. Set a theme class and build
 
@@ -90,7 +97,7 @@ install. Everything else in `src/` is yours and is never touched.
 
 | Replaced on install (don't edit) | Yours (safe) |
 |---|---|
-| `src/assets/css/codey/` | `src/assets/css/main.css`, `brand*.css` |
+| `src/assets/css/codey/` | `src/assets/css/main.css`, `_brand*.css` |
 | `src/assets/js/codey/` | `src/assets/css/templates/*.css` |
 | `src/site/snippets/codey/` | `src/site/snippets/*`, `templates/*` |
 | `src/site/blueprints/codey/` | everything else |
@@ -142,7 +149,7 @@ npm run codey:sync               # re-sync (Composer also runs this on install)
 npm run codey:palette -- \
   --dark "#0f151b" --light "#eef6fe" --mid "#1fa7f3" \
   --half 1.5,2.5 --scope ".theme-acme" \
-  --out src/assets/css/brand-palette.css
+  --out src/assets/css/_brand-palette.css
 ```
 
 Note the `--` before the flags: npm needs it to pass arguments through to the

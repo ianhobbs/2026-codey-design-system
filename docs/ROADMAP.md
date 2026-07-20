@@ -100,9 +100,9 @@ site, the seam is broken.
 Parse the sources **in load order** and merge last-wins, mirroring the cascade:
 
 1. `src/assets/css/codey/theme.css` — core defaults
-2. `src/assets/css/brand-palette.css` — the project's colours
-3. `src/assets/css/brand-typography.css` — the project's faces
-4. `src/assets/css/brand.css` — remaining overrides
+2. `src/assets/css/_brand-palette.css` — the project's colours
+3. `src/assets/css/_brand-typography.css` — the project's faces
+4. `src/assets/css/_brand.css` — remaining overrides
 
 Do **not** read only the compiled CSS: Tailwind v4 tree-shakes unused `@theme`
 vars (confirmed — `--text-base` is absent until something references it), so a
@@ -112,7 +112,7 @@ complete and brand-accurate.
 ### 5.3 Port fixes (all confirmed broken against 2.0)
 
 - **Palette discovery** — the extractor globs `_palette-*.css`; we ship
-  `palettes/_codey.css` and projects supply `brand-palette.css`. Currently 0
+  `palettes/_codey.css` and projects supply `_brand-palette.css`. Currently 0
   matches. Rewrite discovery around the resolution order in 5.2.
 - **Colour parsing is hex-only** — finds **0 of 14** colours in the OKLCH palette.
   Reuse the existing `parseRootColors()` matcher, which already accepts
@@ -154,6 +154,33 @@ treatment as `fonts/`). It runs from `vendor/…` as a build step; only its *out
 ## ⬜ Phase 7 — Dogfood
 
 - ⬜ Migrate `codey-new-2025` to consume the package instead of its local copies.
+
+---
+
+## Known issues
+
+### ⬜ Synced `codey/` CSS lacks the `_` partial prefix (non-critical)
+
+Project-owned partials are underscored (`_brand-palette.css`, `_brand-typography.css`,
+`_brand.css`) so CodeKit skips them — they're `@import`-ed fragments, and each
+carries an `@theme` block with no `@import "tailwindcss"` of its own, so compiling
+one standalone emits broken CSS.
+
+The same is true inside the synced zone: `codey/index.css`, `theme.css`,
+`globals.css` and `lib/*.css` are **not** underscored, so a CodeKit-driven project
+would try to compile each one on its own and produce stray, broken output in
+`build/assets/css/codey/`. Only `_codey.css` is currently protected.
+
+**Not urgent** — projects using a Tailwind CLI script or a custom `build.mjs`
+(e.g. Rosieboy) are unaffected, since those compile only `main.css`.
+
+**Why it's deferred:** fixing it means renaming synced files and changing the
+documented entry point (`@import "./codey/index.css"`), which is a breaking change
+for every consumer. Worth batching into the next major rather than doing piecemeal.
+
+Options when it's picked up: underscore everything except the entry file; or keep
+names and tell CodeKit to skip the `codey/` folder; or have `codey-sync` write a
+CodeKit config hint.
 
 ---
 

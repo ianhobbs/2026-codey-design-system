@@ -32,7 +32,7 @@ it's what lets you re-skin by overriding tokens instead of editing core files.
 The layer stack, top (yours) to bottom (foundational):
 
 ```
-your project      main.css, brand.css, templates, snippets   ← you author only this
+your project      main.css, _brand.css, templates, snippets   ← you author only this
 Kirby plugin      layout shell, header/footer, layout renderer
 CSS core          layout frame, typography, elements
 Colour system     palettes + semantic themes
@@ -134,7 +134,7 @@ npm run build:css     # compiles src/assets/css/main.css → build/assets/css/ma
 | `src/site/blueprints/codey/`| `package/kirby/blueprints/` | layout field (`codey/fields/layout`) |
 
 **Clobber-safety contract:** the script *wipes and re-copies only those exact dest
-paths*. Everything else in `src/` — your `main.css`, `brand.css`, templates,
+paths*. Everything else in `src/` — your `main.css`, `_brand.css`, templates,
 snippets — is project-owned and never touched. Overwriting a project file is
 structurally impossible because the write set is a fixed, declared list.
 
@@ -167,7 +167,7 @@ This is the rule that makes everything else safe. You never edit files inside a
 decides who wins**:
 
 1. **Core (tier 1)** — your `main.css` does `@import "./codey/index.css"`.
-2. **Project global (tier 2)** — `@import "./brand.css"` *last* in `main.css`. Its
+2. **Project global (tier 2)** — `@import "./_brand.css"` *last* in `main.css`. Its
    `@theme` block overrides tokens; Tailwind v4 merges `@theme` blocks and the
    **last declaration of a token wins**. This is where a per-project Utopia rescale
    or a colour rebrand lives.
@@ -207,7 +207,7 @@ the `@source` globs, and the load order. A minimal, correct entry:
 @import "./codey/index.css";
 
 /* 2 ── Project global override — LAST, so its @theme wins. */
-@import "./brand.css";
+@import "./_brand.css";
 ```
 
 The `@layer` declaration establishes the priority order Codey's core files assume:
@@ -286,10 +286,10 @@ stacks (`--body-font`, `--bodymed-font`, `--head-font`, `--med-font`, `--ital-fo
 `--border-radius`.
 
 **Rescaling per project:** don't touch `theme.css`. Redeclare the tokens you want
-to change in your `brand.css` `@theme` — because it loads last, it wins:
+to change in your `_brand.css` `@theme` — because it loads last, it wins:
 
 ```css
-/* brand.css */
+/* _brand.css */
 @theme {
   --text-base: clamp(1.125rem, 1.09rem + 0.18vw, 1.25rem);  /* bigger base */
   --text-2xl:  clamp(2.20rem, 1.80rem + 2.0vw, 3.20rem);    /* punchier ramp */
@@ -358,7 +358,7 @@ of a spectrum and writes a project-owned stylesheet:
 node vendor/ianhobbsmedia/codey-design-system/package/scripts/brand-palette.cjs \
   --dark "#0f151b" --light "#eef6fe" --mid "#1fa7f3" \
   --half 1.5,2.5 --scope ".theme-brand" \
-  --out src/assets/css/brand-palette.css
+  --out src/assets/css/_brand-palette.css
 ```
 
 Zero dependencies (plain Node, like `codey-sync`), and it **refuses to write
@@ -435,20 +435,20 @@ With the `_users` template removed, model your brand palette on the `_codey`
 palette + `theme-codey` theme as the reference pair. All of this lives in
 **project-owned** files (never in a synced zone), so it survives `composer update`:
 
-1. Generate a project palette into `src/assets/css/brand-palette.css` with
+1. Generate a project palette into `src/assets/css/_brand-palette.css` with
    `brand-palette.cjs` (§9.0), scoped to your brand class (`.theme-acme`). That
    gives you the `--color-0…9` scale (0 = darkest) plus any `--half` steps. Add
    `--keycolor-*` if you use them, and the first-paint `--color-background` /
    `--color-text` literals — mirror the structure of `codey/palettes/_codey.css`.
 2. Add a semantic mapping (mirror `codey/themes/theme-codey.css`) so `--link`,
    `--hover`, `--nav-*`, `--cta-*`, etc. resolve for your brand.
-3. Import both from `main.css` **after** `codey/index.css` (or from `brand.css`),
+3. Import both from `main.css` **after** `codey/index.css` (or from `_brand.css`),
    so they load last and win.
 4. Set `class="theme-acme"` on `<body>` (via the Kirby `theme` field or hardcoded).
 
 If you only need to *tweak* the shipped codey colours rather than define a new
 brand, skip the new palette and just override the specific `--color-*` /
-`--color-active-*` / semantic tokens in `brand.css`.
+`--color-active-*` / semantic tokens in `_brand.css`.
 
 ---
 
@@ -561,13 +561,13 @@ the brand typography sheet, no vendored CSS edited.
 > every weight token. Browsers map `font-weight` onto the `wght` axis anyway.
 > The faces themselves are yours; see below.
 
-### 11.1 Brand typography sheet (`brand-typography.css`) — project-owned
+### 11.1 Brand typography sheet (`_brand-typography.css`) — project-owned
 
 All `@font-face` rules live **outside the package**, in a customizable sheet you
 own. The package ships no fonts and no face declarations (typefaces are
 brand-specific and licence-bound), so nothing here is ever overwritten by a sync.
 
-Create `src/assets/css/brand-typography.css` — a starter is provided at
+Create `src/assets/css/_brand-typography.css` — a starter is provided at
 `package/fonts/brand-typography.example.css`; copy it once (that folder is
 guidance only and is **not** synced):
 
@@ -592,8 +592,8 @@ Load it **after** the codey core in `main.css` so its `@theme` wins:
 
 ```css
 @import "./codey/index.css";        /* core (tier 1) */
-@import "./brand-typography.css";   /* faces + font-token overrides */
-@import "./brand.css";              /* the rest of your brand overrides (tier 2) */
+@import "./_brand-typography.css";   /* faces + font-token overrides */
+@import "./_brand.css";              /* the rest of your brand overrides (tier 2) */
 ```
 
 **Critical faces are also declared in `head.php`.** Fonts needed for first paint
@@ -615,7 +615,7 @@ text doesn't flash the fallback while `main.css` loads:
 ```
 
 Rule of thumb: **critical faces → preloaded/inlined in `head.php`; everything else
-→ `brand-typography.css`.** Both are project-owned; neither is ever synced. Until
+→ `_brand-typography.css`.** Both are project-owned; neither is ever synced. Until
 you supply faces, every font token resolves to `--font-fallback` and the site
 renders correctly in system UI.
 
@@ -675,7 +675,7 @@ keeping its own HTML.
   intentionally fixed.
 
 The point of seeds: you get consistent motion/spacing/colour vocabulary without the
-system dictating your component markup. Override any literal in `brand.css`.
+system dictating your component markup. Override any literal in `_brand.css`.
 
 ---
 
@@ -790,7 +790,7 @@ Your project's `head` snippet is where tiers 1–3 get their precedence, via loa
 order:
 
 ```php
-<?= css('assets/css/main.css') ?>   <!-- core (tier 1) + brand.css (tier 2) -->
+<?= css('assets/css/main.css') ?>   <!-- core (tier 1) + _brand.css (tier 2) -->
 <?= css('@auto') ?>                  <!-- per-template tier-3 file, if it exists -->
 ```
 
@@ -827,7 +827,7 @@ npm run build:css
 ```
 
 The synced zones are wiped and re-copied to the new version; your project-owned
-tiers (`main.css`, `brand.css`, template files, shadowed snippets) are untouched
+tiers (`main.css`, `_brand.css`, template files, shadowed snippets) are untouched
 and continue to win. If you committed the vendored folder, review the diff; if you
 gitignored it, the new version is pinned in the updated `composer.lock` — commit
 that.
@@ -853,7 +853,7 @@ Also in 2.0:
 
 - **`strong`/`b` now use `--bodymed-font`** (the body family's medium cut), not
   `--med-font`. If you relied on bold body copy rendering in the subhead face,
-  set `--bodymed-font: var(--med-font)` in `brand-typography.css`.
+  set `--bodymed-font: var(--med-font)` in `_brand-typography.css`.
 - **`.data` no longer sets a monospace face.** It stays in the body face with
   tabular figures. For the old behaviour use `.mono .data` together, or set
   `--bodymed-font`/`--mono-font` to taste.
@@ -874,8 +874,8 @@ Also in 2.0:
 3. `composer install` → `npm install` → confirm the four zones synced.
 4. Gitignore the four zones + `.codey-version`; commit `composer.lock`.
 5. Author `src/assets/css/main.css` — `@import "tailwindcss"`, `@layer` order,
-   `@source` globs, `@import "./codey/index.css"`, then `@import "./brand.css"`.
-6. Author `src/assets/css/brand.css` — `@theme` token overrides (type rescale,
+   `@source` globs, `@import "./codey/index.css"`, then `@import "./_brand.css"`.
+6. Author `src/assets/css/_brand.css` — `@theme` token overrides (type rescale,
    colours).
 7. Supply real font files (see §8 caveat) into the package `fonts/` or point the
    font tokens at your own.

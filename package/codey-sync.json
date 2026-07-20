@@ -6,5 +6,9 @@
     { "from": "js",               "to": "src/assets/js/codey" },
     { "from": "kirby/snippets",   "to": "src/site/snippets/codey" },
     { "from": "kirby/blueprints", "to": "src/site/blueprints/codey" }
+  ],
+  "filesComment": "Individually placed files — copied, never wiped (a zone wipes its whole dest dir, which would be catastrophic at the project root). Package-owned tools: overwritten each sync so they stay in step with the installed version.",
+  "files": [
+    { "from": "scripts/brand-palette.cjs", "to": "codey-palette.cjs" }
   ]
 }
