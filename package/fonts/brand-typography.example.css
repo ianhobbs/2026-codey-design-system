@@ -21,50 +21,136 @@
 
 /* ── 1. Declare your faces ─────────────────────────────────────────────
    Paths are relative to the COMPILED stylesheet location
-   (e.g. build/assets/css/main.css → ../fonts/…). Ship woff2 where possible. */
+   (e.g. build/assets/css/main.css → ../fonts/…). Ship woff2 where possible.
 
+   About the `font-weight` DESCRIPTOR in @font-face — it is a MATCHING rule
+   (which computed weight selects this file), not a styling one. Its initial
+   value is `normal` (400), so:
+     • one family per cut (below) → `font-weight: 400` is REDUNDANT, omit it
+     • several cuts sharing ONE family name → it is LOAD-BEARING; it is the only
+       thing that lets `font-weight: 500` pick the Medium file (see 1b)
+     • variable face → a RANGE (`100 900`), never a default (see 1c) */
+
+/* ── 1a. One family per cut — weight descriptor omitted (it's the default) */
 /*
 @font-face {
   font-family: "Gotham-Book";
   src: url("../fonts/GothamHTF-Book.woff2") format("woff2");
-  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Gotham-Med";
   src: url("../fonts/GothamHTF-Medium.woff2") format("woff2");
-  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Gotham-Ital";
   src: url("../fonts/GothamHTF-BookItalic.woff2") format("woff2");
-  font-weight: 400;
   font-style: normal;          // real italic face, not a synthetic slant
   font-display: swap;
 }
 @font-face {
   font-family: "Gotham-Med-Cond";
   src: url("../fonts/GothamHTF-MediumCondensed.woff2") format("woff2");
-  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+*/
+
+/* ── 1b. ONE family, several cuts — here the descriptor IS required.
+   With this pattern every token points at "Gotham" and the WEIGHT selects
+   the file, so --bodymed-weight: 500 resolves to the Medium woff2. */
+/*
+@font-face {
+  font-family: "Gotham";
+  src: url("../fonts/GothamHTF-Book.woff2") format("woff2");
+  font-weight: 400;            // selects this file at weight 400
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gotham";
+  src: url("../fonts/GothamHTF-Medium.woff2") format("woff2");
+  font-weight: 500;            // …and this one at 500 — NOT a default
+  font-style: normal;
+  font-display: swap;
+}
+*/
+
+/* ── 1c. VARIABLE alternative — ONE face, a weight RANGE on the wght axis.
+   Declare the range once; the weight tokens (2b below) select within it. */
+/*
+@font-face {
+  font-family: "GothamVar";
+  src: url("../fonts/GothamVariable.woff2") format("woff2-variations");
+  font-weight: 100 900;        // the supported range, not a single value
+  font-style: normal;
+  font-display: swap;
+}
+*/
+
+/* ── 1d. MONO — purely STYLISTIC: code, keyboard input, technical strings.
+   Optional: --mono-font defaults to the SYSTEM mono stack, so code already
+   renders correctly without supplying a face. Declare one only if the brand
+   has its own mono.
+
+   NOTE: column/table alignment does NOT use this. `.data` stays in the body
+   face and uses tabular figures — see §11 of the implementation guide. */
+/*
+@font-face {
+  font-family: "YourMono";
+  src: url("../fonts/YourMono-Regular.woff2") format("woff2");
   font-style: normal;
   font-display: swap;
 }
 */
 
 /* ── 2. Point the design-system tokens at your faces ───────────────────
-   Uncomment and edit. Anything you leave alone keeps the Codey default and
-   falls back to --font-fallback (system UI) if the face isn't supplied. */
+   Every face is a FAMILY + WEIGHT pair. Pick ONE of the two strategies below.
+   Anything you leave alone keeps the Codey default and falls back to
+   --font-fallback (system UI) if the face isn't supplied.
 
+   Key rule: strong/b use --bodymed-font — the BODY family's medium cut, never
+   a heading face. A bold word inside a paragraph must not change typeface. */
+
+/* ── 2a. PRE-WEIGHTED (static) faces — each cut is its own file ────────
+   The family does the work, so weights stay 400. This is the Codey default. */
 /*
 @theme {
-  --body-font: "Gotham-Book",    var(--font-fallback);   // body copy
-  --head-font: "YourDisplay",    var(--font-fallback);   // .heads / .decor
-  --head-font:  "Gotham-Med",     var(--font-fallback);   // headings, strong
-  --ital-font: "Gotham-Ital",    var(--font-fallback);   // em
-  --cond-font: "Gotham-Med-Cond", var(--font-fallback);  // condensed accents
+  --body-font:    "Gotham-Book",     var(--font-fallback);   // body copy
+  --bodymed-font: "Gotham-Med",      var(--font-fallback);   // strong/b
+  --head-font:    "YourDisplay",     var(--font-fallback);   // h1–h3, .heads/.decor
+  --med-font:     "Gotham-Med",      var(--font-fallback);   // h4–h6 subheads
+  --ital-font:    "Gotham-Ital",     var(--font-fallback);   // em
+  --cond-font:    "Gotham-Med-Cond", var(--font-fallback);   // condensed accents
+
+  --body-weight:    400;
+  --bodymed-weight: 400;   // the Med file is already medium
+  --head-weight:    400;
+  --med-weight:     400;
+
+  --mono-font:   "YourMono", var(--mono-fallback);   // optional; omit for system mono
+  --mono-weight: 400;
+
+  --data-tracking: 0em;    // tracking for .data columns — tune per face
+}
+*/
+
+/* ── 2b. VARIABLE font — one family, weight on the wght axis ───────────
+   Keep the same family everywhere and raise the weight instead. */
+/*
+@theme {
+  --body-font:    "GothamVar", var(--font-fallback);
+  --bodymed-font: var(--body-font);                 // same family…
+  --med-font:     var(--body-font);                 // …h4–h6 too
+  --head-font:    "YourDisplay", var(--font-fallback);   // display stays distinct
+
+  --body-weight:    400;
+  --bodymed-weight: 500;   // …weight does the work
+  --head-weight:    400;
+  --med-weight:     500;
 }
 */
 

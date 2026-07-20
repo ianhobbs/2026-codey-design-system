@@ -6,7 +6,7 @@ the sync/override model, and every part of the system — tokens, colour, layout
 typography, elements, component seeds, and the Kirby plugin — with the reasoning
 behind each so you know not just *what* to type but *why*.
 
-> **Version note.** Written against Codey `v1.1.2`. The package is published on
+> **Version note.** Written against Codey `v2.0.0`. The package is published on
 > Packagist and pulled in via Composer; a post-install script copies its source
 > into your project's `src/`.
 
@@ -280,7 +280,8 @@ than the single steps.
 
 **Augments** — extra tokens layered on top: `--padding`, a set of `--leading-*`
 line-heights (`tight`, `mid`, `mad`, `big`, `tighter`, `base`, `head`), the font
-stacks (`--head-font`, `--med-font`, `--ital-font`, `--cond-font` over a
+stacks (`--body-font`, `--bodymed-font`, `--head-font`, `--med-font`, `--ital-font`,
+`--cond-font`, each with a matching `--*-weight`, over a
 `--font-fallback`), and `--blur`, `--glass-transparency`, `--radius-lg`,
 `--border-radius`.
 
@@ -314,25 +315,71 @@ to change in your `brand.css` `@theme` — because it loads last, it wins:
 typefaces are brand-specific and licence-bound, so they live in a project-owned
 **brand typography sheet** (see §11.1) and in `head.php` for critical weights. The
 package only *names* the expected families in the font tokens (`--body-font`,
-`--head-font`, `--head-font`, `--ital-font`, `--cond-font`), each falling back to
+`--bodymed-font`, `--head-font`, `--med-font`, `--ital-font`, `--cond-font` — each
+with a paired `--*-weight`), each falling back to
 `--font-fallback` (system UI) until your project supplies the faces.
 
 ---
 
 ## 9. Colour system — palettes + semantic themes
 
-Colour is two layers: raw **palettes** (hex values) and **semantic themes**
+Colour is two layers: raw **palettes** (the ramp) and **semantic themes**
 (meaning-based aliases over a palette). You select a theme with a body class.
+
+> **Scale orientation: `0` = DARKEST → `9` = LIGHTEST.** "Least light → most
+> light". Every palette, semantic map and component token in the system follows
+> this. *Historical note:* the original hand-built palette ran the other way
+> (0 = lightest, ending at 8). It was reversed by `new = 9 − old`, with the half
+> steps following (`--color-65` → `--color-25`, `--color-75` → `--color-15`), so
+> each alias kept the tone it always had and only the index changed. If you have
+> CSS written against the old order, invert it the same way.
+
+### 9.0 Generating a brand palette
+
+Palettes are **generated**, not hand-picked, so the steps are perceptually even.
+`package/scripts/brand-palette.cjs` interpolates in OKLCH between the two poles
+of a spectrum and writes a project-owned stylesheet:
+
+```bash
+node vendor/ianhobbsmedia/codey-design-system/package/scripts/brand-palette.cjs \
+  --dark "#0f151b" --light "#eef6fe" --mid "#1fa7f3" \
+  --half 1.5,2.5 --scope ".theme-brand" \
+  --out src/assets/css/brand-palette.css
+```
+
+Zero dependencies (plain Node, like `codey-sync`), and it **refuses to write
+into a `codey/` zone** — the output is a project-owned brand artefact.
+
+**Getting a rich centre.** Both poles of a brand spectrum are near-neutral
+(C≈0.015), so a plain interpolation gives a flat, washed-out ramp. Three ways to
+put colour back in the middle:
+
+| Flag | Approach |
+|---|---|
+| `--mid <hex>` | **Three-point anchor** — interpolate dark→brand→light. Most faithful: you supply the real mid-tone. |
+| `--cusp` | **Gamut-cusp riding** — push chroma to the maximum the gamut holds at each lightness. Richest displayable ramp. |
+| `--mid-chroma <n>` | Absolute chroma target at the midpoint (simple bell curve). |
+
+**Gamut.** `--gamut` defaults to **`p3`**, the native gamut of current displays;
+clamping to sRGB needlessly desaturates them (on the codey ramp, P3 holds
+C≈0.216 where sRGB caps at ≈0.167). Pass `--gamut srgb` only if you must stay in
+the legacy gamut. Output is always clamped by *reducing chroma only*, preserving
+L and H, so no step is left for the browser to clip unpredictably. Legacy
+`hex`/`rgb()` values are still sRGB — it's `oklch()` being device-independent
+that lets the wider gamut be addressed at all.
+
+Half steps use the decimal-dropped naming: `--half 1.5,2.5` emits `--color-15`
+and `--color-25`.
 
 ### 9.1 Palettes
 
 The core ships a single palette; a project adds its own brand palette alongside it
 (see §9.4).
 
-- **`_codey.css`** (`.theme-codey`) — deep ocean blues. A 0–8 scale
-  (`--color-0` lightest … `--color-8` darkest), plus half-steps (`--color-65`,
-  `--color-75`), `--keycolor-*`, and first-paint `--color-background` /
-  `--color-text` literals.
+- **`_codey.css`** (`.theme-codey`) — deep ocean blues, generated in OKLCH. A
+  0–9 scale (`--color-0` **darkest** … `--color-9` **lightest**), plus half-steps
+  (`--color-15`, `--color-25`), `--keycolor-*`, and first-paint
+  `--color-background` / `--color-text` literals.
 
 > The system previously bundled `_caramel` and a `_users` template palette; those
 > have been removed to keep the core lean. `_codey` / `theme-codey` is now the
@@ -374,11 +421,11 @@ With the `_users` template removed, model your brand palette on the `_codey`
 palette + `theme-codey` theme as the reference pair. All of this lives in
 **project-owned** files (never in a synced zone), so it survives `composer update`:
 
-1. Create a project palette, e.g. `src/assets/css/brand-palette.css`, with a class
-   for your brand (`.theme-acme`) declaring the `--color-0…8` scale (plus
-   `--color-65` / `--color-75` half-steps and `--keycolor-*` if you use them) and
-   the first-paint `--color-background` / `--color-text` literals — mirror the
-   structure of `codey/palettes/_codey.css`.
+1. Generate a project palette into `src/assets/css/brand-palette.css` with
+   `brand-palette.cjs` (§9.0), scoped to your brand class (`.theme-acme`). That
+   gives you the `--color-0…9` scale (0 = darkest) plus any `--half` steps. Add
+   `--keycolor-*` if you use them, and the first-paint `--color-background` /
+   `--color-text` literals — mirror the structure of `codey/palettes/_codey.css`.
 2. Add a semantic mapping (mirror `codey/themes/theme-codey.css`) so `--link`,
    `--hover`, `--nav-*`, `--cta-*`, etc. resolve for your brand.
 3. Import both from `main.css` **after** `codey/index.css` (or from `brand.css`),
@@ -451,20 +498,54 @@ from the active theme.
 
 - **`body`** — `--body-font` in `--color-text` on `--color-background`,
   `--leading-base`, `--text-base`, `geometricPrecision`, smooth scroll.
-- **Headings** default to `--head-font` (Gotham-Med). Scale: `h1`=`--text-4xl`,
+- **Headings** split by level: `h1`–`h3` use the display face (`--head-font` /
+  `--head-weight`); `h4`–`h6` are *not* decorative — they step down to
+  `--med-font` / `--med-weight` (typically a sans or serif at 500 variable /
+  400 pre-weighted). Scale: `h1`=`--text-4xl`,
   `h2`=`--text-3xl`, `h3`=`--text-2xl`, `h4`=`--text-xl`, `h5`=`--text-lg`,
   `h6`=`--text-base`; `h1.super`=`--text-6xl`.
 - **Heading step modifiers** — `h2.down-step`, `h2.down-step-x2`, `h2.up-step`
   nudge a heading up or down the scale without changing the tag.
-- **Inline** — `strong/b/.font-medium` use the medium font; `em` uses the italic
-  font (`--ital-font`) rather than a synthetic slant; links use `--link` →
-  `--hover`.
-- **Helpers** — `.heads` and `.decor` opt into the display font (`--head-font`),
-  `.mysans` forces the medium font, `.leading-tighter` tightens line-height,
-  `.small` steps down to `--text-sm`.
+- **Inline** — `strong/b/.font-medium` use `--bodymed-font` / `--bodymed-weight`
+  (see the callout below); `em` uses a real italic face (`--ital-font`) rather
+  than a synthetic slant; links use `--link` → `--hover`.
+- **Mono (stylistic)** — `code`, `kbd`, `samp`, `pre` and the `.mono` helper use
+  `--mono-font` / `--mono-weight`. This is a *typeface* choice — the monospace
+  texture for code and technical strings — and has nothing to do with column
+  alignment. The inline three stay at `1em` to match their host context.
+- **Column data** — `.data` stays in the **body face** and switches only the
+  numerals to a fixed advance via `font-variant-numeric: tabular-nums`, with
+  tracking tokenised as `--data-tracking`. Columns align and live values stop
+  jittering *without* importing the monospace texture. It inherits, so `.data`
+  on a `<table>` covers every cell; compose with `.small` for the small step.
+- **Helpers** — `.heads` and `.decor` opt into the display face (`--head-font`),
+  `.headsans` forces the subhead face (`--med-font`), `.leading-tighter` tightens
+  line-height, `.small` steps down to `--text-sm`.
 
-Note that `typography.css` contains **no `@font-face`** — it only *references* the
-font tokens. The faces themselves are yours; see below.
+> **`strong`/`b` stay in the body family.** They are *inline body markup* — a bold
+> word inside a paragraph must not change typeface. So they use
+> **`--bodymed-font`**, the body family's medium cut, never a heading face.
+> Wiring them to `--med-font` (the h4–h6 subhead token) is a common mistake: it
+> happens to look right when the subhead and body share a superfamily, and breaks
+> the moment a brand's subhead face differs.
+
+**Family + weight pairs.** Every face is a `--*-font` / `--*-weight` pair, because
+that pair is the seam between the two ways a brand ships type:
+
+| Strategy | Family | Weight |
+|---|---|---|
+| **Pre-weighted** (static cuts, one file each) | changes (`Gotham-Book` → `Gotham-Med`) | stays `400` |
+| **Variable** (one family, `wght` axis) | stays the same | rises (`400` → `500/600`) |
+
+Codey's defaults assume pre-weighted faces. A variable-font project sets
+`--bodymed-font: var(--body-font)` and `--bodymed-weight: 500` instead — all in
+the brand typography sheet, no vendored CSS edited.
+
+> `typography.css` deliberately contains **no `@font-face`** *and no*
+> `font-variation-settings`. The latter is an inherited property that overrides
+> `font-weight` on descendants for variable fonts, which would silently defeat
+> every weight token. Browsers map `font-weight` onto the `wght` axis anyway.
+> The faces themselves are yours; see below.
 
 ### 11.1 Brand typography sheet (`brand-typography.css`) — project-owned
 
@@ -488,8 +569,8 @@ guidance only and is **not** synced):
 /* Point the design-system tokens at your faces (or keep the defaults). */
 @theme {
   --body-font: "Gotham-Book", var(--font-fallback);
-  --head-font: "YourDisplay", var(--font-fallback);
-  --head-font:  "Gotham-Med",  var(--font-fallback);
+  --head-font: "YourDisplay", var(--font-fallback);   /* h1–h3 */
+  --med-font:  "Gotham-Med",  var(--font-fallback);   /* h4–h6, strong */
 }
 ```
 
@@ -737,6 +818,38 @@ and continue to win. If you committed the vendored folder, review the diff; if y
 gitignored it, the new version is pinned in the updated `composer.lock` — commit
 that.
 
+### 17.1 Migrating to 2.0 (breaking)
+
+**The palette scale was reversed to `0` = darkest → `9` = lightest.** Every
+`--color-N` now means a different tone, so any project CSS written against the
+old order must be inverted:
+
+| Old | New | Notes |
+|---|---|---|
+| `--color-N` | `--color-(9−N)` | e.g. `--color-3` → `--color-6` |
+| `--color-65` | `--color-25` | half steps moved to the dark end |
+| `--color-75` | `--color-15` | |
+| `--keycolor-5…8` | `--keycolor-4…1` | same rule |
+
+Semantic aliases (`--link`, `--color-text`, `--nav-item-bg`, …) were remapped
+inside the package, so **if you only ever used semantic tokens, nothing changes**.
+Only direct `--color-N` references in project CSS need attention.
+
+Also in 2.0:
+
+- **`strong`/`b` now use `--bodymed-font`** (the body family's medium cut), not
+  `--med-font`. If you relied on bold body copy rendering in the subhead face,
+  set `--bodymed-font: var(--med-font)` in `brand-typography.css`.
+- **`.data` no longer sets a monospace face.** It stays in the body face with
+  tabular figures. For the old behaviour use `.mono .data` together, or set
+  `--bodymed-font`/`--mono-font` to taste.
+- **`font-variation-settings` was removed** from the typographic base — it
+  overrode `font-weight` on descendants and broke variable-font weighting.
+- **New tokens:** `--body-weight`, `--bodymed-weight`, `--head-weight`,
+  `--med-weight`, `--mono-font`, `--mono-weight`, `--data-tracking`.
+- **Palettes are generated** — `_users.css` is gone; use `brand-palette.cjs`
+  (§9.0) to produce a project palette instead.
+
 ---
 
 ## 18. Fresh-project checklist
@@ -769,11 +882,14 @@ that.
 
 **Line-heights:** `--leading-tight · mid · mad · big · tighter · base · head`.
 
-**Fonts:** `--body-font` (Gotham-Book) · `--head-font` (Gradual) · `--head-font` (Gotham-Med) · `--ital-font` (Gotham-Ital) · `--cond-font` (Gotham-Med-Cond) · `--font-fallback`.
+**Fonts (family + weight pairs):** `--body-font` (Gotham-Book, body) · `--bodymed-font` (Gotham-Med, `strong`/`b`) · `--head-font` (Gradual, h1–h3) · `--med-font` (Gotham-Med, h4–h6) · `--ital-font` (Gotham-Ital, `em`) · `--cond-font` (Gotham-Med-Cond) · `--font-fallback`.
+**Mono (stylistic):** `--mono-font` (defaults to `--mono-fallback`, the system mono stack — works with no face supplied) · `--mono-fallback`.
+**Column data:** `--data-tracking` (letter-spacing for `.data`; `0em` default). `.data` keeps the body face and uses tabular figures.
+**Weights:** `--body-weight` · `--bodymed-weight` · `--head-weight` · `--med-weight` · `--mono-weight` — all `400` by default (pre-weighted faces); variable-font projects raise `--bodymed-weight`/`--med-weight` to `500`.
 
 **Effect tokens:** `--blur` · `--glass-transparency` · `--radius-lg` · `--border-radius` · `--padding`.
 
-**Palette scale (per theme):** `--color-0 … 8/9` (+ `--color-65`, `--color-75`), `--keycolor-5…8`, `--color-active-1…4`.
+**Palette scale (per theme):** `--color-0 … 9` — **0 = darkest → 9 = lightest** (+ half steps, e.g. `--color-15`, `--color-25`), `--keycolor-1…4`, `--color-active-1…4`.
 
 **Semantic aliases:** `--link · --hover · --logo · --cta-fill · --cta-text · --nav-text · --nav-social · --nav-item-bg · --nav-item-bg-current · --blockquote-color · --blockquote-border · --shadow-color · --saturate · --color-button-bg · --color-button-text · --color-text-muted · --colour-hr · --color-background · --color-text`.
 

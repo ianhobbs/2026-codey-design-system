@@ -15,7 +15,8 @@
   --card-gap:         30px;    /* literal */
   --card-pad-block:   40px;    /* literal */
   --card-pad-inline:  30px;    /* literal */
-  --card-check-color: var(--color-4);
-  --card-badge-color: var(--color-4);
-  --card-badge-bg:    var(--color-0);
+  /* Palette scale is 0 = darkest → 9 = lightest. */
+  --card-check-color: var(--color-5);
+  --card-badge-color: var(--color-5);
+  --card-badge-bg:    var(--color-9);
 }

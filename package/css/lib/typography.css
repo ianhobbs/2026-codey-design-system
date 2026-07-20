@@ -2,27 +2,47 @@
    Codey typographic base (core) — element defaults on the Utopia/TW scale.
    Token-referencing only. Semantic colours (--color-text/--link/--hover)
    resolve from the active .theme-* scope on <body>. Imported layer(base).
+
+   Every face is a FAMILY + WEIGHT pair, because that pair is the seam between
+   the two ways a brand ships type:
+     • pre-weighted (static) faces — each cut is its own file, weight stays 400
+     • variable faces — one family, weight raised on the wght axis (500/600)
+   A project picks a strategy in its brand typography sheet; nothing here
+   assumes one. See §11.1 of the implementation guide.
+
+   NOTE: deliberately NO `font-variation-settings` here. It is an inherited
+   property and overrides `font-weight` on descendants for variable fonts,
+   which would silently defeat every weight token below. Modern browsers map
+   `font-weight` onto the wght axis automatically.
    ════════════════════════════════════════════════════════════════════ */
+
+/* --body-font is the default face for the document; everything inherits it
+   unless a rule below opts into another token. */
+html, body {
+  font-family: var(--body-font);
+  font-weight: var(--body-weight);
+}
 
 body {
   color: var(--color-text);
   background: var(--color-background);
   line-height: var(--leading-base);
-  font-variation-settings: "wght" 400;
   text-rendering: geometricPrecision;
   font-size: var(--text-base);
   scroll-behavior: smooth;
   font-variant: normal;
-  font-family: var(--body-font);
 }
 
-/* Headings default to Gotham-Med; add .decor to opt into --head-font. */
-h1, h2, h3, h4, h5, h6 { font-family: var(--med-font); font-weight: 400; }
+/* Display split: h1–h3 are the decorative/display face; h4–h6 are NOT — they
+   step down to the subhead face at its own weight (commonly a sans or serif
+   at 500 variable / 400 pre-weighted). */
+h1, h2, h3 { font-family: var(--head-font); font-weight: var(--head-weight); }
+h4, h5, h6 { font-family: var(--med-font);  font-weight: var(--med-weight); }
+
 h1 { font-size: var(--text-4xl); line-height: var(--leading-head); }
 h2 {
   font-size: var(--text-3xl);
   line-height: var(--leading-mad);
-  font-weight: inherit;
   margin-bottom: var(--spacing-6);
 }
 h2.down-step    { font-size: var(--text-2xl); line-height: var(--leading-mad); }
@@ -38,18 +58,61 @@ h3 + p { margin-top: var(--spacing-3-s); }
 /* Inline elements */
 
 p { font-size: var(--text-base); line-height: var(--leading-base); }
-strong, b, .font-medium { font-family: var(--med-font); font-weight: 400; }
-em { font-family: var(--ital-font); font-style: normal; font-weight: 400; }
+
+/* strong/b are INLINE BODY markup — a bold word inside a paragraph must stay in
+   the body family and gain WEIGHT. Never switch to a heading face mid-sentence.
+   --bodymed-font is the BODY family's medium cut (not a heading face); a
+   variable-font project sets it to var(--body-font) and raises
+   --bodymed-weight to 500/600 instead. */
+strong, b, .font-medium {
+  font-family: var(--bodymed-font);
+  font-weight: var(--bodymed-weight);
+}
+
+em { font-family: var(--ital-font); font-style: normal; font-weight: var(--body-weight); }
 a { color: var(--link); text-decoration: none; }
+
 a:hover { color: var(--hover); }
 button:not([class]) { font: inherit; background: none; border: 0; color: var(--link); cursor: pointer; }
 small, .small { font-size: var(--text-sm); color: inherit; }
 
+/* ── Mono — purely STYLISTIC ───────────────────────────────────────────
+   The monospace texture, for code, keyboard input and technical strings.
+   This is a typeface choice, nothing to do with column alignment.
+   `code`/`kbd`/`samp` sit INLINE in body copy, so they stay at 1em to match
+   whatever context they land in (a heading, a paragraph, a caption). */
+code, kbd, samp, pre {
+  font-family: var(--mono-font);
+  font-weight: var(--mono-weight);
+}
+code, kbd, samp { font-size: 1em; }
+.mono { font-family: var(--mono-font); font-weight: var(--mono-weight); }
+
+/* ── Column data — stays in the BODY face ──────────────────────────────
+   Numeric alignment is a FIGURE behaviour, not a typeface change. Keeping the
+   body face, `tabular-nums` switches only the numerals to a fixed advance —
+   a "faux monospace" for digits — so columns line up and live values don't
+   jitter, without importing the code-y monospace texture.
+
+   It is an inherited property, so `.data` on a <table> covers every cell.
+   Compose with `.small` for the small step; tracking is tokenised via
+   --data-tracking.
+
+   Caveat: this needs the face to carry OpenType tabular figures (`tnum`).
+   Quality text faces do; if one doesn't, the browser cannot synthesise them
+   and the digits stay proportional. */
+.data {
+  font-family: var(--body-font);
+  font-weight: var(--body-weight);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--data-tracking);
+}
+
 /* Typography helpers */
-.heads          { font-family: var(--head-font); }
+.heads           { font-family: var(--head-font); font-weight: var(--head-weight); }
+.decor           { font-family: var(--head-font); font-weight: var(--head-weight); }
+.headsans        { font-family: var(--med-font);  font-weight: var(--med-weight); }
 .leading-tighter { line-height: var(--leading-tighter); }
-.mysans         { font-family: var(--med-font); font-weight: 400; }
-.decor          { font-family: var(--head-font); font-weight: 400; }
 
 @media screen and (min-width: 60rem) {
   body { --padding: var(--spacing-5-l); }

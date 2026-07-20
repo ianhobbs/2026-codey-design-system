@@ -24,7 +24,8 @@
    Opt-in per project; commented = zero bytes shipped. The lib files below are
    TOKEN SEEDS (generically useful custom properties distilled from the full
    components) with guidance comments — build markup on them per project. */
-/* @import "./palettes/_users.css";                   brand-palette template */
+/* Project palettes are GENERATED — see docs §9.0 (brand-palette.cjs) and
+   import your own src/assets/css/brand-palette.css from main.css, not here. */
 /* @import "./lib/transitions.css";                   generic motion tokens */
 /* @import "./lib/form.css";                          form field/button tokens */
 /* @import "./lib/accordion.css";                     disclosure motion tokens */

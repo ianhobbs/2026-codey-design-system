@@ -23,8 +23,8 @@ Status legend: ✅ done · 🟡 partial · ⬜ pending.
 
 ## ✅ Phase 2a — Colour system (`package/css/palettes/`, `themes/`)
 
-- ✅ Raw palettes: `_codey.css`, `_caramel.css` (incl. wide-gamut `lab()`
-  `@supports`), `_users.css` (kept as a fill-in-the-brand template).
+- ✅ Raw palette: `_codey.css` — regenerated in OKLCH via `brand-palette.cjs`,
+  0 = darkest → 9 = lightest. Project palettes are generated, not shipped.
 - ✅ Semantic mapping layer: `theme-codey.css`, `theme-caramel.css` (aliases
   `--link`/`--hover`/`--blockquote-*`/`--nav-*` etc.), decorative leaf-SVG
   backgrounds + products-block overrides stripped to commented placeholders.

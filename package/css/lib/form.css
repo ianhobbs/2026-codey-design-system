@@ -11,9 +11,10 @@
    ════════════════════════════════════════════════════════════════════ */
 :root {
   --form-radius:        var(--radius-lg, 0.5rem);
-  --input-border-color: var(--color-3);
-  --input-focus-color:  var(--color-5);
-  --input-focus-ring:   0 0 0 3px color-mix(in oklab, var(--color-4) 30%, transparent);
+  /* Palette scale is 0 = darkest → 9 = lightest. */
+  --input-border-color: var(--color-6);
+  --input-focus-color:  var(--color-4);
+  --input-focus-ring:   0 0 0 3px color-mix(in oklab, var(--color-5) 30%, transparent);
   --input-padding:      var(--spacing-2);
   --btn-bg:             var(--color-button-bg);
   --btn-text:           var(--color-button-text);

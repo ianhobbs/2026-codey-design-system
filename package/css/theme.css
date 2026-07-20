@@ -82,10 +82,42 @@
   /* Font families NAME the expected faces (Codey defaults). The package ships no
      @font-face or font files — a project supplies matching @font-face or overrides
      these tokens in brand.css; until then they fall back to --font-fallback. */
-  --head-font: "Gradual",         var(--font-fallback);
-  --med-font:  "Gotham-Med",      var(--font-fallback);
-  --ital-font: "Gotham-Ital",     var(--font-fallback);
-  --cond-font: "Gotham-Med-Cond", var(--font-fallback);
+  --body-font:    "Gotham-Book",     var(--font-fallback);  /* body copy */
+  --bodymed-font: "Gotham-Med",      var(--font-fallback);  /* strong/b — body's medium cut */
+  --head-font:    "Gradual",         var(--font-fallback);  /* h1–h3 display */
+  --med-font:     "Gotham-Med",      var(--font-fallback);  /* h4–h6 subheads */
+  --ital-font:    "Gotham-Ital",     var(--font-fallback);  /* em */
+  --cond-font:    "Gotham-Med-Cond", var(--font-fallback);  /* condensed accents */
+
+  /* Mono — small "information" typography: code, keyboard input, and tabular
+     data. Unlike the brand faces above, this defaults to the SYSTEM mono stack
+     so data tables and code render correctly out of the box; a project names
+     its own mono face in the brand typography sheet if it has one. */
+  --mono-fallback: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                   "Liberation Mono", "Courier New", monospace;
+  --mono-font:     var(--mono-fallback);
+
+  /* ── Font WEIGHTS — the seam between the two ways a brand ships type ──
+     Defaults assume PRE-WEIGHTED (static) faces: each cut is its own file, so
+     the weight stays 400 and the family does the work. A VARIABLE-font project
+     keeps one family and raises the axis instead, e.g. in brand-typography.css:
+         --bodymed-font: var(--body-font);  --bodymed-weight: 500;
+         --med-font:     var(--body-font);  --med-weight:     500;
+     Why 400 for a medium cut: the typographer builds the weight into the stroke
+     outlines, so 400 renders the face exactly as drawn. Asking for 500/600 would
+     make the browser synthesise a faux-bold ON TOP of an already-medium face and
+     smear the letterforms. 400 is correct here, not a compromise — it also
+     neutralises the UA stylesheet's default bold on `strong`/`b`, which would
+     otherwise double up on the designed weight. */
+  --body-weight:    400;
+  --bodymed-weight: 400;   /* pre-weighted cut → 400 · variable axis → 500/600 */
+  --head-weight:    400;   /* h1–h3 */
+  --med-weight:     400;   /* h4–h6 · variable axis → 500 */
+  --mono-weight:    400;   /* code / technical strings */
+
+  /* Tracking for column data (.data). Tabular figures are often set slightly
+     open so columns read cleanly; 0 by default — tune per brand/face. */
+  --data-tracking: 0em;
   --blur: 10px;
   --glass-transparency: 45%;
   --radius-lg: 0.5rem;

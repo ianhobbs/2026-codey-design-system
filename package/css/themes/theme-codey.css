@@ -10,33 +10,37 @@
 
 @import "../palettes/_codey.css";
 
-/* ── Semantic aliases ── */
+/* ── Semantic aliases ──
+   Scale is 0 = DARKEST → 9 = LIGHTEST. These were remapped from the original
+   (0 = lightest) palette by new = 9 − old, so every alias keeps the tone it
+   always had; only the index it points at changed. Half steps followed:
+   old --color-65 → --color-25, old --color-75 → --color-15. */
 .theme-codey {
-  --logo:                var(--color-4);
+  --logo:                var(--color-5);
   --hover:               var(--color-active-3);
-  --link:                var(--color-4);
+  --link:                var(--color-5);
   --cta-fill:            var(--color-active-2);
-  --cta-text:            var(--color-8);
-  --color-grey:          var(--color-2);
-  --color-light:         var(--color-0);
-  --color-dark:          var(--color-8);
-  --date-col:            var(--color-2);
-  --nav-text:            var(--color-1);
-  --nav-social:          var(--color-1);
-  --nav-item-bg:         var(--color-8);
-  --nav-item-bg-current: var(--color-7);
+  --cta-text:            var(--color-1);
+  --color-grey:          var(--color-7);
+  --color-light:         var(--color-9);
+  --color-dark:          var(--color-1);
+  --date-col:            var(--color-7);
+  --nav-text:            var(--color-8);
+  --nav-social:          var(--color-8);
+  --nav-item-bg:         var(--color-1);
+  --nav-item-bg-current: var(--color-2);
   --nav-item-bgPC:       40%;
-  --product-card-bg:     var(--color-65);
-  --blockquote-color:    var(--color-3);
-  --blockquote-border:   var(--color-4);
-  --shadow-color:        var(--color-75);
+  --product-card-bg:     var(--color-25);
+  --blockquote-color:    var(--color-6);
+  --blockquote-border:   var(--color-5);
+  --shadow-color:        var(--color-15);
   --saturate:            110%;
-  --nav-xsvg:            var(--keycolor-7);
-  --nav-dark:            var(--keycolor-8);
-  --color-button-bg:     var(--color-8);
-  --color-button-text:   var(--color-1);
-  --color-text-muted:    var(--color-4);
-  --colour-hr:           var(--color-5);
+  --nav-xsvg:            var(--keycolor-2);
+  --nav-dark:            var(--keycolor-1);
+  --color-button-bg:     var(--color-1);
+  --color-button-text:   var(--color-8);
+  --color-text-muted:    var(--color-5);
+  --colour-hr:           var(--color-4);
 }
 
 /* ── Critical: apply background + text from first paint ── */
