@@ -13,6 +13,7 @@ body {
   font-size: var(--text-base);
   scroll-behavior: smooth;
   font-variant: normal;
+  font-family: var(--body-font);
 }
 
 /* Headings default to Gotham-Med; add .decor to opt into --head-font. */
@@ -35,6 +36,7 @@ h1.super { font-size: var(--text-6xl); }
 h3 + p { margin-top: var(--spacing-3-s); }
 
 /* Inline elements */
+
 p { font-size: var(--text-base); line-height: var(--leading-base); }
 strong, b, .font-medium { font-family: var(--med-font); font-weight: 400; }
 em { font-family: var(--ital-font); font-style: normal; font-weight: 400; }

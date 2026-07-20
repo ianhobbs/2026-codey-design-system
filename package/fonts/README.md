@@ -17,8 +17,8 @@ overwritten.
 `package/css/theme.css` names the expected families as tokens, each with a system
 fallback:
 
-```
---head-font  --med-font  --ital-font  --cond-font
+```css
+--body-font  --head-font  --med-font  --ital-font  --cond-font
 ```
 
 `package/css/globals.css` carries no `@font-face`. Each project supplies its own:
