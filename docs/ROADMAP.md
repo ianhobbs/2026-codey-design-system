@@ -67,10 +67,83 @@ shipped commented-out in the manifest as opt-in seeds with guidance comments:
   `@font-face` — typefaces are brand-specific. See `package/fonts/README.md`.
 - ⬜ System icons (leaf set) — not client logos.
 
-## ⬜ Phase 5 — Tools (`package/` — out of scope of the extraction so far)
+## ⬜ Phase 5 — Styleguide generator (`package/styleguide/`)
 
-- ⬜ Utopia regen + `convertVariables.js`, SVG colour-harmony/`svg-render`,
-  styleguide-builder. The sync script is the one new tool this design adds.
+Port the `styleguide-builder` from `codey-new-2025` into the package: a build-time
+tool that renders a client-facing visualisation of the design tokens and layout
+rules.
+
+**Two purposes.** For clients, a quick readable picture of the system. For us, a
+deliberate **robustness test** — if a project can generate a correct styleguide
+from nothing but the synced core plus its own brand files, the override seams
+genuinely work. It is the first end-to-end exercise of the contract.
+
+**The requirement it proves:** the design system *requires* a project palette and
+project fonts. The styleguide must render the **user's** colours and the **user's**
+faces — never the codey defaults. If it shows codey blue and Gotham on a client
+site, the seam is broken.
+
+### 5.1 Output contract
+
+- Emit **`src/style-guide.php`** — a single PHP file at the **root of `src/`**, so
+  it is **Kirby-agnostic**: not a template, not a snippet, no route, no blueprint,
+  no `$page`. It mirrors to `build/style-guide.php` through the normal pipeline
+  and is servable directly.
+- CSS, fonts and JS are referenced from `assets/**/*` (relative) or printed inline
+  into the `<head>`. No absolute paths, no Kirby helpers — that's what keeps it
+  portable.
+- Honours the `src → build` split and must be production-safe: authored/emitted
+  into `src/`, served from `build/`.
+
+### 5.2 Token resolution — the substantive piece
+
+Parse the sources **in load order** and merge last-wins, mirroring the cascade:
+
+1. `src/assets/css/codey/theme.css` — core defaults
+2. `src/assets/css/brand-palette.css` — the project's colours
+3. `src/assets/css/brand-typography.css` — the project's faces
+4. `src/assets/css/brand.css` — remaining overrides
+
+Do **not** read only the compiled CSS: Tailwind v4 tree-shakes unused `@theme`
+vars (confirmed — `--text-base` is absent until something references it), so a
+compiled-only extract would silently omit tokens. Source + load order is both
+complete and brand-accurate.
+
+### 5.3 Port fixes (all confirmed broken against 2.0)
+
+- **Palette discovery** — the extractor globs `_palette-*.css`; we ship
+  `palettes/_codey.css` and projects supply `brand-palette.css`. Currently 0
+  matches. Rewrite discovery around the resolution order in 5.2.
+- **Colour parsing is hex-only** — finds **0 of 14** colours in the OKLCH palette.
+  Reuse the existing `parseRootColors()` matcher, which already accepts
+  `oklch|lab|rgb|hsl|…`.
+- **`@theme` moved** from `main.css` to `codey/theme.css` — config path.
+- **Scale orientation** is now 0 = darkest → 9 = lightest; ordering and labels
+  must follow, including half steps (`--color-15`, `--color-25`).
+- **`codey-arch.md`** section points at the old site — drop it or promote the doc
+  into the package.
+
+### 5.4 Dependencies — allowed, but pinned and declared
+
+Unlike the other tools, the styleguide may take dependencies (Mustache may ship
+to the client as fully-supported JS). The condition is that they are **tagged and
+noted** so an `npm update` in this repo surfaces them:
+
+- `package/styleguide/package.json` with **exact pinned versions**.
+- Listed in the docs, with what each is for.
+- **`codey-sync.cjs` and `brand-palette.cjs` stay zero-dependency** — installing
+  and using the design system must never require an npm install of the styleguide's
+  deps. The styleguide is opt-in.
+
+### 5.5 Placement
+
+`package/styleguide/` — shipped in the dist but **not synced** into `src/` (same
+treatment as `fonts/`). It runs from `vendor/…` as a build step; only its *output*
+(`src/style-guide.php`) lands in the project.
+
+### 5.6 Other tools (deferred)
+
+- ⬜ Utopia regen + `convertVariables.js`, SVG colour-harmony / `svg-render`.
 
 ## ⬜ Phase 6 — Run in a real Kirby install
 
