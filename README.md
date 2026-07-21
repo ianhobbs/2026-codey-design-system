@@ -21,7 +21,7 @@ In your project's `composer.json`:
 "repositories": [{ "type": "vcs", "url": "git@github.com:ianhobbsmedia/codey-design-system.git" }],
 "require": { "ianhobbsmedia/codey-design-system": "^2.0" },
 "scripts": {
-  "codey-sync": "node vendor/ianhobbsmedia/codey-design-system/package/scripts/codey-sync.cjs",
+  "codey-sync": "vendor/bin/codey-sync.cjs",
   "post-install-cmd": ["@codey-sync"],
   "post-update-cmd":  ["@codey-sync"]
 }
@@ -127,33 +127,40 @@ the four `codey/` folders; `composer.lock` pins the version.
 
 ## Tools
 
-> **Where they live:** the scripts are **not synced into `src/`** — they stay in
-> `vendor/ianhobbsmedia/codey-design-system/package/scripts/`. Since `vendor/` is
-> gitignored, **your editor's search will skip it by default**, so the tools look
-> like they're missing. They're not; only their *output* lands in your project.
+> **Where they live:** both tools are declared in the package's `composer.json`
+> `bin`, so Composer proxies them into **`vendor/bin/`** on install — the
+> conventional home for a package's executables. They are *not* synced into
+> `src/`; only their output lands in your project. (`vendor/` is gitignored, so
+> your editor's search skips it — look in `vendor/bin/`, not `src/`.)
 
-Add these once to your project's `package.json` and you never need the path again:
+```
+vendor/bin/codey-sync.cjs        # placement — Composer runs this for you
+vendor/bin/brand-palette.cjs     # palette generator — you invoke this
+```
+
+Optionally alias them in `package.json` so you never type the path:
 
 ```json
 "scripts": {
-  "codey:sync":    "node vendor/ianhobbsmedia/codey-design-system/package/scripts/codey-sync.cjs",
-  "codey:palette": "node vendor/ianhobbsmedia/codey-design-system/package/scripts/brand-palette.cjs"
+  "codey:sync":    "vendor/bin/codey-sync.cjs",
+  "codey:palette": "vendor/bin/brand-palette.cjs"
 }
 ```
 
 ```bash
-npm run codey:palette            # prints all options
-npm run codey:sync               # re-sync (Composer also runs this on install)
+vendor/bin/brand-palette.cjs     # prints all options
+vendor/bin/codey-sync.cjs        # re-sync (Composer also runs this on install)
 
 # generate a brand palette in OKLCH from two poles
-npm run codey:palette -- \
+vendor/bin/brand-palette.cjs \
   --dark "#0f151b" --light "#eef6fe" --mid "#1fa7f3" \
   --half 1.5,2.5 --scope ".theme-acme" \
   --out src/assets/css/_brand-palette.css
 ```
 
-Note the `--` before the flags: npm needs it to pass arguments through to the
-script. Both tools are plain Node with **no dependencies**.
+If you invoke via an npm alias instead, note the `--` before the flags
+(`npm run codey:palette -- --dark "#…"`) — npm needs it to pass arguments through.
+Both tools are plain Node with **no dependencies**.
 <sub>→ [§9.0 Generating a brand palette](docs/IMPLEMENTATION-GUIDE.md#90-generating-a-brand-palette)</sub>
 
 ## Docs

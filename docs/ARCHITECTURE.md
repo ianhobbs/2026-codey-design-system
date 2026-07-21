@@ -2,13 +2,9 @@
 
 ## Why this shape
 
-The source project (`codey-new-2025`) works but is too entangled to reuse: the
-design system, the build pipeline, and one site's content all live in the same
-tree. Copying it to start a new site drags all of that coupling along.
-
 This repo separates the **system** from the **implementation**. The system is a
-single versioned package; projects consume it. The inversion — projects depend on
-the system, the system depends on nothing project-specific — is the whole point.
+single versioned package; projects consume it. Projects depend on
+the system, the system depends on nothing project-specific.
 
 ## Delivery: Composer versions, a script places
 
@@ -27,10 +23,6 @@ Two mechanisms, each doing one job:
 - **npm** lives beside Composer at root purely for the build toolchain (Tailwind,
   Alpine) — Composer can't fetch npm packages.
 
-Git subtree/submodule were rejected: subtree loses explicit version pinning;
-submodule drops a nested `.git` into `src/` that fights CodeKit's watcher and
-needs an init step. Composer + copy script keeps `src/` as plain files with real
-semver.
 
 ## Layers (what the package ships)
 

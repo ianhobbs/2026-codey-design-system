@@ -11,6 +11,7 @@
     "php": ">=8.2"
   },
   "bin": [
-    "package/scripts/codey-sync.cjs"
+    "package/scripts/codey-sync.cjs",
+    "package/scripts/brand-palette.cjs"
   ]
 }

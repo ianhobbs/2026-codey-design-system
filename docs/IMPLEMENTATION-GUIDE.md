@@ -71,7 +71,7 @@ At your project root:
     "ianhobbsmedia/codey-design-system": "*"
   },
   "scripts": {
-    "codey-sync": "node vendor/ianhobbsmedia/codey-design-system/package/scripts/codey-sync.cjs",
+    "codey-sync": "vendor/bin/codey-sync.cjs",
     "post-install-cmd": [ "@codey-sync" ],
     "post-update-cmd": [ "@codey-sync" ]
   }
@@ -82,13 +82,16 @@ Notes on the choices here:
 
 - **`"*"`** tracks the latest published release. Pin to `"~1.0"` once you want to
   freeze a major line.
-- The **script path ends in `.cjs`**, not `.js`. The sync script is CommonJS; the
+- **`vendor/bin/codey-sync.cjs`** — both tools are declared in the package's
+  `composer.json` `bin`, so Composer writes a small proxy into `vendor/bin/` on
+  install and marks the target executable. That's the conventional short path;
+  the real file stays at
+  `vendor/ianhobbsmedia/codey-design-system/package/scripts/`. Bins are created
+  *before* `post-install-cmd` runs, so referencing the proxy here is safe.
+- The **script name ends in `.cjs`**, not `.js`. The sync script is CommonJS; the
   `.cjs` extension forces Node to treat it as CommonJS even inside a project whose
   `package.json` sets `"type": "module"`. (This is a real gotcha — an ESM project
   will crash a `.js` copy with `require is not defined`.)
-- The path includes **`/package/`** — the payload lives under `package/` in the
-  repo, and Composer installs the whole repo into `vendor/…/`, so the script sits
-  at `vendor/ianhobbsmedia/codey-design-system/package/scripts/codey-sync.cjs`.
 - `post-install-cmd` and `post-update-cmd` both run the sync, so the synced files
   are refreshed on every `composer install` and `composer update`.
 
@@ -336,26 +339,25 @@ Colour is two layers: raw **palettes** (the ramp) and **semantic themes**
 
 ### 9.0 Generating a brand palette
 
-> **Finding the tool.** It is **not** synced into `src/` — it runs from
-> `vendor/ianhobbsmedia/codey-design-system/package/scripts/`. `vendor/` is
-> gitignored, so most editors exclude it from search and the script appears to be
-> missing. Add an npm alias once and forget the path:
+> **Finding the tool.** It is declared in the package's `composer.json` `bin`, so
+> Composer proxies it to **`vendor/bin/brand-palette.cjs`** on install — the
+> conventional location for a package's executables. It is *not* synced into
+> `src/`; only its output is. (`vendor/` is gitignored, so editor search skips it.)
 >
-> ```json
-> "scripts": {
->   "codey:palette": "node vendor/ianhobbsmedia/codey-design-system/package/scripts/brand-palette.cjs"
-> }
+> ```bash
+> vendor/bin/brand-palette.cjs --dark "#…" --light "#…"
+> vendor/bin/brand-palette.cjs            # no args: print every option
 > ```
 >
-> then `npm run codey:palette -- --dark "#…" --light "#…"` (the `--` passes the
-> flags through). Run it with no arguments to print every option.
+> Optionally alias it: `"codey:palette": "vendor/bin/brand-palette.cjs"`, then
+> `npm run codey:palette -- --dark "#…"` (the `--` passes the flags through).
 
 Palettes are **generated**, not hand-picked, so the steps are perceptually even.
 `package/scripts/brand-palette.cjs` interpolates in OKLCH between the two poles
 of a spectrum and writes a project-owned stylesheet:
 
 ```bash
-node vendor/ianhobbsmedia/codey-design-system/package/scripts/brand-palette.cjs \
+vendor/bin/brand-palette.cjs \
   --dark "#0f151b" --light "#eef6fe" --mid "#1fa7f3" \
   --half 1.5,2.5 --scope ".theme-brand" \
   --out src/assets/css/_brand-palette.css

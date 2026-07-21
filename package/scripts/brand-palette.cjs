@@ -1,24 +1,27 @@
 #!/usr/bin/env node
 /**
  * ════════════════════════════════════════════════════════════════════════
- *  codey-palette.cjs — GENERATE YOUR BRAND PALETTE
+ *  GENERATE YOUR BRAND PALETTE
  *
- *  QUICK USE (run from your project root):
+ *  QUICK USE — run from your project root via the Composer bin proxy:
  *
- *    node codey-palette.cjs --dark "#111318" --light "#f6f8fb" --mid "#c8452f"
+ *    vendor/bin/brand-palette.cjs --dark "#111318" --light "#f6f8fb" --mid "#c8452f"
  *
  *  → writes src/assets/css/_brand-palette.css
  *  → then add  @import "./_brand-palette.css";  to src/assets/css/main.css
  *    (after codey/index.css) and put your theme class on <body>.
  *
- *    node codey-palette.cjs            # no args: print every option
+ *    vendor/bin/brand-palette.cjs      # no args: print every option
+ *
+ *  Or add an npm alias so you never type the path:
+ *    "codey:palette": "vendor/bin/brand-palette.cjs"
+ *    npm run codey:palette -- --dark "#111318" --light "#f6f8fb"
  *
  *  --dark / --light are the two poles of your brand's spectrum (required).
  *  --mid is your brand's vivid colour; it keeps the mid-tones from washing out.
  *  Add --half 1.5,2.5 for half steps (--color-15, --color-25).
  *
- *  This file is PLACED HERE BY codey-sync and is overwritten on every
- *  composer install/update, so it always matches the installed version.
+ *  This file lives in vendor/ and is replaced on every composer install/update.
  *  Don't edit it — pass flags instead.
  * ════════════════════════════════════════════════════════════════════════
  *
