@@ -87,7 +87,6 @@
   --head-font:    "Gradual",         var(--font-fallback);  /* h1–h3 display */
   --med-font:     "Gotham-Med",      var(--font-fallback);  /* h4–h6 subheads */
   --ital-font:    "Gotham-Ital",     var(--font-fallback);  /* em */
-  --cond-font:    "Gotham-Med-Cond", var(--font-fallback);  /* condensed accents */
 
   /* Mono — small "information" typography: code, keyboard input, and tabular
      data. Unlike the brand faces above, this defaults to the SYSTEM mono stack

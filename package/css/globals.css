@@ -33,8 +33,7 @@
 /* ── Fonts are a PROJECT override ──────────────────────────────────────
    No @font-face and no font files ship with the package — typefaces are
    brand-specific. The design system only names the EXPECTED families in the
-   theme.css tokens (--body-font, --head-font, --med-font, --ital-font,
-   --cond-font), each
+   theme.css tokens (--body-font, --head-font, --med-font, --ital-font), each
    with a system fallback. Every project either:
      • declares its own @font-face for those family names (in its own CSS, or
        inlined in the <head> for critical first-paint weights), OR

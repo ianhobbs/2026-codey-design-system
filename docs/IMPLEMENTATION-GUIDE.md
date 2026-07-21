@@ -284,7 +284,7 @@ than the single steps.
 **Augments** — extra tokens layered on top: `--padding`, a set of `--leading-*`
 line-heights (`tight`, `mid`, `mad`, `big`, `tighter`, `base`, `head`), the font
 stacks (`--body-font`, `--bodymed-font`, `--head-font`, `--med-font`, `--ital-font`,
-`--cond-font`, each with a matching `--*-weight`, over a
+each with a matching `--*-weight`, over a
 `--font-fallback`), and `--blur`, `--glass-transparency`, `--radius-lg`,
 `--border-radius`.
 
@@ -318,7 +318,7 @@ to change in your `_brand.css` `@theme` — because it loads last, it wins:
 typefaces are brand-specific and licence-bound, so they live in a project-owned
 **brand typography sheet** (see §11.1) and in `head.php` for critical weights. The
 package only *names* the expected families in the font tokens (`--body-font`,
-`--bodymed-font`, `--head-font`, `--med-font`, `--ital-font`, `--cond-font` — each
+`--bodymed-font`, `--head-font`, `--med-font`, `--ital-font` — each
 with a paired `--*-weight`), each falling back to
 `--font-fallback` (system UI) until your project supplies the faces.
 
@@ -898,7 +898,7 @@ Also in 2.0:
 
 **Line-heights:** `--leading-tight · mid · mad · big · tighter · base · head`.
 
-**Fonts (family + weight pairs):** `--body-font` (Gotham-Book, body) · `--bodymed-font` (Gotham-Med, `strong`/`b`) · `--head-font` (Gradual, h1–h3) · `--med-font` (Gotham-Med, h4–h6) · `--ital-font` (Gotham-Ital, `em`) · `--cond-font` (Gotham-Med-Cond) · `--font-fallback`.
+**Fonts (family + weight pairs):** `--body-font` (Gotham-Book, body) · `--bodymed-font` (Gotham-Med, `strong`/`b`) · `--head-font` (Gradual, h1–h3) · `--med-font` (Gotham-Med, h4–h6) · `--ital-font` (Gotham-Ital, `em`) · `--font-fallback`.
 **Mono (stylistic):** `--mono-font` (defaults to `--mono-fallback`, the system mono stack — works with no face supplied) · `--mono-fallback`.
 **Column data:** `--data-tracking` (letter-spacing for `.data`; `0em` default). `.data` keeps the body face and uses tabular figures.
 **Weights:** `--body-weight` · `--bodymed-weight` · `--head-weight` · `--med-weight` · `--mono-weight` — all `400` by default (pre-weighted faces); variable-font projects raise `--bodymed-weight`/`--med-weight` to `500`.

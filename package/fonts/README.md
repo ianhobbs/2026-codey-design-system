@@ -18,7 +18,7 @@ overwritten.
 fallback:
 
 ```css
---body-font  --head-font  --med-font  --ital-font  --cond-font
+--body-font  --head-font  --med-font  --ital-font
 ```
 
 `package/css/globals.css` carries no `@font-face`. Each project supplies its own:

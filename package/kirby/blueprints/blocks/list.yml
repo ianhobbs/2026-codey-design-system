@@ -1,0 +1,15 @@
+name: field.blocks.list.name
+icon: list-bullet
+wysiwyg: true
+preview: list
+fields:
+  text:
+    label: field.blocks.list.name
+    type: list
+  class: 
+    label: field.blocks.heading.class
+    type: select
+    empty: true
+    options:
+      - value: "text-small"
+      - value: "text-normal"

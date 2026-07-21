@@ -124,7 +124,6 @@
   --head-font:    "YourDisplay",     var(--font-fallback);   // h1–h3, .heads/.decor
   --med-font:     "Gotham-Med",      var(--font-fallback);   // h4–h6 subheads
   --ital-font:    "Gotham-Ital",     var(--font-fallback);   // em
-  --cond-font:    "Gotham-Med-Cond", var(--font-fallback);   // condensed accents
 
   --body-weight:    400;
   --bodymed-weight: 400;   // the Med file is already medium
