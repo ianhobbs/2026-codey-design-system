@@ -1,0 +1,25 @@
+name: SVG
+icon: image
+preview: image
+
+fields:
+  image:
+    label: SVG File
+    type: files
+    query: model.files.filterBy('extension', 'svg')
+    multiple: false
+    uploads:
+      template: blocks/svg
+  alt:
+    label: Alt Text
+    type: text
+    icon: title
+  caption:
+    label: Caption
+    type: writer
+    icon: text
+    inline: true
+  link:
+    label: Link
+    type: text
+    icon: url

@@ -1,0 +1,85 @@
+# ═══════════════════════════════════════════════════════════════════
+#  Git hygiene — the server runs this repo directly, so COMPILED output
+#  (build/assets, build/site mirror) IS committed. Everything Composer
+#  installs, everything Kirby generates (locally and on the server), all
+#  rsynced binaries, the content folder, and anything sensitive stay OUT.
+# ═══════════════════════════════════════════════════════════════════
+
+# ── Node deps + lockfile ─────────────────────────────────────
+/node_modules/
+/package-lock.json
+
+# ── Anything Composer installs (server runs `composer install`) ──
+/build/kirby/
+/build/vendor/
+/build/site/plugins/
+/build/vendor/composer/installed.php
+
+# ── Rsynced separately, never in git: fonts + image/video binaries ──
+*.woff
+*.woff2
+*.ttf
+*.otf
+*.eot
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+*.avif
+*.mov
+*.mp4
+/build/assets/fonts/
+/build/assets/images/
+/src/assets/images/
+
+# ── Kirby generates these (locally AND on the server) — never in git ──
+/build/media/
+/build/site/cache/
+/build/site/sessions/
+/build/site/logs/
+/build/thumbs/
+.lock
+**/.lock
+
+# ── Content + accounts (managed in the Panel / on the server) ──
+/build/content/
+/build/site/accounts/
+
+# ── Sensitive — credentials, licences, env  (EXPANDED in the next phase) ──
+.env
+/build/.env
+/build/site/config/.env
+/build/site/config/.license*
+/build/.license
+/build/site/config/config.*.local.php
+auth.json
+/build/auth.json
+*.pem
+*.key
+*.credentials
+
+# ── Deploy: per-project connection config (holds server address) ──
+/deploy/deploy.config.sh
+
+# ── glue/: env & secrets (commit only the example + .gitkeep) ──
+/glue/*
+!/glue/.gitkeep
+!/glue/.env.example
+
+# ── COMMITTED (not ignored — here for reference) ─────────────
+#   src/**                     the source of truth
+#   build/site/**              compiled mirror of src/site (minus plugins/accounts/runtime)
+#   build/assets/css, /js      compiled by Tailwind / esbuild
+#   build/{composer.json,index.php,.htaccess}
+#   sample-content/**          starter pages (npm run seed → build/content)
+#   Rebuild after editing src/: `npm run build` (CodeKit does it live when active).
+
+# ── Tooling / editor / OS ────────────────────────────────────
+config.codekit3
+.codekit-cache/
+.DS_Store
+Icon
+*.map
+.vscode/*
+!.vscode/extensions.json

@@ -1,0 +1,126 @@
+#src/site/blueprints/site.yml
+# This is the main site blueprint that defines the structure and settings for the entire site.
+# It includes global settings, site-wide fields, and sections for managing content.
+title: Site
+tabs:
+  content:
+    columns:
+      - width: 1/2
+        sections:
+          some:
+            type: fields
+            fields:
+              Support:
+                type: info
+                text: |
+                  Website Developed by **Ian Hobbs Media**
+                  (link:https://ianhobbsmedia.com.au)
+
+                  Tickets Jira : (link:https://codeynet.atlassian.net/jira/core/projects/BSU/board)
+
+                  Support Email (link:mailto:admin@ianhobbsmedia.com)
+                  Phone (link:tel:0411032601)
+              Globals:
+                type: headline
+                label: Global Data
+              contact:
+                type: text
+                label: Contact Name
+                width: 1/2
+              phone:
+                type: text
+                label: Phone number
+                width: 1/2
+                icon: phone
+              mail:
+                type: text
+                label: Email
+                width: 1/1
+              address:
+                type: textarea
+                label: Address
+                width: 1/1
+              fblink:
+                type: link
+                label: Facebook Page
+                width: 1/1
+                icon: facebook
+              inslink:
+                type: link
+                label: Instagram Page
+                width: 1/1
+                icon: instagram
+              fform:
+                type: textarea
+                label: Add Subscription form code
+                width: 1/1
+                help: press the code button to format the type
+              recons:
+                label: Reconciliation text
+                type: textarea
+              Analytics:
+                help:
+                  Paste link code into the code tag above - for site tracking
+                type: textarea
+                icon: page
+                upload: false
+                default: Add your google tag or Umami tag
+
+
+      - width: 1/2
+        sections:
+          pages:
+            preset: pages
+            unlisted: true
+            create: default
+            templates:
+              - about
+              - home
+              - default
+              - products
+              - contact
+          notes: sections/notes
+          jobs:
+            type: fields
+            fields:
+              colSet:
+                label: Jobs
+                help: Todo.
+                type: headline
+              line:
+                type: line
+              pageSettings:
+                label: Maintenance + Commands
+                help: Just quick functions to clean and optimise the site. For Admins.
+                type: headline
+              call_my_command:
+                type: janitor
+                command: 'example --data test'
+                label: Test Connection
+                success: Good
+                width: 1/4
+              flush:
+                type: janitor
+                command: 'janitor:flush'
+                label: Flush Cache
+                success: Cache Flushed
+                width: 1/4
+              trash:
+                type: janitor
+                command: 'janitor:trash'
+                label: Clean Entries NOW
+                success: All cleaned
+                width: 1/4
+              picasso:
+                type: janitor
+                command: 'janitor:thumbs'
+                width: 1/4
+                success: All thumb files generated
+                label: Regenrate thumbs
+              layouts:
+                type: janitor
+                command: 'layouts'
+                label: Layout Report
+                success: Report generated
+                width: 1/4
+  seo: seo/site

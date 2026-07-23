@@ -1,0 +1,13 @@
+Title: First note
+
+----
+
+Date: 2026-07-23
+
+----
+
+Subheading: A starter note to show the note template.
+
+----
+
+Text: Welcome to Codey. Replace this with your own content.

@@ -1,0 +1,7 @@
+# Page theme selector — referenced as `theme: fields/theme`.
+# Codey ships one flavour; add more per project as you create palettes/themes.
+label: Page Theme
+type: select
+options:
+  theme-codey: Codey
+default: theme-codey

@@ -1,0 +1,85 @@
+name: field.blocks.image.name
+icon: image
+preview: image
+fields:
+  location:
+    label: field.blocks.image.location.label
+    type: toggles
+    default: kirby
+    empty: false
+    options:
+      - value: kirby
+        text: field.blocks.image.location.kirby
+      - value: web
+        text: field.blocks.image.location.web
+  image:
+    label: field.blocks.image.image
+    type: files
+    when:
+      location: kirby
+  src:
+    label: field.blocks.image.src
+    type: url
+    when:
+      location: web
+  alt:
+    label: field.blocks.image.alt
+    type: text
+  caption:
+    label: field.blocks.image.caption
+    type: writer
+    inline: true
+  link:
+    label: field.blocks.image.link
+    type: url
+  ratio:
+    label: field.blocks.image.ratio
+    type: text
+    width: 1/2
+  crop:
+    label: field.blocks.image.crop
+    type: toggles
+    width: 1/2
+    default: "false"
+    options:
+      - value: "false"
+        text: field.blocks.image.crop.false
+      - value: "true"
+        text: field.blocks.image.crop.true
+  animation:
+    label: Animation
+    type: select
+    empty: true
+    options:
+      - value: slide-up
+        text: Slide Up
+      - value: slide-in-left
+        text: Slide In (Left)
+      - value: slide-in-right
+        text: Slide In (Right)
+      - value: fade
+        text: Fade In
+  animation_delay:
+    label: Delay
+    type: select
+    empty: true
+    options:
+      - value: "0ms"
+        text: No delay
+      - value: "150ms"
+        text: 150ms
+      - value: "300ms"
+        text: 300ms
+      - value: "500ms"
+        text: 500ms
+  animation_duration:
+    label: Speed
+    type: select
+    empty: true
+    options:
+      - value: "400ms"
+        text: Fast (400ms)
+      - value: "700ms"
+        text: Medium (700ms)
+      - value: "1000ms"
+        text: Slow (1s)

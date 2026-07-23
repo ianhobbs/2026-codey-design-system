@@ -1,0 +1,47 @@
+/* =============================================================
+   PALETTE: Codey (core sample) — deep ocean blues.
+   Selectable theme flavor: add class="theme-codey" to a scope.
+
+   ORIENTATION: 0 = DARKEST → 9 = LIGHTEST.
+   (Reversed from the original hand-built palette, which ran 0 = lightest.
+   "Least light → most light" is the convention across the system now; the
+   generator emits this order and every semantic map below follows it.)
+
+   GENERATED in OKLCH — perceptually even steps, chroma anchored on the brand
+   blue so the mid-tones stay vivid instead of washing out. Regenerate with:
+
+     node <codey>/package/scripts/brand-palette.cjs \
+       --dark "#0f151b" --light "#eef6fe" --mid "#1fa7f3" \
+       --half 1.5,2.5 --scope ".theme-codey" --steps 10
+
+   Half steps: --color-15 sits between 1 and 2, --color-25 between 2 and 3.
+   ============================================================= */
+
+.theme-codey {
+
+  /* ── Base ramp: 0 darkest → 9 lightest ── */
+  --color-0 : oklch(19.24% 0.0153 248.63);  /* darkest */
+  --color-1 : oklch(30.44% 0.0462 246.91);
+  --color-15: oklch(36.04% 0.0616 246.04);
+  --color-2 : oklch(41.64% 0.0771 245.18);
+  --color-25: oklch(47.24% 0.0925 244.32);
+  --color-3 : oklch(52.83% 0.1080 243.46);
+  --color-4 : oklch(64.03% 0.1388 241.73);  /* the brand blue */
+  --color-5 : oklch(72.66% 0.1387 241.66);
+  --color-6 : oklch(78.73% 0.1074 243.24);
+  --color-7 : oklch(84.80% 0.0762 244.81);
+  --color-8 : oklch(90.87% 0.0449 246.39);
+  --color-9 : oklch(96.94% 0.0137 247.97);  /* lightest */
+
+  /* ── Keycolors: self-referential for codey (same blue family) ── */
+  --keycolor-1: var(--color-1);
+  --keycolor-2: var(--color-2);
+  --keycolor-3: var(--color-3);
+  --keycolor-4: var(--color-4);
+
+  /* ── Critical: literal values for first-paint correctness ──
+     Resolved values of --color-2 (ground) and --color-8 (text), written out
+     so background and text are right before main.css loads. */
+  --color-background: oklch(41.64% 0.0771 245.18);
+  --color-text:       oklch(90.87% 0.0449 246.39);
+}

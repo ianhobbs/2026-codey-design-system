@@ -1,0 +1,35 @@
+/* ════════════════════════════════════════════════════════════════════
+   _brand.css — YOUR BRAND LAYER (loaded last from main.css, wins over core)
+
+   This is where a project makes Codey its own. Nothing here is overwritten
+   by a Codey update — the core lives under ./codey/, this file is yours.
+
+   Three common jobs:
+     1. Override design TOKENS — redeclare any @theme token from
+        codey/theme.css in the @theme block below. Tailwind merges @theme
+        blocks and the LAST declaration wins, so your value replaces Codey's.
+     2. Brand FONTS — @font-face + set the font tokens (see codey/globals.css
+        for the token names). Font files go in src/assets/fonts/.
+     3. Brand COLOUR — import a generated palette (see below) and/or add
+        bespoke brand rules in @layer bespoke so they beat utilities.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Generated brand palette (optional) ─────────────────────────────
+   Generate with:  node scripts/brand-palette.cjs --dark "#111318" --light "#f6f8fb" --mid "#c8452f"
+   → writes src/assets/css/_brand-palette.css, then uncomment: */
+/* @import "./_brand-palette.css"; */
+
+/* ── 2. Brand token overrides ──────────────────────────────────────────
+   Redeclare only what you want to change; everything else falls back to
+   codey/theme.css. Example: */
+@theme {
+  /* --font-sans: "YourBrandSans", ui-sans-serif, system-ui, sans-serif; */
+  /* --font-display: "YourBrandDisplay", serif; */
+  /* --color-brand: #c8452f; */
+}
+
+/* ── 3. Bespoke brand rules (beat utilities) ───────────────────────────
+   Put encapsulated brand widgets / authoritative overrides here. */
+@layer bespoke {
+  /* .site-header { … } */
+}

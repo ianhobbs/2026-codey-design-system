@@ -1,0 +1,41 @@
+/* ════════════════════════════════════════════════════════════════════
+   Codey globals (vendored core) — theme-INDEPENDENT brand values that must
+   outrank even bespoke, so they live UNLAYERED (per the cascade contract):
+   :root brand constants. Palettes (theme-dependent) live in ./palettes/.
+   Fonts are a PROJECT override — no font files ship with the package (they are
+   brand-specific). See the note below.
+   ════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Fixed brand constants — literal hex/oklch by design (first-paint safe). */
+  --color-black: #000;
+  --color-white: #fff;
+
+  /* Active/interaction brand colours (theme-independent default;
+     a palette may override --color-active-* for its scope). */
+  --color-active-1: oklch(87.60% 0.1525 90.09); /* #fdd14d */
+  --color-active-2: oklch(84.11% 0.1587 87.20); /* #f7c333 */
+  --color-active-3: oklch(73.53% 0.1516 80.60); /* #da9d03 */
+  --color-active-4: oklch(63.14% 0.1309 78.42); /* #b47e02 */
+
+  /* Report status colours (used by report/score components). */
+  --report-green:     oklch(52% 0.155 145);
+  --report-green-bg:  oklch(96% 0.04 145);
+  --report-orange:    oklch(65% 0.16 55);
+  --report-orange-bg: oklch(96% 0.04 55);
+  --report-red:       oklch(52% 0.19 25);
+  --report-red-bg:    oklch(96% 0.04 25);
+
+  /* Layout default — width of a text measure ("note"). */
+  --note-width: 47rem;
+}
+
+/* ── Fonts are a PROJECT override ──────────────────────────────────────
+   No @font-face and no font files ship with the package — typefaces are
+   brand-specific. The design system only names the EXPECTED families in the
+   theme.css tokens (--body-font, --head-font, --med-font, --ital-font), each
+   with a system fallback. Every project either:
+     • declares its own @font-face for those family names (in its own CSS, or
+       inlined in the <head> for critical first-paint weights), OR
+     • overrides the --*-font tokens in _brand.css to point at its own faces.
+   Until then, the tokens resolve to the system fallback. */

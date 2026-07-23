@@ -1,0 +1,35 @@
+{
+  "name": "codey",
+  "version": "4.0.0",
+  "private": true,
+  "description": "Codey — a Kirby design-system starter. Clone it to begin a new project. src/ is the source of truth; the build scripts compile src/assets → build/assets and mirror src/site → build/site.",
+  "author": "Ian Hobbs Media",
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "tails": "npx @tailwindcss/cli -i ./src/assets/css/main.css -o ./build/assets/css/main.css -m",
+    "tails:watch": "npx @tailwindcss/cli -i ./src/assets/css/main.css -o ./build/assets/css/main.css -wm",
+    "js": "npx esbuild ./src/assets/js/codey/alpine.js --bundle --minify --outfile=./build/assets/js/codey/alpine.js",
+    "assets": "npm run css && npm run js",
+    "site": "node scripts/sync-site.mjs",
+    "build": "npm run site && npm run assets",
+    "seed": "node scripts/seed-content.mjs",
+    "styleguide": "cd styleguide-builder && npm install --no-audit --no-fund && npm run build",
+    "setup": "cd build && composer install && cd .. && npm run seed && npm run build",
+    "palette": "node scripts/brand-palette.cjs",
+    "serve": "cd build && composer start",
+    "deploy:push": "bash deploy/deploy.sh push",
+    "deploy:pull": "bash deploy/deploy.sh pull",
+    "deploy:glue": "bash deploy/deploy.sh glue"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1",
+    "tailwindcss": "^4.1",
+    "alpinejs": "^3.14",
+    "esbuild": "^0.24"
+  },
+  "allowScripts": {
+    "@parcel/watcher@2.5.1": true,
+    "esbuild@0.24.2": true
+  }
+}

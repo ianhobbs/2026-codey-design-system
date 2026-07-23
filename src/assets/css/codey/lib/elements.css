@@ -1,0 +1,23 @@
+/* Codey core elements (vendored) — aspect-ratio media boxes.
+   @apply resolves in the project's Tailwind context; colours via var(). */
+
+.video,
+.img {
+  @apply relative block;
+  --w: 1;
+  --h: 1;
+  padding-bottom: calc(100% / var(--w) * var(--h));
+  background: var(--color-black);
+}
+.img img,
+.video iframe {
+  @apply absolute w-full h-full object-cover;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border: 0;
+}
+.img[data-contain] img {
+  @apply object-contain;
+}

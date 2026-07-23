@@ -1,0 +1,42 @@
+name: Animations
+icon: preview
+label: "Animation: {{ animation }}"
+preview: fields
+fields:
+  animation:
+    label: Animation Type
+    type: select
+    default: slide-up
+    options:
+      - value: slide-up
+        text: Slide Up
+      - value: slide-in-left
+        text: Slide In (Left)
+      - value: slide-in-right
+        text: Slide In (Right)
+      - value: fade
+        text: Fade In
+  delay:
+    label: Delay
+    type: select
+    default: "0ms"
+    options:
+      - value: "0ms"
+        text: No delay
+      - value: "150ms"
+        text: 150ms
+      - value: "300ms"
+        text: 300ms
+      - value: "500ms"
+        text: 500ms
+  duration:
+    label: Speed
+    type: select
+    default: "700ms"
+    options:
+      - value: "400ms"
+        text: Fast (400ms)
+      - value: "700ms"
+        text: Medium (700ms)
+      - value: "1000ms"
+        text: Slow (1s)

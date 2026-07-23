@@ -1,0 +1,116 @@
+name: field.blocks.heading.name
+icon: title
+wysiwyg: true
+preview: heading
+fields:
+  level:
+    label: field.blocks.heading.level
+    type: toggles
+    empty: false
+    default: "h2"
+    labels: false
+    options:
+      - value: h1
+        icon: h1
+        text: H1
+      - value: h2
+        icon: h2
+        text: H2
+      - value: h3
+        icon: h3
+        text: H3
+      - value: h4
+        icon: h4
+        text: H4
+      - value: h5
+        icon: h5
+        text: H5
+      - value: h6
+        icon: h6
+        text: H6
+  text:
+    label: field.blocks.heading.text
+    type: writer
+    inline: true
+    placeholder: field.blocks.heading.placeholder
+  position:
+    label: field.blocks.heading.position
+    type: toggles
+    empty: false
+    default: left
+    labels: false
+    options:
+      - value: text-left
+        icon: text-left
+        text: Left
+      - value: text-center
+        icon: text-center
+        text: Center
+      - value: text-right
+        icon: text-right
+        text: Right
+  class: 
+    label: field.blocks.heading.class
+    type: select
+    empty: true
+    options:
+      - value: "decor"
+      - value: "mysans"
+      - value: "down-step"
+      - value: "down-step-x2"
+      - value: "up-step"
+  bgcolor: 
+    label: field.blocks.heading.bgcolor
+    type: select
+    empty: true
+    options:
+      - value: "--color-6"
+      - value: "--color-7"
+      - value: "--color-8"
+      - value: "--null"
+  margin:
+    label: field.blocks.heading.margin
+    type: select
+    empty: true
+    options:
+      - value: "my-3 md:my-5"
+      - value: "my-5 md:my-7 lg:my-11"
+      - value: "p-3 md:p-4 lg:p-5"
+      - value: "p-3 md:p-5 lg:p-6"
+  animation:
+    label: Animation
+    type: select
+    empty: true
+    options:
+      - value: slide-up
+        text: Slide Up
+      - value: slide-in-left
+        text: Slide In (Left)
+      - value: slide-in-right
+        text: Slide In (Right)
+      - value: fade
+        text: Fade In
+  animation_delay:
+    label: Delay
+    type: select
+    empty: true
+    options:
+      - value: "0ms"
+        text: No delay
+      - value: "150ms"
+        text: 150ms
+      - value: "300ms"
+        text: 300ms
+      - value: "500ms"
+        text: 500ms
+  animation_duration:
+    label: Speed
+    type: select
+    empty: true
+    options:
+      - value: "400ms"
+        text: Fast (400ms)
+      - value: "700ms"
+        text: Medium (700ms)
+      - value: "1000ms"
+        text: Slow (1s)

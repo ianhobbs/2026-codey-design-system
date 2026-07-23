@@ -1,0 +1,56 @@
+title: Simple Page
+
+icon: 📝
+options:
+  changeTemplate:
+    - about
+    - home
+    - default
+    - projects
+
+# Custom descriptions of page statuses depending on use case
+# More about page statuses: https://getkirby.com/docs/reference/panel/blueprints/page#statuses
+status:
+  draft: true
+  unlisted:
+    label: Hidden Page
+    text: The page is not listed in the main menu
+  listed:
+    label: Menu Page
+    text: The page is listed in the main menu
+
+# Content area width 2 columns and 3 sections: fields, pages, and files
+# Columns: https://getkirby.com/docs/guide/blueprints/layout#defining-columns
+columns:
+  main:
+    width: 2/3
+    sections:
+      # Fields section: https://getkirby.com/docs/reference/panel/sections/fields
+      fields:
+        type: fields
+        fields:
+          layout: fields/layout
+          text:
+            type: textarea
+            size: medium
+          cover: fields/cover
+          metadescription:
+            type: textarea
+            label: SEO Description
+          tags:
+            type: tags
+  sidebar:
+    width: 1/3
+    sections:
+      # Pages section: https://getkirby.com/docs/reference/panel/sections/pages
+      sidebar:
+        type: fields
+        fields:
+          theme: fields/theme
+      pages:
+        type: pages
+        template: default
+      # Files section: https://getkirby.com/docs/reference/panel/sections/files
+      files:
+        type: files
+

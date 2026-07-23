@@ -1,0 +1,60 @@
+/* =============================================================
+   THEME: Codey (core) — default flavor.
+   Semantic alias layer over the codey palette. Meant to be inlined into
+   <head> by PHP before main.css for first-paint bg/text correctness (or
+   imported via index.css for the compiled bundle).
+
+   Project decoration (leaf SVG background, products-block overrides) was
+   stripped on extraction — add per project via the commented block below.
+   ============================================================= */
+
+@import "../palettes/_palette-codey.css";
+
+/* ── Semantic aliases ──
+   Scale is 0 = DARKEST → 9 = LIGHTEST. These were remapped from the original
+   (0 = lightest) palette by new = 9 − old, so every alias keeps the tone it
+   always had; only the index it points at changed. Half steps followed:
+   old --color-65 → --color-25, old --color-75 → --color-15. */
+.theme-codey {
+  --logo:                var(--color-5);
+  --hover:               var(--color-active-3);
+  --link:                var(--color-5);
+  --cta-fill:            var(--color-active-2);
+  --cta-text:            var(--color-1);
+  --color-grey:          var(--color-7);
+  --color-light:         var(--color-9);
+  --color-dark:          var(--color-1);
+  --date-col:            var(--color-7);
+  --nav-text:            var(--color-8);
+  --nav-social:          var(--color-8);
+  --nav-item-bg:         var(--color-1);
+  --nav-item-bg-current: var(--color-2);
+  --nav-item-bgPC:       40%;
+  --product-card-bg:     var(--color-25);
+  --blockquote-color:    var(--color-6);
+  --blockquote-border:   var(--color-5);
+  --shadow-color:        var(--color-15);
+  --saturate:            110%;
+  --nav-xsvg:            var(--keycolor-2);
+  --nav-dark:            var(--keycolor-1);
+  --color-button-bg:     var(--color-1);
+  --color-button-text:   var(--color-8);
+  --color-text-muted:    var(--color-5);
+  --colour-hr:           var(--color-4);
+}
+
+/* ── Critical: apply background + text from first paint ── */
+.theme-codey {
+  background-color: var(--color-background);
+  color:            var(--color-text);
+}
+
+/* ── Optional decorative background (project-specific) ──
+.theme-codey:not(.products-block) {
+  background-image:    url('/assets/icons/your-leaf.svg');
+  background-position: 30vw -34vw;
+  background-repeat:   no-repeat;
+  background-size:     88%;
+  height:              110vh;
+}
+*/

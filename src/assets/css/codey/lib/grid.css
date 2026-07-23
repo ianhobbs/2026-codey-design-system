@@ -1,0 +1,117 @@
+/* ════════════════════════════════════════════════════════════════════
+   CODEY GRIDS — content grid devices (core).
+   Imported layer(bespoke): authoritative, wins over utilities.
+
+   Companion to lib/layout.css. The split is the point:
+
+     layout.css   WHERE a block sits on the page's horizontal track axis
+                  (content / full). The frame.
+     grid.css     HOW a block divides its own width into columns.
+
+   Column divisions play no part in framing, and framing plays no part in
+   column division. A block picks one grid device from this file and,
+   independently, is either framed or bled by layout.css.
+
+   THE GRID DEVICE IS THE THEME CLASS. The Kirby layout field's `theme`
+   attr (blueprints/fields/layout.yml) writes one of these class names onto
+   the row, and that class IS the grid — there is no separate wrapper. The
+   renderer (snippets/layouts.php) does nothing but emit the class.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── The 12-column family ──────────────────────────────────────────────
+   Three devices, identical geometry, differing only in gap, block margin
+   and surface. Single column on narrow screens; 12 tracks from 60rem, at
+   which point a .column spans its inline --columns (set by the renderer
+   from the Panel column width).
+
+   Below 60rem --columns is deliberately ignored: every column becomes full
+   width. That is why the span rule is inside the media query rather than
+   guarded by a max-width override. */
+
+.plain-blocks {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin-block: 0;
+}
+
+.plain-blocks-padded {
+  display: grid;
+  grid-template-columns: 1fr;
+  /* Literals carried over from the source project. Candidates for the fluid
+     scale, but they are visual decisions — retune deliberately, don't
+     "harmonise" them into a different look by accident. */
+  gap: 1.5rem;
+  margin-block: 0.5rem;
+}
+
+.card-blocks {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;                                /* see note above */
+  margin-block: 0.5rem;
+  background-color: var(--color-1);
+  border-radius: var(--radius-lg, 0.5rem);
+  padding: var(--spacing-6);
+}
+
+@media screen and (min-width: 60rem) {
+  .plain-blocks,
+  .plain-blocks-padded,
+  .card-blocks {
+    --gutter: var(--spacing-4);
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--gutter);
+  }
+
+  .plain-blocks        > .column,
+  .plain-blocks-padded > .column,
+  .card-blocks         > .column {
+    grid-column: span var(--columns);
+  }
+}
+
+/* ── Full bleed — a different device, not a wider variant ──────────────
+   Edge-to-edge and it manages its own columns INDEPENDENTLY of the parent
+   frame: auto-fit tracks sized by --min, so --columns is not consulted at
+   all. This is the one row type where the Panel's column widths genuinely
+   don't apply.
+
+   The dvw + negative-margin pair is the standalone escape hatch, for use
+   outside .layout. As a direct child of .layout it is neutralised in favour
+   of clean track placement — see layout.css. */
+.full-bleed-grid {
+  width: 100dvw;
+  margin-inline: calc(50% - 50dvw);
+  display: grid;
+  gap: var(--gutter, var(--spacing-4-m));
+  grid-template-columns: repeat(auto-fit, minmax(var(--min, 16rem), 1fr));
+}
+
+/* Bleed without the grid — same escape hatch, block stays undivided. */
+.full-bleed {
+  width: 100dvw;
+  margin-inline: calc(50% - 50dvw);
+}
+
+/* Bleed with overflow clipped, for children that would otherwise widen the
+   document (transformed or absolutely-positioned decoration). */
+.full-bleed-clip {
+  width: 100dvw;
+  margin-inline: calc(50% - 50dvw);
+  overflow-x: clip;
+}
+
+/* ── Generic 12-track grid ─────────────────────────────────────────────
+   Not a layout-field theme — a plain utility grid for hand-written markup
+   (the core footer uses it). Same column contract as the family above, so
+   `.column` + --columns behaves identically wherever it appears. */
+.blocks-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gutter, var(--spacing-4-m));
+}
+.blocks-grid > .column { grid-column: span var(--columns, 12); }
+@media (max-width: 60rem) {
+  .blocks-grid > .column { grid-column: 1 / -1; }   /* stack on narrow */
+}

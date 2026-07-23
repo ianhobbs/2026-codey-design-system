@@ -1,0 +1,111 @@
+# Each page blueprint must have a title, the title may be different from the file name
+title: Note
+
+# Sorting number scheme that is applied when page status is changed to `listed`
+# More about page sorting: https://getkirby.com/docs/reference/panel/blueprints/page#sorting
+num: date
+
+# Each page can have an icon that is shown in page listings when no preview image is available.
+icon: 📖
+
+# Custom descriptions for each page status depending on use case
+# More about page status: https://getkirby.com/docs/reference/panel/blueprints/page#statuses
+status:
+  draft:
+    label: Draft
+    text: The note is still in draft mode. It can only be seen by editors with panel access.
+  unlisted:
+    label: In Review
+    text: The note is online and can be visited with the direct URL. The team must still give the final go to publish it.
+  listed:
+    label: Published
+    text: The note is online and listed in the blog
+
+# Define the form layout with two columns
+# Columns are optional but help structure the form layout
+# More about columns: https://getkirby.com/docs/guide/blueprints/layout#defining-columns
+tabs:
+  content:
+    icon: text
+    label: Content
+    # The content tab contains two columns, each with its own sections
+    # The first column contains fields to define the note
+    columns:
+      - width: 1/2
+        fields:
+          text:
+            type: blocks
+            fieldsets:
+              - spacer
+              - heading
+              - quote
+              - image
+              - file
+              - video
+              - audio
+              - list
+              - text
+              - markdown
+              - table
+              - gallery
+              - code
+              - writer
+              - animations
+      - width: 1/2
+        sections:
+          meta:
+            type: fields
+            fields:
+              date:
+                type: date
+                time: true
+                default: now
+              author:
+                type: users
+              theme: fields/theme
+              # Fields types can be added using the shortcut `fieldname: true`
+              # (however, you can only use a fieldname once per page and this only makes sense for simple fields without configuration)
+              tags: true
+              cover: fields/cover
+              ogimage:
+                label: OG Image
+                type: files
+                multiple: false
+                query: page.images
+                help: Raster image (JPG/PNG) for social sharing. Required if cover is an SVG.
+                uploads:
+                  accept:
+                    - image/jpeg
+                    - image/png
+                    - image/webp
+              svgtoggle:
+                label: Use the loaded svg for cover.
+                type: toggle
+                text:
+                  - "no"
+                  - "yes"
+              svgcover:
+                label: SVG Cover
+                type: files
+                max: 1
+                uploads:
+                  accept: .svg
+                when:
+                  svgtoggle: true
+          files:
+            type: files
+            template: image
+            layout: cards
+
+          
+  oldseo:
+    icon: text
+    label: Seo & Metadata
+    sections:
+      content:
+        type: fields
+        fields:
+          metadescription:
+            type: textarea
+            width: 1/2
+  seo: seo/page

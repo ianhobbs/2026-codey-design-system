@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{project.name}} — Style Guide</title>
+  <style>
+    /* ── Site typefaces — real previews. Absolute paths resolve when the
+         guide is served at /styleguide/ (build/ is the Kirby webroot). ── */
+    @font-face { font-family: "Gradual";         src: url(/assets/fonts/BwGradual-Regular.woff2) format("woff2"); font-display: swap; }
+    @font-face { font-family: "Gotham-Med";      src: url(/assets/fonts/GothamHTF-Medium-export/GothamHTF-Medium.woff2) format("woff2"); font-display: swap; }
+    @font-face { font-family: "Gotham-Ital";     src: url(/assets/fonts/GothamHTF-BookItalic-export/GothamHTF-BookItalic.woff2) format("woff2"); font-display: swap; }
+    @font-face { font-family: "Gotham-Med-Cond"; src: url(/assets/fonts/GothamHTF-MediumCondensed-export/GothamHTF-MediumCondensed.woff2) format("woff2"); font-display: swap; }
+
+    /* ── Reset & base ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --c-bg:        #0f0f11;
+      --c-surface:   #1a1a1e;
+      --c-border:    #2a2a30;
+      --c-text:      #e8e8ec;
+      --c-muted:     #888896;
+      --c-accent:    #5b6ef5;
+      --c-accent-lo: #5b6ef518;
+      --c-ok:        #3ecf8e;
+      --c-warn:      #f5a623;
+      --c-info:      #5bc8f5;
+      --font-mono:   'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --font-ui:     -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --radius:      6px;
+      --radius-lg:   12px;
+      --sidebar-w:   220px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-ui);
+      background:  var(--c-bg);
+      color:       var(--c-text);
+      font-size:   15px;
+      line-height: 1.6;
+      min-height:  100vh;
+    }
+
+    /* ── Sidebar ──────────────────────────────────────────── */
+    .sidebar {
+      position:   fixed;
+      top:        0;
+      left:       0;
+      width:      var(--sidebar-w);
+      height:     100vh;
+      background: var(--c-surface);
+      border-right: 1px solid var(--c-border);
+      overflow-y: auto;
+      padding:    24px 0 40px;
+      display:    flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .sidebar__brand {
+      padding:      0 20px 20px;
+      border-bottom: 1px solid var(--c-border);
+      margin-bottom: 12px;
+    }
+
+    .sidebar__project {
+      font-size:   11px;
+      color:       var(--c-muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 4px;
+    }
+
+    .sidebar__name {
+      font-size:   14px;
+      font-weight: 600;
+      color:       var(--c-text);
+    }
+
+    .sidebar__version {
+      font-size:  11px;
+      color:      var(--c-muted);
+      margin-top: 2px;
+    }
+
+    .sidebar a {
+      display:     flex;
+      align-items: center;
+      gap:         8px;
+      padding:     7px 20px;
+      color:       var(--c-muted);
+      text-decoration: none;
+      font-size:   13px;
+      font-weight: 500;
+      border-radius: 0;
+      transition:  color .15s, background .15s;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      color:      var(--c-text);
+      background: var(--c-accent-lo);
+    }
+
+    .sidebar a.active { color: var(--c-accent); }
+
+    .sidebar__count {
+      margin-left: auto;
+      font-size:   11px;
+      color:       var(--c-muted);
+      background:  var(--c-bg);
+      padding:     1px 6px;
+      border-radius: 10px;
+    }
+
+    /* ── Main ─────────────────────────────────────────────── */
+    /* Fills the area right of the fixed sidebar (no width cap here). */
+    main {
+      margin-left: var(--sidebar-w);
+      padding:     48px 52px;
+    }
+
+    /* ── Section ──────────────────────────────────────────── */
+    /* Default: comfortable reading width. Add `section--full` to span
+       the entire content area (used by the Colors section). */
+    .section {
+      padding-top:    60px;
+      margin-top:     8px;
+      max-width:      1100px;
+    }
+
+    .section--full { max-width: none; }
+
+    .section__header {
+      display:         flex;
+      align-items:     baseline;
+      gap:             12px;
+      margin-bottom:   28px;
+      padding-bottom:  16px;
+      border-bottom:   1px solid var(--c-border);
+    }
+
+    .section__title {
+      font-size:   22px;
+      font-weight: 700;
+      letter-spacing: -.02em;
+    }
+
+    .section__sub {
+      font-size:  13px;
+      color:      var(--c-muted);
+    }
+
+    /* ── Color theme group ────────────────────────────────── */
+    .color-theme { margin-bottom: 32px; }
+
+    .color-theme__head {
+      display:        flex;
+      align-items:    baseline;
+      gap:            10px;
+      margin-bottom:  12px;
+    }
+
+    .color-theme__name {
+      font-size:   15px;
+      font-weight: 600;
+      color:       var(--c-text);
+    }
+
+    .color-theme__count {
+      font-size:   11px;
+      color:       var(--c-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* ── Color grid ───────────────────────────────────────── */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+
+    .color-swatch {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--c-border);
+    }
+
+    .color-swatch__block {
+      height: 80px;
+      width:  100%;
+    }
+
+    .color-swatch__info {
+      padding:    10px 12px;
+      background: var(--c-surface);
+    }
+
+    .color-swatch__name {
+      font-size:   12px;
+      font-weight: 600;
+      color:       var(--c-text);
+      margin-bottom: 2px;
+      overflow:    hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .color-swatch__value {
+      font-family: var(--font-mono);
+      font-size:   11px;
+      color:       var(--c-muted);
+    }
+
+    /* ── Non-hex colour ───────────────────────────────────── */
+    .color-swatch--token .color-swatch__block {
+      display:     flex;
+      align-items: center;
+      justify-content: center;
+      background:  var(--c-border);
+      font-family: var(--font-mono);
+      font-size:   10px;
+      color:       var(--c-muted);
+      padding:     8px;
+      text-align:  center;
+    }
+
+    /* ── Typography ───────────────────────────────────────── */
+    .font-stack {
+      background:   var(--c-surface);
+      border:       1px solid var(--c-border);
+      border-radius: var(--radius-lg);
+      padding:      24px 28px;
+      margin-bottom: 12px;
+    }
+
+    .font-stack__meta {
+      display:     flex;
+      gap:         12px;
+      align-items: baseline;
+      margin-bottom: 12px;
+    }
+
+    .font-stack__name {
+      font-size:   12px;
+      font-weight: 600;
+      color:       var(--c-accent);
+      font-family: var(--font-mono);
+    }
+
+    .font-stack__stack {
+      font-size:   11px;
+      color:       var(--c-muted);
+      font-family: var(--font-mono);
+    }
+
+    .font-stack__sample {
+      font-size:   28px;
+      line-height: 1.3;
+      color:       var(--c-text);
+    }
+
+    /* ── Type ladder (named HTML-element scale) ───────────── */
+    .type-ladder__title {
+      font-size:      11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color:          var(--c-muted);
+      margin:         28px 0 6px;
+    }
+    .type-ladder { display: flex; flex-direction: column; }
+    .type-row {
+      display:        grid;
+      grid-template-columns: 132px 1fr;
+      align-items:    baseline;
+      gap:            20px;
+      padding:        12px 0;
+      border-bottom:  1px solid var(--c-border);
+      overflow:       hidden;
+    }
+    .type-row:last-child { border-bottom: none; }
+    .type-row__meta { display: flex; flex-direction: column; gap: 2px; }
+    .type-row__label { font-size: 13px; font-weight: 600; color: var(--c-accent); }
+    .type-row__size {
+      font-family: var(--font-mono);
+      font-size:   10px;
+      color:       var(--c-muted);
+    }
+    .type-row__sample {
+      font-family:   "Gotham-Med", "Gradual", system-ui, sans-serif;
+      color:         var(--c-text);
+      line-height:   1.0;
+      white-space:   nowrap;
+      overflow:      hidden;
+      text-overflow: clip;
+    }
+
+    /* ── Spacing scale ────────────────────────────────────── */
+    .spacing-table {
+      width:           100%;
+      border-collapse: collapse;
+      font-size:       13px;
+    }
+
+    .spacing-table th {
+      text-align:    left;
+      padding:       8px 12px;
+      font-size:     11px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color:         var(--c-muted);
+      border-bottom: 1px solid var(--c-border);
+    }
+
+    .spacing-table td {
+      padding:     10px 12px;
+      border-bottom: 1px solid var(--c-border);
+      vertical-align: middle;
+    }
+
+    .spacing-table tr:last-child td { border-bottom: none; }
+
+    .spacing-table td:first-child {
+      font-family: var(--font-mono);
+      font-size:   12px;
+      color:       var(--c-accent);
+    }
+
+    .spacing-table td:nth-child(2) {
+      font-family: var(--font-mono);
+      font-size:   12px;
+      color:       var(--c-muted);
+    }
+
+    .spacing-bar {
+      height:       10px;
+      background:   var(--c-accent);
+      border-radius: 2px;
+      min-width:    4px;
+      opacity:      .7;
+    }
+
+    /* ── Layouts ──────────────────────────────────────────── */
+    .layout-list {
+      display:        flex;
+      flex-direction: column;
+      gap:            10px;
+      margin-bottom:  36px;
+    }
+
+    .layout-row {
+      display:     flex;
+      align-items: center;
+      gap:         16px;
+    }
+
+    .layout-row__spec {
+      font-family: var(--font-mono);
+      font-size:   12px;
+      color:       var(--c-accent);
+      min-width:   160px;
+    }
+
+    .layout-preview {
+      display: flex;
+      gap:     6px;
+      flex:    1;
+      height:  44px;
+    }
+
+    .layout-col {
+      display:         flex;
+      align-items:     center;
+      justify-content: center;
+      background:      var(--c-accent-lo);
+      border:          1px solid #5b6ef540;
+      border-radius:   var(--radius);
+      font-family:     var(--font-mono);
+      font-size:       11px;
+      color:           var(--c-muted);
+      min-width:       0;
+      overflow:        hidden;
+    }
+
+    .layout-themes {
+      background:    var(--c-surface);
+      border:        1px solid var(--c-border);
+      border-radius: var(--radius-lg);
+      padding:       16px 20px;
+    }
+
+    .layout-themes__label {
+      font-size:      10px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color:          var(--c-muted);
+      margin-bottom:  10px;
+    }
+
+    .layout-theme {
+      display:       flex;
+      gap:           14px;
+      align-items:   baseline;
+      padding:       7px 0;
+      border-bottom: 1px solid var(--c-border);
+    }
+
+    .layout-theme:last-child { border-bottom: none; }
+
+    .layout-theme__value {
+      font-family: var(--font-mono);
+      font-size:   12px;
+      color:       var(--c-info);
+      min-width:   170px;
+    }
+
+    .layout-theme__text {
+      font-size: 13px;
+      color:     var(--c-text);
+    }
+
+    /* ── Components ───────────────────────────────────────── */
+    .component-card {
+      background:    var(--c-surface);
+      border:        1px solid var(--c-border);
+      border-radius: var(--radius-lg);
+      padding:       20px 24px;
+      margin-bottom: 12px;
+    }
+
+    .component-card__header {
+      display:     flex;
+      align-items: center;
+      gap:         10px;
+      margin-bottom: 12px;
+    }
+
+    .component-card__name {
+      font-family:  var(--font-mono);
+      font-size:    15px;
+      font-weight:  600;
+      color:        var(--c-text);
+    }
+
+    .component-card__usage {
+      font-size:  11px;
+      color:      var(--c-muted);
+      margin-left: auto;
+    }
+
+    .component-card__body {
+      display:    flex;
+      flex-wrap:  wrap;
+      gap:        16px;
+    }
+
+    .component-card__group {
+      flex:      1 1 200px;
+    }
+
+    .component-card__group-label {
+      font-size:   10px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color:       var(--c-muted);
+      margin-bottom: 6px;
+    }
+
+    .token-list {
+      display:    flex;
+      flex-wrap:  wrap;
+      gap:        6px;
+    }
+
+    .token {
+      font-family:   var(--font-mono);
+      font-size:     11px;
+      padding:       3px 8px;
+      border-radius: 4px;
+      background:    var(--c-bg);
+      color:         var(--c-text);
+      border:        1px solid var(--c-border);
+    }
+
+    .token--element  { color: var(--c-info); border-color: #5bc8f530; }
+    .token--modifier { color: var(--c-ok);   border-color: #3ecf8e30; }
+
+    .component-card__sources {
+      margin-top:  10px;
+      font-size:   11px;
+      color:       var(--c-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* ── Badges ───────────────────────────────────────────── */
+    .badge {
+      font-size:   10px;
+      font-weight: 600;
+      padding:     2px 7px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .badge--ok      { background: #3ecf8e20; color: var(--c-ok); }
+    .badge--warning { background: #f5a62320; color: var(--c-warn); }
+    .badge--info    { background: #5bc8f520; color: var(--c-info); }
+
+    /* ── Breakpoints ──────────────────────────────────────── */
+    .bp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+    }
+
+    .bp-card {
+      background:    var(--c-surface);
+      border:        1px solid var(--c-border);
+      border-radius: var(--radius);
+      padding:       16px;
+    }
+
+    .bp-card__name {
+      font-family:  var(--font-mono);
+      font-size:    13px;
+      color:        var(--c-accent);
+      margin-bottom: 4px;
+    }
+
+    .bp-card__val {
+      font-family: var(--font-mono);
+      font-size:   18px;
+      font-weight: 700;
+      color:       var(--c-text);
+    }
+
+    /* ── Footer ───────────────────────────────────────────── */
+    .guide-footer {
+      margin-top:   60px;
+      padding-top:  24px;
+      border-top:   1px solid var(--c-border);
+      font-size:    12px;
+      color:        var(--c-muted);
+    }
+
+    /* ── Empty state ──────────────────────────────────────── */
+    .empty {
+      padding:    32px;
+      text-align: center;
+      color:      var(--c-muted);
+      font-size:  13px;
+      background: var(--c-surface);
+      border-radius: var(--radius-lg);
+      border:     1px dashed var(--c-border);
+    }
+
+    /* ── Codey Architecture ───────────────────────────────── */
+    .arch-grid {
+      display:  grid;
+      gap:      24px;
+      grid-template-columns: 1fr;
+      margin:   24px 0;
+    }
+
+    .arch-model {
+      background:    var(--c-surface);
+      border:        1px solid var(--c-border);
+      border-radius: var(--radius-lg);
+      padding:       24px;
+    }
+
+    .arch-model__title {
+      font-size:      14px;
+      font-weight:    700;
+      color:          var(--c-accent);
+      margin-bottom:  8px;
+      font-family:    var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .arch-model__desc {
+      font-size:  13px;
+      line-height: 1.6;
+      color:      var(--c-text);
+      margin-bottom: 12px;
+    }
+
+    .arch-model__example {
+      font-size:   12px;
+      color:       var(--c-muted);
+      padding:     10px 12px;
+      background:  var(--c-bg);
+      border-left: 2px solid var(--c-accent);
+      border-radius: 4px;
+      font-style:  italic;
+    }
+
+    .axis-visual {
+      background:      var(--c-bg);
+      border:          1px solid var(--c-border);
+      border-radius:   var(--radius);
+      padding:         16px;
+      margin:          16px 0 12px;
+      font-family:     var(--font-mono);
+      font-size:       11px;
+      color:           var(--c-muted);
+      overflow-x:      auto;
+      white-space:     pre;
+      line-height:     1.5;
+    }
+
+    .frame-grid {
+      display:  grid;
+      gap:      12px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      margin-top: 20px;
+    }
+
+    .frame-card {
+      background:    var(--c-surface);
+      border:        1px solid var(--c-border);
+      border-radius: var(--radius-lg);
+      padding:       16px 18px;
+    }
+
+    .frame-card__name {
+      font-family:  var(--font-mono);
+      font-size:    12px;
+      color:        var(--c-accent);
+      font-weight:  600;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .frame-card__label {
+      font-size:    13px;
+      color:        var(--c-text);
+      font-weight:  600;
+      margin-bottom: 6px;
+    }
+
+    .frame-card__desc {
+      font-size:   12px;
+      line-height: 1.5;
+      color:       var(--c-muted);
+      margin-bottom: 8px;
+    }
+
+    .frame-card__example {
+      font-size:   11px;
+      padding:     8px;
+      background:  var(--c-bg);
+      border-left: 2px solid var(--c-info);
+      border-radius: 3px;
+      color:       var(--c-info);
+      font-style:  italic;
+    }
+
+    .arch-summary {
+      background:    linear-gradient(135deg, #5b6ef508 0%, transparent 100%);
+      border:        1px solid var(--c-accent-lo);
+      border-radius: var(--radius-lg);
+      padding:       20px 24px;
+      margin:        20px 0;
+    }
+
+    .arch-summary__title {
+      font-size:      12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color:          var(--c-accent);
+      margin-bottom:  8px;
+      font-weight:    600;
+    }
+
+    .arch-summary__text {
+      font-size:  13px;
+      color:      var(--c-text);
+      line-height: 1.6;
+    }
+
+    /* ── Scrollbar ────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 3px; }
+
+    /* ── Mobile ───────────────────────────────────────────── */
+    /* The fixed left sidebar collapses into a sticky top bar. The brand
+       takes a full row (a hard break), then the links wrap onto a second
+       row beneath it rather than scrolling horizontally. */
+    @media (max-width: 768px) {
+      .sidebar {
+        position:       sticky;
+        top:            0;
+        left:           auto;
+        width:          100%;
+        height:         auto;
+        flex-direction: row;
+        flex-wrap:      wrap;
+        align-items:    stretch;
+        gap:            0;
+        padding:        0;
+        border-right:   none;
+        border-bottom:  1px solid var(--c-border);
+        z-index:        100;
+      }
+
+      .sidebar__brand {
+        flex:          1 0 100%;   /* hard break — brand owns row one */
+        display:       flex;
+        align-items:   baseline;
+        gap:           6px;
+        padding:       12px 16px;
+        margin-bottom: 0;
+        border-bottom: 1px solid var(--c-border);
+      }
+
+      /* Drop the small "Style Guide" eyebrow to keep the bar compact. */
+      .sidebar__project { display: none; }
+      .sidebar__version { margin-top: 0; }
+
+      .sidebar a {
+        flex:          1 1 auto;   /* links share row two, wrapping as needed */
+        justify-content: center;
+        white-space:   nowrap;
+        padding:       12px 14px;
+        border-bottom: 2px solid transparent;
+      }
+
+      .sidebar a.active {
+        background:           var(--c-accent-lo);
+        border-bottom-color:  var(--c-accent);
+      }
+
+      /* Counts clutter the wrapped bar — hide them on mobile. */
+      .sidebar__count { display: none; }
+
+      main {
+        margin-left: 0;
+        padding:     24px 20px;
+      }
+
+      /* Keep anchored sections clear of the sticky top bar. */
+      .section { scroll-margin-top: 96px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Sidebar ─────────────────────────────────────────────────────────────── -->
+<nav class="sidebar">
+  <div class="sidebar__brand">
+    <div class="sidebar__project">Style Guide</div>
+    <div class="sidebar__name">{{project.name}}</div>
+    <div class="sidebar__version">v{{project.version}}</div>
+  </div>
+
+  <a href="#colors">
+    <span>Colors</span>
+    <span class="sidebar__count">{{colorCount}}</span>
+  </a>
+  <a href="#typography">
+    <span>Typography</span>
+    <span class="sidebar__count">{{fonts.families.length}}</span>
+  </a>
+  <a href="#spacing">
+    <span>Spacing</span>
+    <span class="sidebar__count">{{spacing.length}}</span>
+  </a>
+  {{#hasLayouts}}
+  <a href="#layouts">
+    <span>Layouts</span>
+    <span class="sidebar__count">{{layouts.patternCount}}</span>
+  </a>
+  {{/hasLayouts}}
+  {{#hasCodeyArch}}
+  <a href="#codey-arch">
+    <span>Codey Arch</span>
+  </a>
+  {{/hasCodeyArch}}
+  {{#hasComponents}}
+  <a href="#components">
+    <span>Components</span>
+    <span class="sidebar__count">{{components.length}}</span>
+  </a>
+  {{/hasComponents}}
+  {{#hasBreakpoints}}
+  <a href="#breakpoints">
+    <span>Breakpoints</span>
+    <span class="sidebar__count">{{breakpoints.length}}</span>
+  </a>
+  {{/hasBreakpoints}}
+</nav>
+
+<!-- ── Main ───────────────────────────────────────────────────────────────── -->
+<main>
+
+  <!-- ── Colors ─────────────────────────────────────────────────────────── -->
+  <section class="section section--full" id="colors">
+    <div class="section__header">
+      <h2 class="section__title">Colors</h2>
+      <span class="section__sub">{{colorCount}} tokens · {{colorThemes.length}} themes</span>
+    </div>
+
+    {{#hasColors}}
+    {{#colorThemes}}
+    <div class="color-theme">
+      <div class="color-theme__head">
+        <span class="color-theme__name">{{label}}</span>
+        <span class="color-theme__count">{{count}} colours · .theme-{{theme}}</span>
+      </div>
+      <div class="color-grid">
+        {{#swatches}}
+        {{#isColor}}
+        <div class="color-swatch">
+          <div class="color-swatch__block" style="background:{{value}};"></div>
+          <div class="color-swatch__info">
+            <div class="color-swatch__name">{{name}}</div>
+            <div class="color-swatch__value">{{value}}</div>
+          </div>
+        </div>
+        {{/isColor}}
+        {{^isColor}}
+        <div class="color-swatch color-swatch--token">
+          <div class="color-swatch__block">{{value}}</div>
+          <div class="color-swatch__info">
+            <div class="color-swatch__name">{{name}}</div>
+            <div class="color-swatch__value">token</div>
+          </div>
+        </div>
+        {{/isColor}}
+        {{/swatches}}
+      </div>
+    </div>
+    {{/colorThemes}}
+    {{/hasColors}}
+    {{^hasColors}}
+    <div class="empty">No colour tokens found. Check assets/css/themes/_palette-*.css.</div>
+    {{/hasColors}}
+  </section>
+
+  <!-- ── Typography ─────────────────────────────────────────────────────── -->
+  <section class="section" id="typography">
+    <div class="section__header">
+      <h2 class="section__title">Typography</h2>
+      <span class="section__sub">{{fonts.families.length}} families · {{typeScale.length}}-step element scale</span>
+    </div>
+
+    {{#fonts.families}}
+    <div class="font-stack">
+      <div class="font-stack__meta">
+        <span class="font-stack__name">{{name}}</span>
+        <span class="font-stack__stack">{{stack}}</span>
+      </div>
+      <div class="font-stack__sample" style="font-family: {{stack}};">{{sample}}</div>
+    </div>
+    {{/fonts.families}}
+
+    {{#typeScale.length}}
+    <h3 class="type-ladder__title">Type scale — HTML elements</h3>
+    <div class="type-ladder">
+      {{#typeScale}}
+      <div class="type-row">
+        <div class="type-row__meta">
+          <span class="type-row__label">{{label}}</span>
+          <span class="type-row__size">{{min}} → {{max}}</span>
+        </div>
+        <div class="type-row__sample" style="font-size: {{value}};">Codey</div>
+      </div>
+      {{/typeScale}}
+    </div>
+    {{/typeScale.length}}
+  </section>
+
+  <!-- ── Spacing ────────────────────────────────────────────────────────── -->
+  <section class="section" id="spacing">
+    <div class="section__header">
+      <h2 class="section__title">Spacing</h2>
+      <span class="section__sub">{{spacing.length}} values</span>
+    </div>
+
+    <table class="spacing-table">
+      <thead>
+        <tr>
+          <th>Token</th>
+          <th>Value</th>
+          <th>Scale</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#spacing}}
+        <tr>
+          <td>{{name}}</td>
+          <td>{{value}}</td>
+          <td><div class="spacing-bar" style="width: min({{value}}, 360px);"></div></td>
+        </tr>
+        {{/spacing}}
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── Layouts ────────────────────────────────────────────────────────── -->
+  {{#hasLayouts}}
+  <section class="section" id="layouts">
+    <div class="section__header">
+      <h2 class="section__title">Layouts</h2>
+      <span class="section__sub">{{layouts.patternCount}} grid patterns · {{layouts.themeCount}} themes</span>
+    </div>
+
+    <div class="layout-list">
+      {{#layouts.patterns}}
+      <div class="layout-row">
+        <div class="layout-row__spec">{{spec}}</div>
+        <div class="layout-preview">
+          {{#cols}}
+          <div class="layout-col" style="flex: {{grow}};"><span>{{label}}</span></div>
+          {{/cols}}
+        </div>
+      </div>
+      {{/layouts.patterns}}
+    </div>
+
+    <div class="layout-themes">
+      <div class="layout-themes__label">Layout themes</div>
+      {{#layouts.themes}}
+      <div class="layout-theme">
+        <span class="layout-theme__value">{{value}}</span>
+        <span class="layout-theme__text">{{text}}</span>
+      </div>
+      {{/layouts.themes}}
+    </div>
+  </section>
+  {{/hasLayouts}}
+
+  <!-- ── Codey Architecture ─────────────────────────────────────────────── -->
+  {{#hasCodeyArch}}
+  <section class="section" id="codey-arch">
+    <div class="section__header">
+      <h2 class="section__title">Codey Architecture</h2>
+      <span class="section__sub">Layout foundation & design system</span>
+    </div>
+
+    <div class="arch-summary">
+      <div class="arch-summary__title">Two-Axis Model</div>
+      <div class="arch-summary__text">{{codeyArch.twoAxisSummary}}</div>
+    </div>
+
+    <!-- Skeleton Axis -->
+    <div class="arch-model">
+      <div class="arch-model__title">Skeleton Axis (Vertical)</div>
+      <div class="arch-model__desc">Vertical document landmarks: header (top), main (fill), footer (bottom) stacked as CSS grid rows.</div>
+      <div class="axis-visual">body {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+header { grid-row: 1; }
+main   { grid-row: 2; }
+footer { grid-row: 3; }</div>
+      <div class="arch-model__example">💡 This axis is independent from horizontal layout — every page has this vertical structure.</div>
+    </div>
+
+    <!-- Track Axis -->
+    <div class="arch-model">
+      <div class="arch-model__title">Track Axis (Horizontal)</div>
+      <div class="arch-model__desc">{{codeyArch.gridExplanation}}</div>
+      <div class="axis-visual">.layout {
+  grid-template-columns:
+    [full-start] minmax(var(--gutter), 1fr)
+    [content-start] minmax(0, var(--measure)) [content-end]
+    minmax(var(--gutter), 1fr) [full-end];
+}
+
+.layout > *      { grid-column: content; }  /* framed */
+.layout > .bleed { grid-column: full; }     /* full-width opt-out */</div>
+      <div class="arch-model__example">💡 Subgrid propagates these tracks down to all children, keeping horizontal alignment coherent across nesting levels.</div>
+    </div>
+
+    <!-- Frame Modes -->
+    <div class="arch-model">
+      <div class="arch-model__title">Layout Modes</div>
+      <div class="arch-model__desc">Five layout modes express different ways to use the track axis. Switch modes via <code style="color: var(--c-accent); font-family: var(--font-mono); font-size: 12px;">data-layout</code> attribute.</div>
+
+      <div class="frame-grid">
+        {{#codeyArch.frameModes}}
+        <div class="frame-card">
+          <div class="frame-card__name">{{name}}</div>
+          <div class="frame-card__label">{{title}}</div>
+          <div class="frame-card__desc">{{desc}}</div>
+          <div class="frame-card__example">✦ {{example}}</div>
+        </div>
+        {{/codeyArch.frameModes}}
+      </div>
+    </div>
+
+    <!-- Composition Rule -->
+    <div class="arch-model">
+      <div class="arch-model__title">Composition Rule</div>
+      <div class="arch-model__desc">The skeleton axis (vertical) and track axis (horizontal) <strong>compose, they don't compete</strong>. Every page is the <strong>intersection of one skeleton mode and one track mode</strong>.</div>
+      <div class="axis-visual">page = skeleton + tracks (independent axes)
+
+Example: account.php
+  skeleton: header/main/footer
+  tracks:   spread (frame by default, bleed opt-outs)
+  → data-layout="spread" data-pad="narrow"
+
+Example: un-map.php (full-bleed map)
+  skeleton: header/main/footer
+  tracks:   bleed (everything edge-to-edge)
+  → data-layout="bleed"</div>
+      <div class="arch-model__example">💡 This orthogonal design means adding new layout modes or skeleton variants doesn't force refactoring the other axis.</div>
+    </div>
+
+  </section>
+  {{/hasCodeyArch}}
+
+  <!-- ── Components ─────────────────────────────────────────────────────── -->
+  {{#hasComponents}}
+  <section class="section" id="components">
+    <div class="section__header">
+      <h2 class="section__title">Components</h2>
+      <span class="section__sub">{{components.length}} blocks</span>
+    </div>
+
+    {{#components}}
+    <div class="component-card">
+      <div class="component-card__header">
+        <span class="component-card__name">.{{name}}</span>
+        <span class="badge {{badgeClass}}">{{badgeLabel}}</span>
+        <span class="component-card__usage">{{usages}} uses</span>
+      </div>
+
+      <div class="component-card__body">
+        {{#hasElements}}
+        <div class="component-card__group">
+          <div class="component-card__group-label">Elements</div>
+          <div class="token-list">
+            {{#elements}}
+            <span class="token token--element">.{{.}}</span>
+            {{/elements}}
+          </div>
+        </div>
+        {{/hasElements}}
+
+        {{#hasModifiers}}
+        <div class="component-card__group">
+          <div class="component-card__group-label">Modifiers</div>
+          <div class="token-list">
+            {{#modifiers}}
+            <span class="token token--modifier">--{{.}}</span>
+            {{/modifiers}}
+          </div>
+        </div>
+        {{/hasModifiers}}
+      </div>
+
+      {{#sourceList}}
+      <div class="component-card__sources">📄 {{sourceList}}</div>
+      {{/sourceList}}
+    </div>
+    {{/components}}
+  </section>
+  {{/hasComponents}}
+
+  <!-- ── Breakpoints ────────────────────────────────────────────────────── -->
+  {{#hasBreakpoints}}
+  <section class="section" id="breakpoints">
+    <div class="section__header">
+      <h2 class="section__title">Breakpoints</h2>
+      <span class="section__sub">{{breakpoints.length}} screen sizes</span>
+    </div>
+
+    <div class="bp-grid">
+      {{#breakpoints}}
+      <div class="bp-card">
+        <div class="bp-card__name">{{name}}</div>
+        <div class="bp-card__val">{{value}}</div>
+      </div>
+      {{/breakpoints}}
+    </div>
+  </section>
+  {{/hasBreakpoints}}
+
+  <!-- ── Footer ─────────────────────────────────────────────────────────── -->
+  <footer class="guide-footer">
+    Generated {{project.generatedAt}} · {{project.name}} v{{project.version}}
+    {{#project.url}}· <a href="{{project.url}}" style="color:inherit;">{{project.url}}</a>{{/project.url}}
+  </footer>
+
+</main>
+
+<script>
+  // Active sidebar link on scroll
+  const sections = document.querySelectorAll('.section');
+  const links    = document.querySelectorAll('.sidebar a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.sidebar a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

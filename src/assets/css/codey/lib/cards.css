@@ -1,0 +1,22 @@
+/* ════════════════════════════════════════════════════════════════════
+   Codey card tokens (OPTIONAL) — seeds, not a full component.
+
+   Generic card vocabulary distilled from the project's pricing card. Palette
+   references re-skin with the active theme; structural literals (radius/gap/
+   padding) are kept as literals because they have no clean fluid-scale match —
+   adjust per project rather than "harmonising" them into a visual change.
+
+   FUTURE USERS: build .card / .pricing-card markup on these, or override the
+   literals in a project _brand.css.
+   ════════════════════════════════════════════════════════════════════ */
+:root {
+  --card-bg:          var(--color-white);
+  --card-radius:      2rem;    /* literal — fixed brand radius, off the fluid scale */
+  --card-gap:         30px;    /* literal */
+  --card-pad-block:   40px;    /* literal */
+  --card-pad-inline:  30px;    /* literal */
+  /* Palette scale is 0 = darkest → 9 = lightest. */
+  --card-check-color: var(--color-5);
+  --card-badge-color: var(--color-5);
+  --card-badge-bg:    var(--color-9);
+}

@@ -1,0 +1,23 @@
+/* ════════════════════════════════════════════════════════════════════
+   Codey form tokens (OPTIONAL) — seeds, not a full component.
+
+   These are the generically useful custom properties distilled from the
+   project's full form stylesheet. Ship them (uncomment in index.css) to give
+   every project the same input/button vocabulary, then build form markup on
+   top — e.g. .codey-form input { border-radius: var(--form-radius); … }.
+
+   FUTURE USERS: extend below with the component rules you need; keep colours
+   as var(--color-*)/semantic tokens so forms re-skin with the active theme.
+   ════════════════════════════════════════════════════════════════════ */
+:root {
+  --form-radius:        var(--radius-lg, 0.5rem);
+  /* Palette scale is 0 = darkest → 9 = lightest. */
+  --input-border-color: var(--color-6);
+  --input-focus-color:  var(--color-4);
+  --input-focus-ring:   0 0 0 3px color-mix(in oklab, var(--color-5) 30%, transparent);
+  --input-padding:      var(--spacing-2);
+  --btn-bg:             var(--color-button-bg);
+  --btn-text:           var(--color-button-text);
+  --btn-radius:         var(--radius-lg, 0.5rem);
+  --btn-transition:     background-color 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+}

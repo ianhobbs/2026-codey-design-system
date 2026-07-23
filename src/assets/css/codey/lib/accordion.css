@@ -1,0 +1,18 @@
+/* ════════════════════════════════════════════════════════════════════
+   Codey accordion tokens (OPTIONAL) — seeds, not a full component.
+
+   Motion + spacing values distilled from the project's accordion. Pair these
+   with your own disclosure markup/JS (details/summary, Alpine, etc.).
+
+   FUTURE USERS: reference --accordion-duration / --accordion-ease in your
+   open/close transitions so all disclosures share one timing feel.
+   ════════════════════════════════════════════════════════════════════ */
+:root {
+  --accordion-duration:      0.4s;
+  --accordion-duration-fast: 0.2s;
+  --accordion-ease:          ease-in-out;
+  --accordion-header-height: 3rem;
+  --accordion-gap:           var(--spacing-2);
+  --accordion-fade-out:      opacity 0.4s ease-out;
+  --accordion-fade-in:       opacity 0.3s ease-in;
+}

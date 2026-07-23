@@ -1,0 +1,20 @@
+name: field.blocks.text.name
+icon: text
+wysiwyg: true
+preview: text
+fields:
+  text:
+    type: writer
+    nodes: false
+    placeholder: write stuff here
+  indent:
+    type: select
+    label: Indent
+    empty: true
+    options:
+      - value: indent-sm
+        text: Small
+      - value: indent-md
+        text: Medium
+      - value: indent-lg
+        text: Large

@@ -1,0 +1,37 @@
+/* ════════════════════════════════════════════════════════════════════
+   Codey core — CSS manifest.  This folder (./codey/) IS the design system's
+   CSS core. main.css pulls it in with one line:
+
+       @import "./codey/index.css";
+
+   and loads your _brand.css AFTER, so brand overrides win.
+
+   CORE, NOT YOURS: treat everything under ./codey/ as read-only. Update it by
+   pulling a new Codey release (git), not by hand-editing here — local edits
+   are what a future update will clobber. Customise in _brand.css instead.
+
+   OPINIONATED: optional components are shipped but COMMENTED OUT. Uncomment
+   only the ones whose markup a project actually uses (no accordion markup →
+   leave accordion commented → it never ships to the browser).
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────── CORE — always on ─────────────── */
+@import "./theme.css" ;            /* @theme: Utopia type/space + font tokens */
+@import "./globals.css";                       /* :root globals (unlayered); fonts = project override */
+@import "./themes/theme-codey.css";            /* default colour flavor (pulls _codey palette) */
+@import "./lib/layout.css"     layer(bespoke); /* two-axis page frame (WHERE a block sits) */
+@import "./lib/grid.css"       layer(bespoke); /* content grid devices (HOW it divides) */
+@import "./lib/typography.css" layer(base);    /* typographic base (Utopia/TW) */
+@import "./lib/elements.css"   layer(base);    /* aspect-ratio media boxes */
+
+/* ─────────────── OPTIONAL — uncomment when the markup is present ───────────────
+   Opt-in per project; commented = zero bytes shipped. The lib files below are
+   TOKEN SEEDS (generically useful custom properties distilled from the full
+   components) with guidance comments — build markup on them per project. */
+/* Project palettes are GENERATED — run scripts/brand-palette.cjs and import
+   your own src/assets/css/_brand-palette.css from _brand.css, not here. */
+/* @import "./lib/transitions.css";                   generic motion tokens */
+/* @import "./lib/form.css";                          form field/button tokens */
+/* @import "./lib/accordion.css";                     disclosure motion tokens */
+/* @import "./lib/cards.css";                          card tokens */
+/* @import "./lib/prose.css"     layer(bespoke);      rich-text `.text` (extract pending) */

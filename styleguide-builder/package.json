@@ -1,0 +1,17 @@
+{
+  "name": "styleguide-builder",
+  "version": "1.0.0",
+  "description": "Extract Tailwind v4 design tokens (@theme + palette files) from the Codey Kirby project and generate a static style guide.",
+  "scripts": {
+    "extract":       "node extractor/extract-v4.js",
+    "build":         "node extractor/extract-v4.js && node builder/build-guide.js",
+    "watch":         "nodemon --watch ../src/assets/css --watch ../src/site --ext css,php --exec npm run build",
+    "clean":         "rm -rf extractor/tokens/*.json"
+  },
+  "dependencies": {
+    "mustache": "^4.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
+  }
+}

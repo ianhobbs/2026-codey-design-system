@@ -1,0 +1,8 @@
+/* Codey core per-template default for the `note` template (vendored).
+   Ships as a tier-1 default. A project's own src/assets/css/templates/note.css
+   (tier 3, loaded later via css('@auto')) overrides it. */
+
+.note {
+  max-width: 60ch;
+  padding-block: var(--spacing-8);
+}

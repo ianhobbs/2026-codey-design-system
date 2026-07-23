@@ -1,0 +1,46 @@
+/* ════════════════════════════════════════════════════════════════════
+   main.css — PROJECT ENTRY (yours to edit)
+
+   This is the file Tailwind compiles:
+       src/assets/css/main.css  →  build/assets/css/main.css
+
+   It has three jobs, in order:
+     1. pull in Tailwind and declare the cascade contract,
+     2. load the Codey CORE (everything under ./codey/ — versioned, do NOT
+        edit in place; update it by pulling a new Codey release),
+     3. load YOUR brand layer (./_brand.css) LAST, so brand tokens and rules
+        win over the core.
+
+   CORE vs BRAND — the boundary this file draws:
+     ./codey/**      = Codey design system core. Owned by the design system.
+                       Treat as read-only; regenerate/replace on update.
+     ./main.css      = yours (this file — wiring + @source).
+     ./_brand.css    = yours (brand tokens, fonts, overrides).
+     ./_brand-palette.css = yours, GENERATED (scripts/brand-palette.cjs).
+   ════════════════════════════════════════════════════════════════════ */
+
+@import "tailwindcss";
+
+/* ── Cascade contract (later layer = higher priority) ──────────────────
+     theme < base < components < utilities < bespoke
+   `bespoke` is the authoritative tier: Codey's encapsulated components and
+   your brand widgets live there and intentionally beat utilities. Declared
+   here, before any layered @import, so the order is fixed for everything
+   the core and the brand layer add. ─────────────────────────────────── */
+@layer theme, base, components, utilities, bespoke;
+
+/* ── Tailwind content sources (what gets scanned for class usage) ────── */
+@source "../../site/**/*.php";               /* Codey + project templates, snippets, blueprints */
+@source "../../../build/content/**/*.txt";   /* page content (Kirby text files) */
+@source "../../../build/content/**/*.md";
+@source "../js/**/*.js";                      /* classes referenced from JS */
+
+/* ── 1. Codey CORE ─────────────────────────────────────────────────────
+   One line pulls the whole system: @theme tokens, globals, default colour
+   flavour, and the bespoke layout/grid/type/element libraries. Optional
+   component libs are opt-in inside codey/index.css — uncomment there when a
+   project actually uses their markup. Do not edit files under ./codey/. */
+@import "./codey/index.css";
+
+/* ── 2. YOUR BRAND LAYER (loaded last — wins over core) ──────────────── */
+@import "./_brand.css";
