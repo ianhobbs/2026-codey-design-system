@@ -690,12 +690,52 @@
       "oAP" : "\/build\/site\/blueprints\/site.yml",
       "oF" : 0
     },
+    "\/src\/site\/commands\/example.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/build\/site\/commands\/example.php",
+      "oF" : 0
+    },
+    "\/src\/site\/commands\/flush.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/build\/site\/commands\/flush.php",
+      "oF" : 0
+    },
+    "\/src\/site\/commands\/import.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/build\/site\/commands\/import.php",
+      "oF" : 0
+    },
+    "\/src\/site\/commands\/thumbs.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/build\/site\/commands\/thumbs.php",
+      "oF" : 0
+    },
     "\/src\/site\/config\/config.php" : {
       "cB" : 0,
       "ft" : 8192,
       "hM" : 0,
       "oA" : 2,
       "oAP" : "\/build\/site\/config\/config.php",
+      "oF" : 0
+    },
+    "\/src\/site\/config\/remote-domain.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/build\/site\/config\/remote-domain.php",
       "oF" : 0
     },
     "\/src\/site\/controllers\/note.php" : {
