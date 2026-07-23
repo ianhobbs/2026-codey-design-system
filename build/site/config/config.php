@@ -11,6 +11,7 @@ Kirby\Http\Cookie::$key = 'uibhbuouyyei8198Bhy';
 return [
     // Local development conveniences — turn OFF for production.
     'debug'   => true,
+    'editor' => 'vscode',
     'salt' => 'bhuoiyohoiuknpewmi902D',
     'panel'   => [
         'install' => true, 
@@ -55,5 +56,22 @@ return [
                 '1800w' => ['width' => 1800, 'format' => 'webp', 'crop' => true]
             ],
         ]
+    ],
+    'tobimori.seo.canonicalBase' => 'https://yourdomain.org',
+    'tobimori.seo.lang' => 'en_US',
+    'tobimori.seo.robots' => [
+            'active' => false,
+            'content' => [
+                '*' => [
+                    'Allow' => ['/'],
+                    'Disallow' => ['/kirby', '/panel', '/content']
+                ]
+            ]
+    ],
+        'tobimori.seo.sitemap' => [
+        'groupByTemplate' => false, // Create separate sitemaps for each template type
+        'excludeTemplates' => ['error'], // Exclude templates from sitemap
+        'changefreq' => 'monthly', // Change frequency, can be a string or a function
+        'priority' => fn (Page $p) => number_format(($p->isHomePage()) ? 1 : max(1 - 0.2 * $p->depth(), 0.2), 1), 
     ]
 ];

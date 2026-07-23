@@ -42,5 +42,16 @@
    project actually uses their markup. Do not edit files under ./codey/. */
 @import "./codey/index.css";
 
-/* ── 2. YOUR BRAND LAYER (loaded last — wins over core) ──────────────── */
+/* ── 2. UTOPIA SCALE (generated) — overrides the core type/space scale ──
+   Pipeline:  src/assets/css/utopia/utopia-pre.scss   (edit the calculator params)
+     → CodeKit compiles SASS →  lib/utopia-pre.css     (@theme, Utopia step names)
+     → `npm run convert` (convertUtopia.cjs) maps names → lib/utopia-export.css
+       (Utopia --text--2/--spacing-4xs → Tailwind --text-xs/--spacing-1).
+   Imported here (after the core, before your brand) so the freshly generated
+   @theme merges into Tailwind and wins over codey/theme.css's default ramp.
+   Re-tune the scale in the .scss, not the generated .css. */
+  /* do iy */
+@import "./lib/utopia-export.css";
+
+/* ── 3. YOUR BRAND LAYER (loaded last — wins over core + Utopia) ──────── */
 @import "./_brand.css";

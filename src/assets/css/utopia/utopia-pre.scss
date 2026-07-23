@@ -1,0 +1,28 @@
+@use '../../../../node_modules/utopia-core-scss/src/utopia' as utopia;
+  
+/* @link https://utopia.fyi/type/calculator?c=320,18,1.2,1240,19,1.333,9,2,&s=0.75|0.5|0.25,1.5|2|3|4|6|7|8|9,s-l&g=s,l,xl,12 */
+
+@theme{
+  @include utopia.generateTypeScale((
+    "minWidth": 320,
+    "maxWidth": 1240,
+    "minFontSize": 17,
+    "maxFontSize": 18,
+    "minTypeScale": 1.2,
+    "maxTypeScale": 1.333,
+    "positiveSteps": 9,
+    "negativeSteps": 2,
+    "prefix": "text-",
+    "relativeTo": "viewport-width"
+  ));
+    @include utopia.generateSpaceScale((
+    "minWidth": 320,
+    "maxWidth": 1240,
+    "minSize": 17,
+    "maxSize": 18,
+    "positiveSteps": (1.5, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14),
+    "negativeSteps": (0.75, 0.5, 0.25, 0.2),
+    "prefix": "spacing-",
+    "relativeTo": "viewport-width",
+  ));
+}
