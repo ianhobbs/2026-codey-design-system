@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
-    "tails": "npx @tailwindcss/cli -i ./src/assets/css/main.css -o ./build/assets/css/main.css",
+    "tails": "npx @tailwindcss/cli -i ./src/assets/css/main.css -o ./build/assets/css/main.css -m",
     "tails:watch": "npx @tailwindcss/cli -i ./src/assets/css/main.css -o ./build/assets/css/main.css -wm",
     "js": "npx esbuild ./src/assets/js/codey/alpine.js --bundle --minify --outfile=./build/assets/js/codey/alpine.js",
     "assets": "npm run convert && npm run tails && npm run js",

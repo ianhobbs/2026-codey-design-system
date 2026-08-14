@@ -1,18 +1,17 @@
 /* ════════════════════════════════════════════════════════════════════
-   BRAND TYPOGRAPHY — starter template (PROJECT-OWNED)
+   BRAND TYPOGRAPHY — starter template (reference only, not compiled)
 
-   Copy this file into your project as:
-       src/assets/css/_brand-typography.css
+   This file is guidance. Don't copy it in whole — lift its two halves into
+   the SEED tier, which already exists and is already yours:
 
-   This folder is guidance only. Do not place your copy inside a codey/ zone
-   (that's the versioned core — update it by pulling, don't edit in place).
+       @font-face blocks   →  src/assets/css/brand/_globals.css
+       font token values   →  src/assets/css/brand/_tokens.css
 
-   Load it AFTER the codey core in main.css so its @theme wins:
+   Both are loaded from main.css ahead of the core, and nothing in ./brand/
+   is ever overwritten by a Codey update or exported back upstream.
 
-       @import "tailwindcss";
-       @import "./codey/index.css";        // core
-       @import "./_brand-typography.css";   // this file — faces + font tokens
-       @import "./_brand.css";              // remaining brand overrides
+   Do NOT put fonts inside a codey/ zone — that's CORE, overwritten wholesale
+   on update, and it is meant to hold rules only, never brand values.
 
    Critical first-paint faces should ALSO be preloaded / inlined in
    src/site/snippets/head.php — see §11.1 of the implementation guide.

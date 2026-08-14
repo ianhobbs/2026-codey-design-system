@@ -1,32 +1,56 @@
 # Fonts are a project override
 
-The design system ships **no font files** and no `@font-face` rules — typefaces
-are brand-specific, so bundling them would push project-specific content into the
-shared package. This folder is intentionally empty of fonts and is **not synced**
-into a consuming project.
+Codey ships **no font files** and no `@font-face` rules — typefaces are
+brand-specific, so bundling them would push project content into the shared system.
+
+Fonts belong to the **SEED** tier: `src/assets/css/brand/`. Codey seeds those files
+once at clone time and never touches them again, so anything you put there is safe
+from updates and is never exported back upstream. See
+[`../css/brand/README.md`](../css/brand/README.md).
+
+## How fonts work
+
+`brand/_tokens.css` names the expected families as tokens, each with a system
+fallback:
+
+```css
+--body-font  --head-font  --med-font  --ital-font  --mono-font
+```
+
+`brand/_globals.css` is where the matching `@font-face` blocks go. Each project:
+
+1. Puts its font files in `src/assets/fonts/` (they're gitignored and rsynced to
+   the server separately — see `npm run deploy:push`).
+2. Declares `@font-face` for those family names in `brand/_globals.css` — or inlines
+   the critical weights in the Kirby `<head>` for first paint.
+3. Optionally repoints the `--*-font` tokens in `brand/_tokens.css` at entirely
+   different faces.
+
+Until a project does this, the font tokens resolve to their system fallback.
 
 ## Starter template
 
 [`brand-typography.example.css`](brand-typography.example.css) is a copyable
-starter. Copy it to `src/assets/css/_brand-typography.css` in your project and
-uncomment what you need. Because this folder isn't synced, your copy is never
-overwritten.
+starter — lift its `@font-face` blocks into `brand/_globals.css` and its token
+overrides into `brand/_tokens.css`.
 
-## How fonts work
+> Earlier revisions told you to copy it to `src/assets/css/_brand-typography.css`
+> and import that as a separate file. That path no longer exists; the SEED tier
+> replaced it, and there is no longer any reason for a separate typography sheet —
+> `brand/` is already yours.
 
-`package/css/theme.css` names the expected families as tokens, each with a system
-fallback:
+## Variable vs static faces
+
+Codey's defaults assume **pre-weighted (static)** faces: each cut is its own file,
+so the weight token stays `400` and the family does the work. A **variable**-font
+project keeps one family and raises the axis instead, in `brand/_tokens.css`:
 
 ```css
---body-font  --head-font  --med-font  --ital-font
+--bodymed-font: var(--body-font);  --bodymed-weight: 500;
+--med-font:     var(--body-font);  --med-weight:     500;
 ```
 
-`package/css/globals.css` carries no `@font-face`. Each project supplies its own:
-
-1. Put the font files in the project's own `src/assets/fonts/` (never here).
-2. Declare `@font-face` for the family names in the project's CSS — or inline the
-   critical weights in the Kirby `<head>` for first-paint.
-3. Optionally override the `--*-font` tokens in `_brand.css` to point at entirely
-   different faces.
-
-Until a project does this, the font tokens resolve to their system fallback.
+Why `400` for a medium cut: the typographer builds the weight into the stroke
+outlines, so `400` renders the face exactly as drawn. Asking for `500`/`600` makes
+the browser synthesise a faux-bold on top of an already-medium face and smear the
+letterforms.

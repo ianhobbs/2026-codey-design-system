@@ -88,6 +88,21 @@
   grid-template-columns: repeat(auto-fit, minmax(var(--min, 16rem), 1fr));
 }
 
+/* A bled row means bled media. Blocks ship shrink-to-fit defaults that survive
+   the row going edge-to-edge, so the frame widens and the content doesn't:
+     • the image block's <figure> is `items-center`, which REPLACES the flex
+       default of stretch, so <picture> shrink-wraps;
+     • its <img> carries `max-w-full` — a cap, which can never fill;
+     • its `sizes="(min-width: 900px) 80vw, 90vw"` makes 80vw the image's
+       INTRINSIC width, because a w-descriptor srcset divides natural size by
+       (candidate ÷ sizes). That is the width that actually wins today.
+   Scoped to this device on purpose: framed rows still want shrink-to-fit.
+   The `sizes` value remains a RESOLUTION issue here — the browser picks a
+   candidate for 80vw and upscales it into a 100vw slot. Fixing that needs the
+   row theme passed down to the block (layouts.php already has $layoutTheme). */
+.full-bleed-grid figure            { align-items: stretch; }
+.full-bleed-grid :is(picture, img) { width: 100%; }
+
 /* Bleed without the grid — same escape hatch, block stays undivided. */
 .full-bleed {
   width: 100dvw;

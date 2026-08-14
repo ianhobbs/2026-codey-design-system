@@ -793,21 +793,48 @@ Kirby's generated data (media/cache/content) are gitignored.
 
 ---
 
-## 17. Updating Codey
+## 17. Updating Codey, and sending fixes back
 
-Codey is a **clone**, so the normal flow is: start new projects from the latest
-Codey. For an existing project, pull core changes with Git and rebuild:
+### There is no `git pull`
+
+Earlier revisions of this guide said to `git pull` or cherry-pick from upstream.
+**That does not work**, and it never did for any real project. The quickstart tells
+you to `rm -rf .git && git init` on clone, so a project and this repo share **no
+common ancestor** — merge, rebase, cherry-pick and subtree all have nothing to
+anchor to. Verified: the SHA sets of the two repos intersect in zero commits.
+
+### What works instead: patches
+
+Git blobs are content-addressed, not history-addressed. An **unmodified** core file
+therefore has the *same blob SHA* in both repos, so a diff built against it applies
+cleanly across disjoint histories. That is the whole mechanism.
+
+Fixes flow **one way — project → Codey**. The producing project owns the tooling
+(see `scripts/codey-export.mjs` in the Rosie Boylan repo for the reference
+implementation):
 
 ```bash
-git pull                       # (or cherry-pick codey/ changes from upstream)
-cd build && composer install && cd ..
-npm run build
+npm run codey:export              # dry run: what would travel, and does it apply
+npm run codey:export -- go        # apply upstream, unstaged, for human review
+npm run codey:export -- --drift   # how far have the core zones drifted?
 ```
 
-Because you only edit *your* files (`_brand.css`, templates, project snippets) and
-leave `codey/` alone, updates to core files merge cleanly. If you expect to update
-many live sites in place, see the plugin-promotion path in
+It exports only the three core zones (`src/assets/css/codey/`,
+`src/assets/js/codey/`, `src/site/snippets/codey/`), never commits, never pushes,
+refuses deletions, and warns when a file has diverged upstream — because a clean
+apply is not necessarily a correct apply.
+
+To pull a newer Codey *into* an existing project, diff the core zones by hand and
+copy across; there is deliberately no automated import. If you need many live sites
+updating in place, that is the plugin-promotion path in
 [ARCHITECTURE.md](ARCHITECTURE.md).
+
+### Why this stays clean
+
+You edit `brand/` and your own templates; `codey/` holds rules only, no brand
+values. So core stays byte-identical to upstream, every core blob keeps matching,
+and patches keep applying. The moment a project edits a core file to change a
+*value*, that guarantee is gone — put the value in `brand/` instead.
 
 ### 17.1 Migrating to 2.0 (breaking)
 

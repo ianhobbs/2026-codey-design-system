@@ -202,28 +202,32 @@ but not sufficient — `verify.php` §2c audits snippet references directly.
 
 ## Known issues
 
-### ⬜ Synced `codey/` CSS lacks the `_` partial prefix (non-critical)
+### ⬜ `codey/` CSS lacks the `_` partial prefix (non-critical)
 
-Project-owned partials are underscored (`_brand-palette.css`, `_brand-typography.css`,
-`_brand.css`) so CodeKit skips them — they're `@import`-ed fragments, and each
-carries an `@theme` block with no `@import "tailwindcss"` of its own, so compiling
-one standalone emits broken CSS.
+CodeKit skips files whose names begin with `_`, so the prefix is how a partial gets
+tagged as non-renderable. These are `@import`-ed fragments, each carrying an
+`@theme` block with no `@import "tailwindcss"` of its own, so compiling one
+standalone emits broken CSS.
 
-The same is true inside the synced zone: `codey/index.css`, `theme.css`,
-`globals.css` and `lib/*.css` are **not** underscored, so a CodeKit-driven project
-would try to compile each one on its own and produce stray, broken output in
-`build/assets/css/codey/`. Only `_codey.css` is currently protected.
+**Done:** the whole SEED tier is now underscored — `brand/_tokens.css`,
+`_globals.css`, `_theme-codey.css`, `_palette-codey.css`, `_palette.css`,
+`_overrides.css`.
 
-**Not urgent** — projects using a Tailwind CLI script or a custom `build.mjs`
-(e.g. Rosieboy) are unaffected, since those compile only `main.css`.
+**Still open:** `codey/index.css` and `codey/lib/*.css` are not underscored, so a
+CodeKit-driven project would try to compile each one alone and produce stray,
+broken output in `build/assets/css/codey/`.
 
-**Why it's deferred:** fixing it means renaming synced files and changing the
-documented entry point (`@import "./codey/index.css"`), which is a breaking change
-for every consumer. Worth batching into the next major rather than doing piecemeal.
+**Not urgent** — projects compiling only `main.css` through the Tailwind CLI
+(Codey itself, and Rosieboy) are unaffected.
 
-Options when it's picked up: underscore everything except the entry file; or keep
-names and tell CodeKit to skip the `codey/` folder; or have `codey-sync` write a
-CodeKit config hint.
+**Why it's still deferred:** renaming them changes the documented entry point
+`@import "./codey/index.css"`, which is a breaking change for every consumer. This
+was deliberately *not* bundled into the `brand/` restructure, to keep that change
+confined to the seed tier.
+
+Options when it's picked up: underscore everything except `main.css`; or keep the
+names and tell CodeKit to skip `codey/` (weak — CodeKit rewrites `config.codekit3`
+itself, so hand edits get reverted).
 
 ---
 

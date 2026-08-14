@@ -1,14 +1,16 @@
 /* =============================================================
-   THEME: Codey (core) — default flavor.
-   Semantic alias layer over the codey palette. Meant to be inlined into
-   <head> by PHP before main.css for first-paint bg/text correctness (or
-   imported via index.css for the compiled bundle).
+   THEME: Codey — default colour flavor.  SEED, NOT CORE.
 
-   Project decoration (leaf SVG background, products-block overrides) was
-   stripped on extraction — add per project via the commented block below.
+   Codey ships this once; from then on it belongs to the project. A Codey
+   update will never overwrite it, and it must never be exported back
+   upstream. Rename the class, remap the aliases, add decoration — it's
+   yours. See brand/README or main.css for the three-tier model.
+
+   Meant to be inlined into <head> by PHP before main.css for first-paint
+   bg/text correctness (or imported from main.css for the compiled bundle).
    ============================================================= */
 
-@import "../palettes/_palette-codey.css";
+@import "./_palette-codey.css";
 
 /* ── Semantic aliases ──
    Scale is 0 = DARKEST → 9 = LIGHTEST. These were remapped from the original

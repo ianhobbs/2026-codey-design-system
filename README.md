@@ -87,18 +87,38 @@ package.json  config.codekit3  scripts/  docs/
 
 ## The one rule
 
-**Edit `src/`, never `build/`** — and treat anything under a `codey/` folder as
-**core**: don't edit it in place, because a Codey update replaces it. Customise in
-the files marked *YOURS*.
+**Edit `src/`, never `build/`.** Beyond that, every file sits in one of three
+tiers — sorted by *what happens on a Codey update*, not by who wrote it:
 
-| Codey core (update by pulling; don't edit) | Yours (safe to edit) |
+| Tier | On a Codey update | Where it lives |
+|---|---|---|
+| **CORE** | overwritten wholesale | `src/assets/css/codey/**`, `src/assets/js/codey/**`, `src/site/snippets/codey/**` |
+| **SEED** | never touched — Codey ships it once, you own it forever | `src/assets/css/brand/**` |
+| **PROJECT** | Codey never had it | `src/assets/css/main.css`, `src/assets/js/**`, `src/site/{templates,snippets,controllers,blueprints,config}` |
+
+**The practical test:** changing a **value** (a font, a colour, a measure) is a
+SEED edit — do it in `src/assets/css/brand/`. Changing a **rule** (how the grid
+resolves, how a block bleeds) is a CORE fix — do it in `codey/` and export it
+upstream so every Codey site benefits.
+
+CORE contains no brand values at all, which is what makes the rule checkable:
+**any diff under `codey/` is either a core fix worth exporting, or a mistake.**
+
+The seed files:
+
+| File | What it holds |
 |---|---|
-| `src/assets/css/codey/**` | `src/assets/css/main.css`, `_brand.css`, `_brand-palette.css` |
-| `src/assets/js/codey/**` | `src/assets/js/**` (your scripts) |
-| `src/site/snippets/codey/**` (layout engine) | `src/site/{templates,snippets,controllers,blueprints,config}` |
+| `brand/tokens.css` | `@theme` type/space ramp + font tokens |
+| `brand/globals.css` | `:root` globals, `@font-face` |
+| `brand/theme-codey.css` | default colour flavour (semantic aliases) |
+| `brand/palette-codey.css` | the shipped sample palette |
+| `brand/palette.css` | your generated palette (`npm run palette`) |
+| `brand/overrides.css` | loaded last — always wins |
 
-To restyle, override tokens/rules in `_brand.css` — later imports win. To change a
-snippet or template, edit the *YOURS* files directly (you own this clone).
+> **Earlier versions filed seed files under core** (`codey/theme.css`,
+> `codey/globals.css`), which made "don't edit `codey/`" impossible to obey —
+> the fonts had to go somewhere. Moving them to `brand/` is what makes the
+> boundary true rather than aspirational.
 
 > **Core boundary is by convention, not lock.** Because Codey is cloned (not
 > updated in place), the `codey/` folders mark what to leave alone so a future

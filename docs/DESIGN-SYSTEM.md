@@ -38,22 +38,39 @@ core; everything else is the project. There is no sync and no clobber risk —
 nothing overwrites your files, because there is no install step writing into the
 tree.
 
-| Core (`codey/`, versioned) | Project (yours) |
-|---|---|
-| `src/assets/css/codey/**` | `src/assets/css/main.css`, `_brand.css`, `_brand-palette.css`, `templates/*.css` |
-| `src/assets/js/codey/**` | `src/assets/js/**` |
-| `src/site/snippets/codey/**` | `src/site/{templates,snippets,controllers,blueprints,config}` |
+| Tier | On a Codey update | Where |
+| --- | --- | --- |
+| **CORE** | overwritten wholesale | `src/assets/css/codey/**`, `src/assets/js/codey/**`, `src/site/snippets/codey/**` |
+| **SEED** | never touched; yours forever | `src/assets/css/brand/**` |
+| **PROJECT** | Codey never had it | `main.css`, `src/assets/css/{lib,templates}/**`, `src/assets/js/**`, `src/site/{templates,controllers,blueprints,config}` |
+
+Changing a **value** is a SEED edit; changing a **rule** is a CORE fix. Core carries
+no brand values, so any diff under `codey/` is either a fix worth exporting upstream
+or a mistake.
 
 ## Override contract (load order = precedence)
 
-1. **Core** — `main.css` does `@import "./codey/index.css"` (tokens, globals,
-   default theme, bespoke layout/grid/type/element libraries).
-2. **Project brand** — `@import "./_brand.css"` *last* in `main.css`. Its `@theme`
-   overrides tokens; Tailwind v4 merges `@theme` blocks and the last declaration
-   wins. Optional `_brand-palette.css` (generated) is imported from here.
-3. **Per-template** — `src/assets/css/templates/{template}.css`, auto-loaded only
+`main.css` sets the order, and it is deliberate — seeds first so core can read the
+tokens, your overrides last so they always win:
+
+1. **Seed** — `@import "./brand/_tokens.css"`, `_globals.css`, `_theme-codey.css`.
+   Tokens, `:root` constants, `@font-face`, colour flavour. Project-owned.
+2. **Core** — `@import "./codey/index.css"` (bespoke layout/grid + base type/elements).
+   Rules only; reads the tokens above, defines none of them.
+3. **Opt-in core** — commented `@import "./codey/lib/{transitions,form,accordion,cards}.css"`
+   in `main.css`. Uncomment only what the project's markup uses.
+4. **Generated Utopia** — `@import "./lib/utopia-export.css"`, overriding the seed ramp.
+5. **Project overrides** — `@import "./brand/_overrides.css"` *last*. Its `@theme`
+   beats every earlier `@theme` (Tailwind merges them, last declaration wins), and
+   its `@layer bespoke` / `@layer base` blocks beat same-layer core rules on source
+   order. This is where a project overrides a core *rule* without editing core.
+6. **Per-template** — `src/assets/css/templates/{template}.css`, auto-loaded only
    on that template via `css('@auto')`. Uses `var(--token)` at runtime; if it needs
    `@apply`, it starts with `@reference "tailwindcss";`.
+
+All partials are underscore-prefixed so CodeKit skips them — they are `@import`
+fragments and compiling one standalone emits broken CSS. `main.css` is the only
+entry point.
 
 **Kirby side:** Codey's snippets live under `src/site/snippets/codey/` and are
 called by logical name (`snippet('codey/layout')`); field blueprints are referenced
@@ -65,10 +82,11 @@ Precedence: **project `site/` files → (future) plugin → Kirby core.**
 
 ## What the core contains
 
-- **Tokens** — `codey/theme.css` (`@theme` Utopia fluid type/space scale, replacing
-  Tailwind's default ramps) + `codey/globals.css` (`:root` globals + `@font-face`).
-- **Colour system** — raw palettes (`palettes/_codey`) + semantic themes
-  (`themes/theme-codey`), decoration stripped.
+- **Tokens (SEED, not core)** — `brand/_tokens.css` (`@theme` Utopia fluid type/space
+  scale, replacing Tailwind's default ramps) + `brand/_globals.css` (`:root` globals
+  + `@font-face`). Shipped once, then project-owned.
+- **Colour system (SEED)** — raw palette (`brand/_palette-codey.css`) + semantic
+  flavour (`brand/_theme-codey.css`), decoration stripped.
 - **CSS core** (`codey/lib/`) — `layout.css` (two-axis page frame), `grid.css`
   (content grid devices), `typography.css`, `elements.css`.
 - **Component seeds** (`codey/lib/`, opt-in) — `form`, `accordion`, `transitions`,

@@ -1,13 +1,16 @@
 /* ════════════════════════════════════════════════════════════════════
-   Codey tokens — Tailwind v4 @theme vocabulary (vendored core).
+   Codey tokens — Tailwind v4 @theme vocabulary.  SEED, NOT CORE.
+
+   Codey ships this once; from then on the project owns it. No Codey update
+   overwrites it, and it is never exported back upstream — so edit it freely.
 
    REPLACES Tailwind's built-in scales with the re-engineered Utopia fluid
    type & spacing ramps. Generated from the Utopia sources via the theme's
    tools (utopia-pre → convertVariables). Regenerate rather than hand-tuning
    the clamp() values.
 
-   A project overrides any token by redeclaring it in a later-loaded @theme
-   (its _brand.css) — Tailwind merges @theme blocks; the last declaration wins.
+   You can also override any token by redeclaring it in a later-loaded @theme
+   (brand/overrides.css) — Tailwind merges @theme blocks; last declaration wins.
 
    Once you have crafted your own delete these defaults. [16 - 66 ]
 
@@ -86,7 +89,7 @@
   --font-fallback: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   /* Font families NAME the expected faces (Codey defaults). The package ships no
      @font-face or font files — a project supplies matching @font-face or overrides
-     these tokens in _brand.css; until then they fall back to --font-fallback. */
+     these tokens right here; until then they fall back to --font-fallback. */
   --body-font:    "Gotham-Book",     var(--font-fallback);  /* body copy */
   --bodymed-font: "Gotham-Med",      var(--font-fallback);  /* strong/b — body's medium cut */
   --head-font:    "Gradual",         var(--font-fallback);  /* h1–h3 display */
@@ -104,7 +107,7 @@
   /* ── Font WEIGHTS — the seam between the two ways a brand ships type ──
      Defaults assume PRE-WEIGHTED (static) faces: each cut is its own file, so
      the weight stays 400 and the family does the work. A VARIABLE-font project
-     keeps one family and raises the axis instead, e.g. in _brand-typography.css:
+     keeps one family and raises the axis instead, e.g. right here:
          --bodymed-font: var(--body-font);  --bodymed-weight: 500;
          --med-font:     var(--body-font);  --med-weight:     500;
      Why 400 for a medium cut: the typographer builds the weight into the stroke

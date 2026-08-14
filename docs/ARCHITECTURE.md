@@ -34,38 +34,51 @@ into" the project — Codey's files are the project's files.
 
 ```
 ┌──────────────────────────────────────────────┐
-│ project layer  (main.css, _brand.css,         │  ← YOURS — edit freely
-│                 templates, snippets)          │
+│ project layer  (main.css, templates,          │  ← PROJECT — edit freely
+│                 snippets, generated Utopia)   │
 ├──────────────────────────────────────────────┤
-│ Kirby layout engine  (layout shell,           │  ← src/site/snippets/codey/*
-│   header/footer, layout-field renderer)       │
+│ brand layer  (tokens, globals, colour flavour,│  ← SEED — yours after clone
+│   palette, overrides)                         │     src/assets/css/brand/*
 ├──────────────────────────────────────────────┤
-│ CSS core  (layout frame, grid, type, elements)│  ← src/assets/css/codey/lib
+│ Kirby layout engine  (layout shell,           │  ← CORE
+│   header/footer, layout-field renderer)       │     src/site/snippets/codey/*
 ├──────────────────────────────────────────────┤
-│ Colour system  (palettes + semantic themes)   │  ← src/assets/css/codey/{palettes,themes}
-├──────────────────────────────────────────────┤
-│ Tokens  (@theme Utopia type/space, globals)   │  ← src/assets/css/codey/{theme,globals}.css
-└──────────────────────────────────────────────┘
+│ CSS core  (layout frame, grid, type, elements)│  ← CORE
+└──────────────────────────────────────────────┘     src/assets/css/codey/lib
 ```
 
-Dependencies point downward only. A rule references the tokens below it; it never
-reaches up into the project layer.
+Dependencies point downward only — with one deliberate inversion: **CORE reads the
+brand layer's tokens but never defines them.** Core is pure rules; every value it
+consumes arrives as a custom property the SEED tier supplies. That is what lets
+core be replaced wholesale without touching a project's design.
 
-## The core / project boundary
+## The three tiers
 
-The clone is all yours to edit, but Codey marks what belongs to the *system* so
-updates stay clean: everything under a **`codey/` folder is core**.
+Sorted by **what happens on a Codey update**, not by authorship:
 
-| Core (`codey/`) — update by pulling, don't edit | Project — edit freely |
-|---|---|
-| `src/assets/css/codey/**` | `src/assets/css/main.css`, `_brand.css`, `_brand-palette.css` |
-| `src/assets/js/codey/**` | `src/assets/js/**` |
-| `src/site/snippets/codey/**` (layout engine) | `src/site/{templates,snippets,controllers,blueprints,config}` |
+| Tier | On update | Where |
+| --- | --- | --- |
+| **CORE** | overwritten wholesale | `src/assets/css/codey/**`, `src/assets/js/codey/**`, `src/site/snippets/codey/**` |
+| **SEED** | never touched; yours forever | `src/assets/css/brand/**` |
+| **PROJECT** | Codey never had it | `main.css`, `src/assets/css/lib/**`, `src/site/{templates,controllers,blueprints,config}` |
 
-Because Codey is *cloned*, this boundary is a convention (a clean-merge aid), not a
-lock. CSS overrides go in `_brand.css` (later imports win). PHP customisation is
-just editing the *project* files — Kirby also resolves `site/` files before any
-plugin, so the boundary stays valid if the engine is later promoted to a plugin.
+**The test:** changing a **value** is SEED; changing a **rule** is CORE.
+
+Because core contains no brand values, the boundary is checkable rather than
+merely conventional: **any diff under `codey/` is either a core fix worth exporting
+upstream, or a mistake.**
+
+> **This is the second attempt at the boundary.** The first put `theme.css` and
+> `globals.css` — the files holding a project's fonts and tokens — *inside*
+> `codey/`, while telling you never to edit `codey/`. That is unobeyable: a project
+> has to set its fonts somewhere. The rule broke on first contact and the trees
+> drifted. Moving those files to `brand/` is what makes the boundary real.
+
+PHP customisation is still just editing the *project* files — Kirby resolves
+`site/` files before any plugin, so the boundary holds if the engine is later
+promoted to a plugin. Note the PHP side has no override chain yet, so a project
+needing to change a core snippet still edits it in place; see the plugin-promotion
+path below.
 
 ### The plugin-promotion path (optional, future)
 
