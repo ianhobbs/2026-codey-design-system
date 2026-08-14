@@ -8,6 +8,9 @@
 
    A project overrides any token by redeclaring it in a later-loaded @theme
    (its _brand.css) — Tailwind merges @theme blocks; the last declaration wins.
+
+   Once you have crafted your own delete these defaults. [16 - 66 ]
+
    ════════════════════════════════════════════════════════════════════ */
 @theme {
   /* ── Utopia fluid type scale ── */
@@ -63,11 +66,13 @@
   --spacing-14-9xl:   clamp(11.6875rem, 11.0571rem + 3.1522vw, 13.5rem);
 
   /* ── RESET: wipe Tailwind's built-in scales so ONLY the tokens above resolve ── */
+
   --color-*: initial;
   --font-*: initial;
   --spacing: initial;
   --font-weight: initial;
   --font-weight-*: initial;
+  --text-* : initial;
 
   /* ── AUGMENTS: extra tokens layered on top of Tailwind ── */
   --padding: var(--spacing-4-m);

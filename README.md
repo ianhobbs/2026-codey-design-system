@@ -14,10 +14,10 @@ clone, install, build, run.
 
 ```bash
 # 1. start a project from Codey
-git clone <codey-repo-url> my-site && cd my-site
+git clone ianhobbs/2026-codey-design-system my-site && cd my-site
 
 # 2. detach from the template — this clone is your project's own repo,
-#    it never syncs back to Codey
+
 rm -rf .git && git init
 
 # 3. front-end deps
@@ -27,7 +27,7 @@ npm install
 npm run setup
 
 # 5. run it
-npm run serve          # → http://localhost:8000  (Panel at /panel)
+npm run serve       # → http://localhost:8000  (Panel at /panel)
 ```
 
 `npm run setup` is `composer install` (Kirby into `build/`) → `npm run seed`
