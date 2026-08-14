@@ -19,7 +19,7 @@ toolchain, committed `build/`, the works. It is a starter, not a package.
 ```bash
 npm run setup           # composer install (Kirby into build/) → seed → build
 npm run serve           # cd build && composer start → http://localhost:8000
-npm run build           # site + assets (convert → tails → js)
+npm run build           # site + assets (convert → tails)
 npm run site            # mirror src/site → build/site (scripts/sync-site.mjs)
 npm run tails           # one-shot Tailwind build (exits). tails:watch to watch.
 npm run convert         # regenerate lib/utopia-export.css from lib/utopia-pre.css

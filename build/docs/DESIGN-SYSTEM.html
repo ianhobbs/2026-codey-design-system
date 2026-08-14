@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="codeydesignsystem—mechanism">Codey Design System — mechanism</h1>
+
+<p>How the system is authored and lives inside a Codey Kirby project, working <em>with</em>
+the <code>src/ → build/</code> (CodeKit / Tailwind CLI) convention rather than against it.</p>
+
+<h2 id="deliverywhythisshape">Delivery (why this shape)</h2>
+
+<p>Codey is a <strong>Git starter you clone</strong>, not a dependency you install. The theme runs
+in place and is compiled by the project&#8217;s own pipeline. This replaced an earlier
+Composer-plugin + sync-script design whose two payloads (synced CSS, registered
+PHP) had different lifecycles and no single install path. See
+<a href="ARCHITECTURE.md">ARCHITECTURE.md</a> and <a href="Theme-Strategy.md">Theme-Strategy.md</a>.</p>
+
+<ul>
+<li><strong>Not a referenced dependency</strong> — the theme&#8217;s CSS is Tailwind <em>source</em>; it must
+sit in <code>src/</code> so the project&#8217;s build compiles it. In a clone, it simply does.</li>
+<li><strong>Not a submodule/subtree</strong> — a clone-to-start starter needs no nested <code>.git</code>;
+you own the tree and diverge from it per project.</li>
+<li><strong>Composer for Kirby only</strong> — <code>build/composer.json</code> pulls Kirby + PHP deps into
+<code>build/</code>. npm sits at root for Tailwind + Alpine. Neither delivers the theme; the
+theme is already in <code>src/</code>.</li>
+</ul>
+
+<h2 id="installflow">Install flow</h2>
+
+<pre><code>cd build &amp;&amp; composer install   → Kirby + vendor into build/ (gitignored)
+npm install                    → Tailwind + Alpine (CodeKit bundles the JS)
+npm run build                  → src/assets → build/assets  (Tailwind CSS + Alpine bundle)
+                                 src/site   → build/site    (mirror)
+npm run serve                  → Kirby dev server on :8000
+</code></pre>
+
+<p>CodeKit does the same <code>src → build</code> work live while you edit.</p>
+
+<h2 id="thecoreprojectsplit">The core / project split</h2>
+
+<p><code>src/</code> is the single source of truth. Within it, <code>codey/</code> folders are the system
+core; everything else is the project. There is no sync and no clobber risk —
+nothing overwrites your files, because there is no install step writing into the
+tree.</p>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Tier </th>
+	<th> On a Codey update </th>
+	<th> Where </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <strong>CORE</strong> </td>
+	<td> overwritten wholesale </td>
+	<td> <code>src/assets/css/codey/**</code>, <code>src/assets/js/codey/**</code>, <code>src/site/snippets/codey/**</code> </td>
+</tr>
+<tr>
+	<td> <strong>SEED</strong> </td>
+	<td> never touched; yours forever </td>
+	<td> <code>src/assets/css/brand/**</code> </td>
+</tr>
+<tr>
+	<td> <strong>PROJECT</strong> </td>
+	<td> Codey never had it </td>
+	<td> <code>main.css</code>, <code>src/assets/css/{lib,templates}/**</code>, <code>src/assets/js/**</code>, <code>src/site/{templates,controllers,blueprints,config}</code> </td>
+</tr>
+</tbody>
+</table>
+
+<p>Changing a <strong>value</strong> is a SEED edit; changing a <strong>rule</strong> is a CORE fix. Core carries
+no brand values, so any diff under <code>codey/</code> is either a fix worth exporting upstream
+or a mistake.</p>
+
+<h2 id="overridecontractloadorderprecedence">Override contract (load order = precedence)</h2>
+
+<p><code>main.css</code> sets the order, and it is deliberate — seeds first so core can read the
+tokens, your overrides last so they always win:</p>
+
+<ol>
+<li><strong>Seed</strong> — <code>@import &quot;./brand/_tokens.css&quot;</code>, <code>_globals.css</code>, <code>_theme-codey.css</code>.
+Tokens, <code>:root</code> constants, <code>@font-face</code>, colour flavour. Project-owned.</li>
+<li><strong>Core</strong> — <code>@import &quot;./codey/index.css&quot;</code> (bespoke layout/grid + base type/elements).
+Rules only; reads the tokens above, defines none of them.</li>
+<li><strong>Opt-in core</strong> — commented <code>@import &quot;./codey/lib/{transitions,form,accordion,cards}.css&quot;</code>
+in <code>main.css</code>. Uncomment only what the project&#8217;s markup uses.</li>
+<li><strong>Generated Utopia</strong> — <code>@import &quot;./lib/utopia-export.css&quot;</code>, overriding the seed ramp.</li>
+<li><strong>Project overrides</strong> — <code>@import &quot;./brand/_overrides.css&quot;</code> <em>last</em>. Its <code>@theme</code>
+beats every earlier <code>@theme</code> (Tailwind merges them, last declaration wins), and
+its <code>@layer bespoke</code> / <code>@layer base</code> blocks beat same-layer core rules on source
+order. This is where a project overrides a core <em>rule</em> without editing core.</li>
+<li><strong>Per-template</strong> — <code>src/assets/css/templates/{template}.css</code>, auto-loaded only
+on that template via <code>css('@auto')</code>. Uses <code>var(--token)</code> at runtime; if it needs
+<code>@apply</code>, it starts with <code>@reference &quot;tailwindcss&quot;;</code>.</li>
+</ol>
+
+<p>All partials are underscore-prefixed so CodeKit skips them — they are <code>@import</code>
+fragments and compiling one standalone emits broken CSS. <code>main.css</code> is the only
+entry point.</p>
+
+<p><strong>Kirby side:</strong> Codey&#8217;s snippets live under <code>src/site/snippets/codey/</code> and are
+called by logical name (<code>snippet('codey/frame')</code>); field blueprints are referenced
+<code>extends: fields/layout</code>. To customise, edit the project&#8217;s own templates/snippets
+directly (you own the clone), or — if you keep the core pristine — drop a same-named
+file into <code>site/</code>, which Kirby resolves before anything else.</p>
+
+<p>Precedence: <strong>project <code>site/</code> files → (future) plugin → Kirby core.</strong></p>
+
+<h2 id="whatthecorecontains">What the core contains</h2>
+
+<ul>
+<li><strong>Tokens (SEED, not core)</strong> — <code>brand/_tokens.css</code> (<code>@theme</code> Utopia fluid type/space
+scale, replacing Tailwind&#8217;s default ramps) + <code>brand/_globals.css</code> (<code>:root</code> globals</li>
+<li> <code>@font-face</code>). Shipped once, then project-owned.</li>
+<li><strong>Colour system (SEED)</strong> — raw palette (<code>brand/_palette-codey.css</code>) + semantic
+flavour (<code>brand/_theme-codey.css</code>), decoration stripped.</li>
+<li><strong>CSS core</strong> (<code>codey/lib/</code>) — <code>layout.css</code> (two-axis page frame), <code>grid.css</code>
+(content grid devices), <code>typography.css</code>, <code>elements.css</code>.</li>
+<li><strong>Component seeds</strong> (<code>codey/lib/</code>, opt-in) — <code>form</code>, <code>accordion</code>, <code>transitions</code>,
+<code>cards</code>: generically useful tokens with guidance comments, commented in the
+manifest so they ship zero bytes until a project uncomments them.</li>
+<li><strong>Layout engine</strong> (<code>src/site/snippets/codey/</code>) — the <code>codey/layout</code> shell,
+<code>codey/header</code> / <code>codey/footer</code>, and the <code>codey/layouts</code> layout-field renderer,
+plus the <code>layout</code> / <code>cover</code> field blueprints.</li>
+</ul>
+
+<h2 id="opinionatedmanifest">Opinionated manifest</h2>
+
+<p><code>src/assets/css/codey/index.css</code> is the toggle sheet: core imports are always on;
+optional components sit as <strong>commented imports</strong>. A project uncomments only what its
+markup uses — no accordion markup, no accordion bytes.</p>
+
+<h2 id="tools">Tools</h2>
+
+<p><code>scripts/brand-palette.cjs</code> generates a perceptually even brand palette in OKLCH
+(<code>npm run palette -- --dark … --light … --mid …</code>). <code>scripts/sync-site.mjs</code> mirrors
+<code>src/site → build/site</code> for the no-CodeKit build. Utopia regeneration and the
+styleguide preview remain workshop tools.</p>
+
+</body>
+</html>
+

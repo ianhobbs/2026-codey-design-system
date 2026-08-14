@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="codeyarchitectures">Codey Architectures</h1>
+
+<p>Front-end architecture reference for Codey. <sub>6</sub> sections: page layouts, containers, grids &amp; flexbox, off-screen, off-page layouts, UX (+1 TBD).</p>
+
+<hr />
+
+<h2 id="1.pagelayouts">1. Page layouts</h2>
+
+<h3 id="coreproblem">Core problem</h3>
+
+<p>The current Codey site frames content <sub>80</sub>% of the time by positioning content in margins (body owns the margin → &#8220;pretty frame&#8221;). The frame is baked into the container, so switching to full-screen edge-to-edge (&#8220;content defines margins&#8221;) fights the inherited frame.</p>
+
+<h3 id="fix—invertmarginownership">Fix — invert margin ownership</h3>
+
+<p>Stop padding inward on body. Make the gutter a <strong>token</strong> on a layout grid with named tracks; content defaults into a centered track, any block opts into full width. Mode becomes one switchable variable.</p>
+
+<pre><code class="css">.frame {
+  display: grid;
+  grid-template-columns:
+    [full-start] minmax(var(--grid-gap), 1fr)
+    [content-start] minmax(0, var(--measure)) [content-end]
+    minmax(var(--grid-gap), 1fr) [full-end];
+}
+.frame &gt; *      { grid-column: content; }  /* framed by default */
+.frame &gt; .bleed { grid-column: full; }      /* edge-to-edge opt-out */
+</code></pre>
+
+<p>Drive mode the Codey way: a <code>data-reach</code> attribute / Alpine state on the layout root flips <code>--grid-gap</code> / tracks.</p>
+
+<h3 id="two-axismodelpinnedterminology">Two-axis model (pinned terminology)</h3>
+
+<p>The defining frame for Codey page layouts. header/main/footer and frame/bleed/spread are different axes, which is what keeps them clean. <strong>They compose, they don&#8217;t compete.</strong></p>
+
+<ul>
+<li><strong>Row axis</strong> — vertical. header/main/footer document landmarks stacked top to bottom (rows).</li>
+<li><strong>Column axis</strong> — horizontal. inset/spread/bleed reach system over named column tracks (columns).</li>
+</ul>
+
+<p>Because they&#8217;re different axes they never contend for the same property; every layout is one point on each axis.</p>
+
+<h3 id="speculativelayoutseriescodifiednotyetlocked">Speculative layout series (codified, not yet locked)</h3>
+
+<ul>
+<li><strong>frame</strong> — current 80% case refactored; symmetric gutter owned by grid (not body padding), centered max-measure track.</li>
+<li><strong>bleed</strong> — full-screen edge-to-edge; <code>--grid-gap: 0</code>, content supplies local padding.</li>
+<li><strong>spread</strong> — hybrid; framed by default with per-block <code>.bleed</code> opt-outs. Resolves the mode-switch problem on a single page.</li>
+<li><strong>inset</strong> — content-defines-margin; gutter derived from content (asymmetric rail / sidebar / image sets the column).</li>
+<li><strong>rail / split</strong> — multi-region asymmetric shells (fixed side + fluid main).</li>
+</ul>
+
+<h3 id="headermainfooterrowaxis">header / main / footer (row axis)</h3>
+
+<ul>
+<li><strong>Row axis</strong> (rows): <code>body { min-height: 100svh; display: grid; grid-template-rows: auto 1fr auto }</code> → header/main/footer + sticky-footer.</li>
+<li><strong>Horizontal tracks</strong> (the full/content columns) live inside each landmark, ideally shared via <code>subgrid</code> so a bleed background in header and bleed media in main align to the same edges. header/footer commonly = framed content over a bleed background band; main is where <strong>spread</strong> earns its keep.</li>
+<li>Menu-stack / push-stack off-page elements sit OUTSIDE this row axis (fixed overlays over the canvas).</li>
+<li>Decision point: grid on body with landmarks as subgrid items (tightest alignment) vs re-applied per-landmark (looser but portable — likely better for the snippet/slot model).</li>
+</ul>
+
+<h3 id="stickyscroll-detectionheader">Sticky / scroll-detection header</h3>
+
+<p>Sticky resolves against the nearest <strong>scroll container</strong>, NOT a positioned ancestor — so no <code>position: relative</code> needed on body (the abspos rule does not apply). Three real grid-sticky gotchas:</p>
+
+<ol>
+<li><strong><code>align-items: stretch</code></strong> (default) stretches the item so it can&#8217;t travel → set <code>align-self: start</code> on the header.</li>
+<li><strong>Overflow trap:</strong> <code>overflow-x: hidden</code> makes <code>overflow-y</code> compute to <code>auto</code>, creating a scroll container that breaks sticky. Contain bleed with grid tracks / max-width, never overflow.</li>
+<li><strong>Containing-block confinement:</strong> sticky only sticks within its parent&#8217;s box; mount the header where its parent is tall (direct child of body grid is fine).</li>
+</ol>
+
+<p>Two architectures:</p>
+
+<ul>
+<li><strong>Sticky-in-flow</strong> — header in body row-grid, <code>align-self: start</code>, no overflow clipping above it. Natural flow, cleanest if overflow discipline holds.</li>
+<li><strong>Fixed overlay (Codey lean)</strong> — header <code>position: fixed</code> outside the row grid, <code>main</code> gets compensating <code>padding-top</code>. Sidesteps containing-block/overflow issues; consistent with how Codey already floats fixed off-page elements.</li>
+</ul>
+
+<p><strong>Scroll-detection:</strong> use a sentinel + IntersectionObserver, Alpine flips a <code>data-state</code> attribute (<code>scrolled</code> / <code>pinned</code> / <code>unpinned</code>) that CSS transitions react to — keeps it off the scroll-event hot path. Composes with the off-screen core stack (transform + Alpine.js + CSS injection).</p>
+
+<hr />
+
+<h2 id="2.containers">2. Containers</h2>
+
+<p>Containers are grid children of the page-layout grid.</p>
+
+<h3 id="subgridthealignmentwiring">Subgrid = the alignment wiring</h3>
+
+<p>Subgrid enforces the &#8220;compose, don&#8217;t compete&#8221; two-axis model. Without it, every container that declares <code>display: grid</code> invents its own independent columns → children land on the container&#8217;s lines, not the page&#8217;s <code>full</code>/<code>content</code> lines → gutters drift and edges stop aligning one level down.</p>
+
+<p>With <code>grid-template-columns: subgrid</code> a container <strong>adopts the parent&#8217;s column tracks</strong> (named lines <code>full</code>/<code>content</code> pass through), so even deeply nested blocks bleed to the exact same edge as top-level ones.</p>
+
+<p><strong>Subgrid is per-axis</strong> — a container can subgrid <em>columns only</em> (inherit the horizontal column axis) while running its <em>own rows</em> (its own row tracks). That is the two-axis split made literal: horizontal alignment propagates down, vertical structure stays local.</p>
+
+<h3 id="twokindsofcontainer">Two kinds of container</h3>
+
+<ul>
+<li><strong>Track-aligned</strong> — <code>subgrid</code> on columns; inherit the gutter system; content stays on the page rhythm. Default for structural containers.</li>
+<li><strong>Independent</strong> — own grid, intentionally breaking out of shared tracks; for self-contained objects (bleed media with internal layout, widgets, card grids) that should not inherit page gutters.</li>
+</ul>
+
+<h3 id="caveats">Caveats</h3>
+
+<ul>
+<li>Subgrid only spans the parent tracks the item actually covers (a <code>content</code>-column container can&#8217;t subgrid the <code>full</code> tracks it doesn&#8217;t occupy).</li>
+<li><code>gap</code> is inherited but overridable.</li>
+<li>Browser support solid across evergreens since <sub>2023</sub>.</li>
+</ul>
+
+<hr />
+
+<h2 id="3.gridsflexbox">3. Grids &amp; flexbox</h2>
+
+<p><strong>Status: note only — come back to it.</strong></p>
+
+<h3 id="kirbygridopenquestion—needsverification">Kirby grid (OPEN QUESTION — needs verification)</h3>
+
+<p>Kirby&#8217;s Layout field defaults to a <strong>12-column grid</strong>. Unverified whether the column count can be overwritten / specified per blueprint. No Kirby MCP is connected, so this could not be checked directly — verify against Kirby docs (layout field blueprint options) when revisited.</p>
+
+<h3 id="theholygrail—customweightedgrids">The holy grail — custom weighted grids</h3>
+
+<p>Designers want custom asymmetric, weighted grids that respond cleanly across breakpoints — historically hard to &#8220;push into breakpoints.&#8221;</p>
+
+<p>Example weights per breakpoint:</p>
+
+<ul>
+<li><code>lg: 2, 5, 7, 3, 11, 3</code></li>
+<li><code>md: 1, 2, 2, 1</code></li>
+<li><code>sm: 1</code></li>
+</ul>
+
+<p>Key insight: <code>lg</code> sums to 31, not 12 → this is NOT a 12-col fraction grid, it&#8217;s a <strong>weighted/ratio grid</strong>. Maps directly onto CSS Grid <code>fr</code> units with a per-breakpoint track list:</p>
+
+<pre><code class="css">.grid       { display: grid; grid-template-columns: 1fr; }              /* sm */
+@media (md) { .grid { grid-template-columns: 1fr 2fr 2fr 1fr; } }
+@media (lg) { .grid { grid-template-columns: 2fr 5fr 7fr 3fr 11fr 3fr; } }
+</code></pre>
+
+<p>CSS does this natively; Kirby&#8217;s fraction-based 12-col layout field is exactly what resists it. Likely solution: a custom layout field / blueprint that emits per-breakpoint <code>fr</code> track lists rather than 12-col fractions.</p>
+
+<h3 id="flexbox">Flexbox</h3>
+
+<p>TBD — likely the intra-component / content-driven counterpart to grid&#8217;s page/container structure.</p>
+
+<hr />
+
+<h2 id="4.off-screenoff-canvascorestack">4. Off-screen (off-canvas core stack)</h2>
+
+<p>Codey&#8217;s off-page (off-canvas) compositions all use a fixed core stack:</p>
+
+<ul>
+<li><strong>Transform-based motion</strong> — <code>transform: translateX/translateY</code> for the slide (GPU-composited, no reflow).</li>
+<li><strong>Alpine.js</strong> — drives open/close state and behaviour.</li>
+<li><strong>CSS injection</strong> — for styling.</li>
+</ul>
+
+<p>These three are the core elements in every Codey off-page composition.</p>
+
+<hr />
+
+<h2 id="5.off-pagelayouts">5. Off-page layouts</h2>
+
+<p>In Kirby and other PHP methods, off-page items are implemented as <strong>either snippets or slots, depending on the utility of the context</strong>. They are loaded <strong>late in the page cascade — last</strong>.</p>
+
+<pre><code class="php">&lt;?php snippet('off-canvas-nav') ?&gt;
+&lt;?php snippet('off-canvas-content', ['field' =&gt; $page-&gt;section()]) ?&gt;
+</code></pre>
+
+<h3 id="menu-stackcommonvariant">Menu-stack (common variant)</h3>
+
+<p>One or more off-canvas elements that translate-animate (x or y) <strong>over</strong> the canvas, invoked by Alpine.js events. Up to <strong>4 off-page snippets</strong>.</p>
+
+<p>Off-canvas markup / attributes address:</p>
+
+<ul>
+<li><strong>Parent overlays</strong> — the backdrop/overlay behind the panel.</li>
+<li><strong>Transition speed</strong> — animation timing.</li>
+<li><strong>Coverage</strong> — full or partial.</li>
+<li><strong>Custom shapes</strong> — e.g. SVG backgrounds.</li>
+<li><strong>Styling</strong>.</li>
+</ul>
+
+<h3 id="push-stackfamilyexoticvariant">Push-stack family (exotic variant)</h3>
+
+<p>Where a page wrapper / cell track translates within a fixed viewport rather than sliding a panel in over the page. Codified family name = <strong>push-stack</strong>; children named by cell count:</p>
+
+<ul>
+<li><strong>uno</strong> — primary / single-cell.</li>
+<li><strong>duo</strong> — two-cell track that shuttles left/right; only one cell in view at a time (one-view object).</li>
+<li><strong>trio</strong> — three cells, if that ever arises.</li>
+</ul>
+
+<p>Family is open-ended; name future variants by the same convention.</p>
+
+<hr />
+
+<h2 id="6.ux">6. UX</h2>
+
+<p>TBD.</p>
+
+<hr />
+
+<h2 id="1sixthsection">(+1) Sixth section</h2>
+
+<p>TBD — unnamed.</p>
+
+</body>
+</html>
+

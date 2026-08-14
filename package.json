@@ -9,8 +9,7 @@
   "scripts": {
     "tails": "npx @tailwindcss/cli -i ./src/assets/css/main.css -o ./build/assets/css/main.css -m",
     "tails:watch": "npx @tailwindcss/cli -i ./src/assets/css/main.css -o ./build/assets/css/main.css -wm",
-    "js": "npx esbuild ./src/assets/js/codey/alpine.js --bundle --minify --outfile=./build/assets/js/codey/alpine.js",
-    "assets": "npm run convert && npm run tails && npm run js",
+    "assets": "npm run convert && npm run tails",
     "site": "node scripts/sync-site.mjs",
     "build": "npm run site && npm run assets",
     "convert": "node convertUtopia.cjs",
@@ -26,11 +25,9 @@
   "devDependencies": {
     "@tailwindcss/cli": "^4.1",
     "tailwindcss": "^4.1",
-    "@alpinejs/csp": "^3.16.1",
-    "esbuild": "^0.24"
+    "@alpinejs/csp": "^3.16.1"
   },
   "allowScripts": {
-    "@parcel/watcher@2.5.1": true,
-    "esbuild@0.24.2": true
+    "@parcel/watcher@2.5.1": true
   }
 }

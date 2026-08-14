@@ -23,7 +23,7 @@ PHP) had different lifecycles and no single install path. See
 
 ```
 cd build && composer install   → Kirby + vendor into build/ (gitignored)
-npm install                    → Tailwind + Alpine + esbuild
+npm install                    → Tailwind + Alpine (CodeKit bundles the JS)
 npm run build                  → src/assets → build/assets  (Tailwind CSS + Alpine bundle)
                                  src/site   → build/site    (mirror)
 npm run serve                  → Kirby dev server on :8000

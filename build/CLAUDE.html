@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="claude.md">CLAUDE.md</h1>
+
+<p>This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.</p>
+
+<h2 id="whatthisis">What this is</h2>
+
+<p><strong>Codey</strong> — a Kirby CMS design-system starter, and the <strong>upstream source of truth</strong>
+for every site built on it. Projects clone this repo, run <code>rm -rf .git &amp;&amp; git init</code>
+(see README quickstart), and become their own repo. They never pull from here again.</p>
+
+<p>That one-way, history-severing delivery model is the fact that shapes everything
+else in this file.</p>
+
+<p>This repo is also a runnable Kirby site in its own right — full <code>src/ → build/</code>
+toolchain, committed <code>build/</code>, the works. It is a starter, not a package.</p>
+
+<h2 id="commands">Commands</h2>
+
+<pre><code class="bash">npm run setup           # composer install (Kirby into build/) → seed → build
+npm run serve           # cd build &amp;&amp; composer start → http://localhost:8000
+npm run build           # site + assets (convert → tails)
+npm run site            # mirror src/site → build/site (scripts/sync-site.mjs)
+npm run tails           # one-shot Tailwind build (exits). tails:watch to watch.
+npm run convert         # regenerate lib/utopia-export.css from lib/utopia-pre.css
+npm run seed            # populate build/content from sample-content/
+npm run palette -- --dark &quot;#111318&quot; --light &quot;#f6f8fb&quot; --mid &quot;#c8452f&quot;
+                        # → src/assets/css/brand/_palette.css
+</code></pre>
+
+<p>No test suite, no lint script.</p>
+
+<p><strong>Build-script convention: <code>.cjs</code> for CommonJS, and the extension must match the
+<code>package.json</code> entry.</strong> <code>&quot;type&quot;: &quot;module&quot;</code> makes a bare <code>.js</code> file ESM, so a
+CommonJS script named <code>.js</code> throws on its first <code>require</code>. <code>convertUtopia</code> was
+exactly that — declared as <code>convertUtopia.cjs</code>, on disk as <code>convertUtopia.js</code>, so
+<code>npm run convert</code> (and therefore <code>assets</code> and <code>build</code>) failed. Now <code>.cjs</code>, matching
+the sibling <code>scripts/brand-palette.cjs</code>. Keep new CommonJS build scripts on <code>.cjs</code>;
+<code>scripts/*.mjs</code> are the ESM ones.</p>
+
+<h2 id="thethreetiers">The three tiers</h2>
+
+<p>Every file is in one tier, sorted by <strong>what happens to it on a Codey update</strong> —
+not by who wrote it. Getting this wrong is what broke the first version.</p>
+
+<pre><code class="text">CORE — overwritten wholesale on update; a project must never hand-edit it
+  src/assets/css/codey/**       layout/grid/type/element RULES, ZERO brand values
+  src/assets/js/codey/**
+  src/site/snippets/codey/**    the layout engine
+
+SEED — shipped once at clone time, then owned by the project forever.
+       An update never touches it; it is never accepted back upstream.
+  src/assets/css/brand/**       tokens, globals, colour flavour, palette, overrides
+
+PROJECT — Codey never had it
+  src/assets/css/main.css       entry point + the opt-in component list
+  src/assets/css/lib/**         generated Utopia scale
+  src/site/{templates,controllers,blueprints,config}
+</code></pre>
+
+<p><strong>The test:</strong> a <strong>value</strong> (font, colour, measure) is SEED. A <strong>rule</strong> (how the grid
+resolves, how a block bleeds) is CORE.</p>
+
+<p>Because CORE holds no brand values, the boundary is machine-checkable: <strong>any diff
+under <code>codey/</code> is either a core fix or a mistake.</strong> Keep it that way — the moment a
+brand value lands in <code>codey/</code>, downstream projects have to edit core to override it,
+and the whole model collapses. That is precisely what happened before <code>brand/</code>
+existed (<code>codey/theme.css</code> and <code>codey/globals.css</code> held project fonts).</p>
+
+<p>See <a href="src/assets/css/brand/README.md">src/assets/css/brand/README.md</a>.</p>
+
+<h2 id="receivingfixesfromaproject">Receiving fixes from a project</h2>
+
+<p>Projects share <strong>no git history</strong> with this repo, so merge, rebase, cherry-pick and
+subtree all have nothing to anchor to. Fixes arrive as <strong>patches</strong> — git blobs are
+content-addressed, so an unmodified core file has the same blob SHA in both repos
+and a diff against it applies cleanly across disjoint histories.</p>
+
+<p>The producing side owns the tooling. In the Rosie Boylan project:</p>
+
+<pre><code class="bash">npm run codey:export             # dry run
+npm run codey:export -- go       # apply here, unstaged, for review
+npm run codey:export -- --drift  # report divergence across the three core zones
+</code></pre>
+
+<p>It never commits or pushes. Review the unstaged diff here, rebuild, commit yourself.</p>
+
+<p>Note <code>docs/IMPLEMENTATION-GUIDE.md</code> §17 documents a <code>git pull</code> / cherry-pick update
+flow — that does not work for clones that severed history, which is all of them.</p>
+
+<h2 id="naming:theunderscoreconvention">Naming: the underscore convention</h2>
+
+<p>CodeKit skips files whose names begin with <code>_</code>, so the prefix tags a partial as
+non-renderable. Everything in <code>brand/</code> is underscored because each is an <code>@import</code>
+fragment carrying an <code>@theme</code> block with no <code>@import &quot;tailwindcss&quot;</code> of its own —
+compiling one standalone emits broken CSS into <code>build/</code>.</p>
+
+<p><code>main.css</code> is the only real entry point. Files under <code>codey/</code> are <strong>not</strong> yet
+underscored; that is a known open item in <a href="docs/ROADMAP.md">docs/ROADMAP.md</a>, left
+alone because renaming them breaks the documented <code>@import &quot;./codey/index.css&quot;</code>
+entry point for every existing consumer.</p>
+
+<h2 id="gotchas">Gotchas</h2>
+
+<ul>
+<li><strong>CodeKit</strong> holds this project open and rewrites <code>build/</code> under you. Don&#8217;t fight
+it with <code>.codekitignore</code> or hand edits to <code>config.codekit3</code> — it rewrites that
+file too. Ask Ian to pause it when a task needs <code>build/</code> to hold still.</li>
+<li>Compiled <code>build/assets/{css,js}</code> and <code>build/site/**</code> are <strong>committed</strong> — the
+server runs this repo in place.</li>
+<li><code>build/kirby</code>, <code>build/vendor</code>, <code>build/site/plugins</code> are Composer-installed and
+gitignored. Run <code>npm run setup</code> on a fresh clone or Kirby throws
+<code>NotFoundException: The home page does not exist</code>.</li>
+</ul>
+
+</body>
+</html>
+

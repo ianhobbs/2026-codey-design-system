@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="implementingthecodeydesignsystem">Implementing the Codey Design System</h1>
+
+<p>A practical, element-by-element guide to the Codey design system — tokens, colour,
+layout, typography, elements, component seeds, and the Kirby layout engine — with
+the reasoning behind each so you know not just <em>what</em> to type but <em>why</em>.</p>
+
+<blockquote>
+<p><strong>Delivery note.</strong> Codey is a <strong>Git starter you clone</strong> to begin a project (see
+the <a href="../README.md">README</a> for the clone/build quickstart and
+<a href="ARCHITECTURE.md">ARCHITECTURE</a> for the rationale). It is no longer a Composer
+package or a synced kit. Sections 4–14 and the appendices below are the system
+reference and apply unchanged; sections 1–3 describe getting started.</p>
+</blockquote>
+
+<hr />
+
+<h2 id="1.thementalmodelreadthisfirst">1. The mental model (read this first)</h2>
+
+<p>Codey is a <strong>starter project</strong>: you <code>git clone</code> it and the clone <em>is</em> your site.
+The theme&#8217;s files already live in <code>src/</code>, and the project&#8217;s own build compiles
+<code>src/</code> → <code>build/</code>, which Kirby serves. Nothing is &#8220;installed into&#8221; the project.</p>
+
+<p><code>src/</code> is the single source of truth. Within it, anything under a <strong><code>codey/</code>
+folder is the system core</strong> (versioned — update by pulling, don&#8217;t edit); everything
+else is yours. Rules point <strong>downward only</strong>: a rule references a token below it,
+never up into your project. That is what lets you re-skin by overriding tokens in
+<code>_brand.css</code> instead of editing core files.</p>
+
+<p>The layer stack, top (yours) to bottom (foundational):</p>
+
+<pre><code>your project      main.css, _brand.css, templates, snippets   ← you edit this
+layout engine     codey/layout shell, header/footer, layout renderer
+CSS core          layout frame, grid, typography, elements
+Colour system     palettes + semantic themes
+Tokens            @theme Utopia type/space, :root globals
+</code></pre>
+
+<h2 id="2.prerequisites">2. Prerequisites</h2>
+
+<ul>
+<li><strong>Kirby 5 / PHP 8.2+</strong> (pulled by Composer into <code>build/</code>).</li>
+<li><strong>Node 18+ and Tailwind CSS v4</strong> — Codey&#8217;s tokens are authored as Tailwind v4
+<code>@theme</code> blocks (the <code>@theme</code>, <code>@source</code>, <code>@layer</code>, <code>@import &quot;tailwindcss&quot;</code>
+syntax is v4-only).</li>
+<li><strong>CodeKit</strong> (or the bundled <code>npm run build</code>) for the <code>src/ → build/</code> compile.</li>
+</ul>
+
+<h2 id="3.gettingstarted">3. Getting started</h2>
+
+<pre><code class="bash">git clone &lt;codey-repo-url&gt; my-site &amp;&amp; cd my-site
+cd build &amp;&amp; composer install &amp;&amp; cd ..   # Kirby + PHP deps (Composer lives in build/)
+npm install
+npm run build                           # src/assets → build/assets, src/site → build/site
+npm run serve                           # http://localhost:8000  (Panel at /panel)
+</code></pre>
+
+<p>The server runs this repo directly, so the compiled <code>build/assets</code> and <code>build/site</code>
+mirror ARE committed. <code>build/kirby</code>, <code>build/vendor</code>, <code>build/site/plugins</code> (Composer-
+installed), fonts/images (rsynced) and <code>build/content</code> (runtime data) are
+gitignored. Edit <code>src/</code>, never <code>build/</code> — and treat <code>codey/</code> folders as core. Full
+git-hygiene + core-vs-yours tables in the <a href="../README.md">README</a>.</p>
+
+<hr />
+
+<h2 id="4.theoverridecontract—loadorderisprecedence">4. The override contract — load order is precedence</h2>
+
+<p>This is the rule that makes everything else safe. You never edit files inside a
+<code>codey/</code> zone. Instead you override in three project-owned tiers, and <strong>load order
+decides who wins</strong>:</p>
+
+<ol>
+<li><strong>Core (tier 1)</strong> — your <code>main.css</code> does <code>@import &quot;./codey/index.css&quot;</code>.</li>
+<li><strong>Project global (tier 2)</strong> — <code>@import &quot;./_brand.css&quot;</code> <em>last</em> in <code>main.css</code>. Its
+<code>@theme</code> block overrides tokens; Tailwind v4 merges <code>@theme</code> blocks and the
+<strong>last declaration of a token wins</strong>. This is where a per-project Utopia rescale
+or a colour rebrand lives.</li>
+<li><strong>Per-template (tier 3)</strong> — <code>src/assets/css/templates/{template}.css</code>,
+auto-loaded only on that template via Kirby&#8217;s <code>css('@auto')</code>. Uses <code>var(--token)</code>
+at runtime; if it needs <code>@apply</code>, it must begin with <code>@reference &quot;tailwindcss&quot;;</code>
+because it compiles standalone.</li>
+</ol>
+
+<p>On the <strong>Kirby side</strong> the mechanism is different but the principle is identical:
+the plugin registers its snippets, blueprints and templates by logical name, and
+<strong>a project file of the same name always wins</strong>. Kirby resolves
+<code>site/snippets|blueprints|templates/</code> before consulting plugin registrations, so
+overriding <code>blocks/heading</code> or <code>codey/layout</code> means creating that file in your
+project — nothing to configure, and no vendored PHP to edit in place.</p>
+
+<p>Precedence, highest first: <strong>project files → this plugin → Kirby core.</strong></p>
+
+<p>To refine the system itself, you change it <em>upstream</em> in the package repo, tag a
+release, and <code>composer update</code>. You never fork it into your project.</p>
+
+<hr />
+
+<h2 id="5.thecssentryfilemain.css">5. The CSS entry file (<code>main.css</code>)</h2>
+
+<p><code>main.css</code> is project-owned and is the single place that owns the cascade contract,
+the <code>@source</code> globs, and the load order. A minimal, correct entry:</p>
+
+<pre><code class="css">@import &quot;tailwindcss&quot;;
+
+/* Cascade contract: later layer = higher priority. */
+@layer theme, base, components, utilities, bespoke;
+
+/* Project-specific content globs so Tailwind sees your class usage. */
+@source &quot;../../site/**/*.php&quot;;
+@source &quot;../../../build/content/**/*.txt&quot;;
+@source &quot;../js/**/*.js&quot;;
+
+/* 1 ── Codey core (vendored) — one line pulls the whole manifest. */
+@import &quot;./codey/index.css&quot;;
+
+/* 2 ── Project global override — LAST, so its @theme wins. */
+@import &quot;./_brand.css&quot;;
+</code></pre>
+
+<p>The <code>@layer</code> declaration establishes the priority order Codey&#8217;s core files assume:
+<code>theme &lt; base &lt; components &lt; utilities &lt; bespoke</code>. <code>bespoke</code> sits <em>above</em> utilities
+so authoritative widgets (layout frame, encapsulated components) can&#8217;t be
+accidentally overridden by a utility class.</p>
+
+<hr />
+
+<h2 id="6.theopinionatedmanifestcodeyindex.css">6. The opinionated manifest (<code>codey/index.css</code>)</h2>
+
+<p><code>index.css</code> is the toggle sheet. <strong>Core is always on; optional components ship
+commented out.</strong> You uncomment only what your markup actually uses — no accordion
+markup means the accordion line stays commented and ships zero bytes.</p>
+
+<p>Core (always imported):</p>
+
+<pre><code class="css">@import &quot;./theme.css&quot;  layer(base);            /* @theme Utopia type/space + font tokens */
+@import &quot;./globals.css&quot;;                       /* :root globals (unlayered); fonts = project override */
+@import &quot;./themes/theme-codey.css&quot;;            /* colour flavour (pulls _codey palette) */
+@import &quot;./lib/layout.css&quot;     layer(bespoke); /* two-axis grid / page frame */
+@import &quot;./lib/typography.css&quot; layer(base);    /* typographic base */
+@import &quot;./lib/elements.css&quot;   layer(base);    /* aspect-ratio media boxes */
+</code></pre>
+
+<p>Optional (shipped commented — uncomment when the markup is present):</p>
+
+<pre><code class="css">/* @import &quot;./lib/transitions.css&quot;;       generic motion tokens */
+/* @import &quot;./lib/form.css&quot;;              form field/button tokens */
+/* @import &quot;./lib/accordion.css&quot;;         disclosure motion tokens */
+/* @import &quot;./lib/cards.css&quot;;             card tokens */
+/* @import &quot;./lib/prose.css&quot; layer(bespoke);  rich-text `.text` (extract pending) */
+</code></pre>
+
+<p><strong>Important:</strong> <code>index.css</code> is inside a synced zone, so edits to it are wiped on the
+next <code>composer update</code>. If you need to toggle an optional component <em>permanently</em>,
+don&#8217;t edit <code>index.css</code> — instead <code>@import</code> the specific <code>codey/lib/*.css</code> file from
+your project-owned <code>main.css</code> (after <code>codey/index.css</code>), or enable it upstream in
+the package.</p>
+
+<hr />
+
+<h2 id="7.designtokenscodeytheme.css">7. Design tokens (<code>codey/theme.css</code>)</h2>
+
+<p><code>theme.css</code> is a Tailwind v4 <code>@theme</code> block that <strong>replaces</strong> Tailwind&#8217;s built-in
+scales with a re-engineered Utopia fluid ramp, then resets and augments.</p>
+
+<p><strong>Fluid type scale</strong> — <code>--text-xs</code> … <code>--text-8xl</code>, each a <code>clamp()</code> that scales with
+the viewport (no breakpoints needed):</p>
+
+<pre><code>--text-xs   --text-sm   --text-base   --text-lg   --text-xl
+--text-2xl  --text-3xl  --text-4xl    --text-5xl  --text-6xl  --text-7xl  --text-8xl
+</code></pre>
+
+<p><strong>Fluid spacing scale</strong> — a numeric ramp <code>--spacing-4xs</code>, <code>--spacing-1</code> …
+<code>--spacing-17</code>, plus Utopia &#8220;one-up pair&#8221; steps that interpolate between two sizes:
+<code>--spacing-3-s</code>, <code>--spacing-4-m</code>, <code>--spacing-5-l</code>, <code>--spacing-6-xl</code>, …
+<code>--spacing-14-9xl</code>. Use the pair steps where you want a size that grows <em>faster</em>
+than the single steps.</p>
+
+<p><strong>Resets</strong> — Codey wipes Tailwind&#8217;s defaults so only its tokens resolve:</p>
+
+<pre><code class="css">--color-*: initial;  --font-*: initial;  --spacing: initial;
+--font-weight: initial;  --font-weight-*: initial;
+</code></pre>
+
+<p><strong>Augments</strong> — extra tokens layered on top: a set of <code>--leading-*</code>
+line-heights (<code>tight</code>, <code>mid</code>, <code>mad</code>, <code>big</code>, <code>tighter</code>, <code>base</code>, <code>head</code>), the font
+stacks (<code>--font-body</code>, <code>--font-body-medium</code>, <code>--font-head</code>, <code>--font-subhead</code>, <code>--font-italic</code>,
+each with a matching <code>--*-weight</code>, over a
+<code>--font-fallback</code>), and <code>--blur</code>, <code>--glass-transparency</code>, <code>--radius-lg</code>,
+<code>--border-radius</code>.</p>
+
+<p><strong>Rescaling per project:</strong> don&#8217;t touch <code>theme.css</code>. Redeclare the tokens you want
+to change in your <code>_brand.css</code> <code>@theme</code> — because it loads last, it wins:</p>
+
+<pre><code class="css">/* _brand.css */
+@theme {
+  --text-base: clamp(1.125rem, 1.09rem + 0.18vw, 1.25rem);  /* bigger base */
+  --text-2xl:  clamp(2.20rem, 1.80rem + 2.0vw, 3.20rem);    /* punchier ramp */
+}
+</code></pre>
+
+<hr />
+
+<h2 id="8.globalconstantscodeyglobals.css">8. Global constants (<code>codey/globals.css</code>)</h2>
+
+<p><code>globals.css</code> holds theme-<strong>independent</strong> brand values that must outrank even
+<code>bespoke</code>, so they live <em>unlayered</em> (top of the cascade):</p>
+
+<ul>
+<li><strong>Fixed brand constants</strong> — <code>--color-black</code>, <code>--color-white</code> (literal hex,
+first-paint safe).</li>
+<li><strong>Active/interaction colours</strong> — <code>--color-active-1</code> … <code>--color-active-4</code> (a
+theme may override these within its scope).</li>
+<li><strong>Report status colours</strong> — <code>--report-green/-orange/-red</code> and their <code>-bg</code>
+variants, for score/report components.</li>
+</ul>
+
+<p><code>globals.css</code> declares <strong>no <code>@font-face</code></strong> and the package ships <strong>no font files</strong> —
+typefaces are brand-specific and licence-bound, so they live in a project-owned
+<strong>brand typography sheet</strong> (see §11.1) and in <code>head.php</code> for critical weights. The
+package only <em>names</em> the expected families in the font tokens (<code>--font-body</code>,
+<code>--font-body-medium</code>, <code>--font-head</code>, <code>--font-subhead</code>, <code>--font-italic</code> — each
+with a paired <code>--*-weight</code>), each falling back to
+<code>--font-fallback</code> (system UI) until your project supplies the faces.</p>
+
+<hr />
+
+<h2 id="9.coloursystem—palettessemanticthemes">9. Colour system — palettes + semantic themes</h2>
+
+<p>Colour is two layers: raw <strong>palettes</strong> (the ramp) and <strong>semantic themes</strong>
+(meaning-based aliases over a palette). You select a theme with a body class.</p>
+
+<blockquote>
+<p><strong>Scale orientation: <code>0</code> = DARKEST → <code>9</code> = LIGHTEST.</strong> &#8220;Least light → most
+light&#8221;. Every palette, semantic map and component token in the system follows
+this. <em>Historical note:</em> the original hand-built palette ran the other way
+(0 = lightest, ending at 8). It was reversed by <code>new = 9 − old</code>, with the half
+steps following (<code>--color-65</code> → <code>--color-25</code>, <code>--color-75</code> → <code>--color-15</code>), so
+each alias kept the tone it always had and only the index changed. If you have
+CSS written against the old order, invert it the same way.</p>
+</blockquote>
+
+<h3 id="9.0generatingabrandpalette">9.0 Generating a brand palette</h3>
+
+<blockquote>
+<p><strong>Running the tool.</strong> It ships at <code>scripts/brand-palette.cjs</code> and is wired to an
+npm script:</p>
+
+<pre><code class="bash">npm run palette -- --dark &quot;#…&quot; --light &quot;#…&quot;
+npm run palette                          # no args: print every option
+</code></pre>
+
+<p>(the <code>--</code> passes the flags through npm). Or call it directly:
+<code>node scripts/brand-palette.cjs --dark &quot;#…&quot; --light &quot;#…&quot;</code>.</p>
+</blockquote>
+
+<p>Palettes are <strong>generated</strong>, not hand-picked, so the steps are perceptually even.
+<code>scripts/brand-palette.cjs</code> interpolates in OKLCH between the two poles of a
+spectrum and writes a project-owned stylesheet:</p>
+
+<pre><code class="bash">npm run palette -- \
+  --dark &quot;#0f151b&quot; --light &quot;#eef6fe&quot; --mid &quot;#1fa7f3&quot; \
+  --half 1.5,2.5 --scope &quot;.theme-brand&quot; \
+  --out src/assets/css/_brand-palette.css
+</code></pre>
+
+<p>Zero dependencies (plain Node), and it <strong>refuses to write into a <code>codey/</code> zone</strong> —
+the output is a project-owned brand artefact.</p>
+
+<p><strong>Getting a rich centre.</strong> Both poles of a brand spectrum are near-neutral
+(C≈0.015), so a plain interpolation gives a flat, washed-out ramp. Three ways to
+put colour back in the middle:</p>
+
+<table>
+<colgroup>
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Flag </th>
+	<th> Approach </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <code>--mid &lt;hex&gt;</code> </td>
+	<td> <strong>Three-point anchor</strong> — interpolate dark→brand→light. Most faithful: you supply the real mid-tone. </td>
+</tr>
+<tr>
+	<td> <code>--cusp</code> </td>
+	<td> <strong>Gamut-cusp riding</strong> — push chroma to the maximum the gamut holds at each lightness. Richest displayable ramp. </td>
+</tr>
+<tr>
+	<td> <code>--mid-chroma &lt;n&gt;</code> </td>
+	<td> Absolute chroma target at the midpoint (simple bell curve). </td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>Gamut.</strong> <code>--gamut</code> defaults to <strong><code>p3</code></strong>, the native gamut of current displays;
+clamping to sRGB needlessly desaturates them (on the codey ramp, P3 holds
+C≈0.216 where sRGB caps at ≈0.167). Pass <code>--gamut srgb</code> only if you must stay in
+the legacy gamut. Output is always clamped by <em>reducing chroma only</em>, preserving
+L and H, so no step is left for the browser to clip unpredictably. Legacy
+<code>hex</code>/<code>rgb()</code> values are still sRGB — it&#8217;s <code>oklch()</code> being device-independent
+that lets the wider gamut be addressed at all.</p>
+
+<p>Half steps use the decimal-dropped naming: <code>--half 1.5,2.5</code> emits <code>--color-15</code>
+and <code>--color-25</code>.</p>
+
+<h3 id="9.1palettes">9.1 Palettes</h3>
+
+<p>The core ships a single palette; a project adds its own brand palette alongside it
+(see §9.4).</p>
+
+<ul>
+<li><strong><code>_codey.css</code></strong> (<code>.theme-codey</code>) — deep ocean blues, generated in OKLCH. A
+0–9 scale (<code>--color-0</code> <strong>darkest</strong> … <code>--color-9</code> <strong>lightest</strong>), plus half-steps
+(<code>--color-15</code>, <code>--color-25</code>), <code>--keycolor-*</code>, and first-paint
+<code>--color-background</code> / <code>--color-text</code> literals.</li>
+</ul>
+
+<blockquote>
+<p>The system previously bundled <code>_caramel</code> and a <code>_users</code> template palette; those
+have been removed to keep the core lean. <code>_codey</code> / <code>theme-codey</code> is now the
+single reference implementation you model your own brand palette on.</p>
+</blockquote>
+
+<h3 id="9.2semanticthemes">9.2 Semantic themes</h3>
+
+<p><code>theme-codey.css</code> imports its palette and maps it to a <strong>semantic vocabulary</strong> —
+the aliases the components actually consume, so a rule says <code>var(--link)</code> not
+<code>var(--color-4)</code>. Key aliases:</p>
+
+<pre><code>--logo        --link         --hover        --cta-fill    --cta-text
+--nav-text    --nav-social   --nav-item-bg  --nav-item-bg-current  --nav-item-bgPC
+--blockquote-color  --blockquote-border     --shadow-color   --saturate
+--color-button-bg   --color-button-text     --color-text-muted   --colour-hr
+--color-grey  --color-light  --color-dark   --date-col    --product-card-bg
+--color-background  --color-text
+</code></pre>
+
+<p>Each theme also re-applies <code>background-color</code>/<code>color</code> from the first paint so the
+page is correct before CSS finishes loading.</p>
+
+<h3 id="9.3selectingatheme">9.3 Selecting a theme</h3>
+
+<p>The theme is a class on <code>&lt;body&gt;</code>. The plugin&#8217;s layout shell sets it from a Kirby
+<code>theme</code> field, falling back to the default flavour:</p>
+
+<pre><code class="php">&lt;body class=&quot;&lt;?= $page-&gt;theme()-&gt;or('theme-codey') ?&gt;&quot;&gt;
+</code></pre>
+
+<p>Add a <code>theme</code> field to your site/page blueprint returning <code>theme-codey</code> (or your
+own brand theme, §9.4) to switch flavours per page, or hardcode the class.</p>
+
+<h3 id="9.4makingyourownbrandpalette">9.4 Making your own brand palette</h3>
+
+<p>With the <code>_users</code> template removed, model your brand palette on the <code>_codey</code>
+palette + <code>theme-codey</code> theme as the reference pair. All of this lives in
+<strong>project-owned</strong> files (never in a synced zone), so it survives <code>composer update</code>:</p>
+
+<ol>
+<li>Generate a project palette into <code>src/assets/css/_brand-palette.css</code> with
+<code>brand-palette.cjs</code> (§9.0), scoped to your brand class (<code>.theme-acme</code>). That
+gives you the <code>--color-0…9</code> scale (0 = darkest) plus any <code>--half</code> steps. Add
+<code>--keycolor-*</code> if you use them, and the first-paint <code>--color-background</code> /
+<code>--color-text</code> literals — mirror the structure of <code>codey/palettes/_codey.css</code>.</li>
+<li>Add a semantic mapping (mirror <code>codey/themes/theme-codey.css</code>) so <code>--link</code>,
+<code>--hover</code>, <code>--nav-*</code>, <code>--cta-*</code>, etc. resolve for your brand.</li>
+<li>Import both from <code>main.css</code> <strong>after</strong> <code>codey/index.css</code> (or from <code>_brand.css</code>),
+so they load last and win.</li>
+<li>Set <code>class=&quot;theme-acme&quot;</code> on <code>&lt;body&gt;</code> (via the Kirby <code>theme</code> field or hardcoded).</li>
+</ol>
+
+<p>If you only need to <em>tweak</em> the shipped codey colours rather than define a new
+brand, skip the new palette and just override the specific <code>--color-*</code> /
+<code>--color-active-*</code> / semantic tokens in <code>_brand.css</code>.</p>
+
+<hr />
+
+<h2 id="10.layoutcodeyliblayout.css">10. Layout (<code>codey/lib/layout.css</code>)</h2>
+
+<p>The layout is a <strong>two-axis frame</strong> built from two non-competing grids that compose
+because they never touch the same property.</p>
+
+<p><strong>Row axis (vertical).</strong> <code>&lt;body&gt;</code> is a grid with three rows —
+<code>header / main / footer</code> — using <code>grid-template-rows: auto 1fr auto</code>, giving a
+sticky footer (main fills the gap). <code>header</code> and <code>footer</code> cap to the content
+measure and centre.</p>
+
+<p><strong>Column axis (horizontal).</strong> <code>.frame</code> (normally on <code>&lt;main&gt;</code>) is a named-column
+grid:</p>
+
+<pre><code>[full-start] gutter [content-start] measure [content-end] gutter [full-end]
+</code></pre>
+
+<ul>
+<li><code>.frame &gt; *</code> sits in the <strong>content</strong> track by default (framed).</li>
+<li><code>.frame &gt; .bleed</code> opts out to the <strong>full</strong> track (edge-to-edge).</li>
+<li>Legacy <code>.bleed-viewport</code> / <code>.grid-bleed</code> children are remapped to the full
+track automatically, so existing bleed markup keeps working.</li>
+</ul>
+
+<p><strong>Two knobs</strong> drive the frame, both overridable:</p>
+
+<ul>
+<li><code>--frame-gutter</code> (default <code>--spacing-4-m</code>) — the side gutter.</li>
+<li><code>--measure-page</code> (default <code>82rem</code>) — the max content width; header, footer, and
+main all cap to the same measure so they stay edge-aligned.</li>
+</ul>
+
+<p><strong>Mode switch</strong> — <code>data-reach</code> on the layout root:</p>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Mode </th>
+	<th> Meaning </th>
+	<th> Rule </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <code>frame</code> </td>
+	<td> gutter present, single centred measure </td>
+	<td> none needed — this <em>is</em> the default </td>
+</tr>
+<tr>
+	<td> <code>spread</code> </td>
+	<td> the default, plus per-block <code>.bleed</code> opt-outs. The global default on <code>&lt;main&gt;</code>. </td>
+	<td> none needed </td>
+</tr>
+<tr>
+	<td> <code>bleed</code> </td>
+	<td> whole page edge-to-edge </td>
+	<td> <code>--frame-gutter-current: 0</code> </td>
+</tr>
+</tbody>
+</table>
+
+<p>Only <code>bleed</code> carries a rule. <code>frame</code> is the default behaviour and <code>spread</code> is
+that default plus children opting out individually — the absence of rules for
+those two is the design, not an omission.</p>
+
+<p><strong>Vertical rhythm</strong> — <code>data-pad</code> on the layout root, a 3-step scale:
+<code>narrow</code> / <code>medium</code> / <code>large</code> set <code>--pad-block-start</code> / <code>--pad-block-end</code> padding.</p>
+
+<p><strong>Nested containers</strong> — <code>.track</code> uses <code>grid-template-columns: subgrid</code> to inherit
+the page&#8217;s column tracks while running its own rows; <code>.track.bleed</code> spans full.</p>
+
+<hr />
+
+<h2 id="10.1gridscodeylibgrid.css">10.1 Grids (<code>codey/lib/grid.css</code>)</h2>
+
+<p>Separate file, separate question. <code>layout.css</code> decides <strong>where</strong> a block sits on
+the horizontal column axis; <code>grid.css</code> decides <strong>how</strong> that block divides its own
+width. Column divisions play no part in framing, and framing plays no part in
+column division — keeping them in two files is what keeps that true.</p>
+
+<p><strong>The grid device is the theme class.</strong> The layout field&#8217;s <code>theme</code> attr writes a
+class onto the row, and that class <em>is</em> the grid. There is no separate wrapper
+class and the renderer adds nothing of its own (§15.4).</p>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Class </th>
+	<th> Geometry </th>
+	<th> Surface </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <code>.grid-plain</code> </td>
+	<td> 12-col ≥60rem, no gap </td>
+	<td> none </td>
+</tr>
+<tr>
+	<td> <code>.grid-plain-padded</code> </td>
+	<td> 12-col ≥60rem, gap + block margin </td>
+	<td> none </td>
+</tr>
+<tr>
+	<td> <code>.grid-cards</code> </td>
+	<td> 12-col ≥60rem, gap + block margin </td>
+	<td> <code>--color-1</code> background, <code>--radius-lg</code>, <code>--spacing-6</code> padding </td>
+</tr>
+<tr>
+	<td> <code>.grid-bleed</code> </td>
+	<td> <strong>auto-fit</strong> tracks sized by <code>--min</code> </td>
+	<td> none </td>
+</tr>
+</tbody>
+</table>
+
+<p>The first three are one family — identical geometry, differing only in gap,
+block margin and surface. Below <code>60rem</code> they collapse to a single column and
+<code>--span</code> is ignored entirely; from <code>60rem</code> a <code>.column</code> spans its inline
+<code>--span</code>.</p>
+
+<p><code>.grid-bleed</code> is a <strong>different device, not a wider variant</strong>. It runs
+<code>repeat(auto-fit, minmax(var(--min, 16rem), 1fr))</code> and never consults
+<code>--span</code> — the Panel&#8217;s column widths genuinely don&#8217;t apply to a bleed-viewport
+row. Standalone it escapes its container with <code>100dvw</code> + a negative margin; as a
+direct child of <code>.frame</code> that hack is neutralised in favour of clean track
+placement (§10).</p>
+
+<p><code>.bleed-viewport</code> and <code>.bleed-viewport-clip</code> are the same escape hatch without the grid
+(the latter adds <code>overflow-x: clip</code> for decoration that would otherwise widen the
+document).</p>
+
+<p><strong><code>.grid-12</code></strong> is a plain 12-track utility grid for hand-written markup — the
+core footer uses it. Same <code>.column</code> + <code>--span</code> contract, so columns behave
+identically wherever they appear:</p>
+
+<pre><code class="html">&lt;section class=&quot;grid-12&quot;&gt;
+  &lt;div class=&quot;column&quot; style=&quot;--span: 6&quot;&gt;…&lt;/div&gt;
+  &lt;div class=&quot;column&quot; style=&quot;--span: 6&quot;&gt;…&lt;/div&gt;
+&lt;/section&gt;
+</code></pre>
+
+<hr />
+
+<h2 id="11.typographycodeylibtypography.css">11. Typography (<code>codey/lib/typography.css</code>)</h2>
+
+<p>Element-level defaults on the Utopia/Tailwind scale, imported into <code>layer(base)</code> so
+utilities can still override them. Token-referencing only — semantic colours resolve
+from the active theme.</p>
+
+<ul>
+<li><strong><code>body</code></strong> — <code>--font-body</code> in <code>--color-text</code> on <code>--color-background</code>,
+<code>--leading-base</code>, <code>--text-base</code>, <code>geometricPrecision</code>, smooth scroll.</li>
+<li><strong>Headings</strong> split by level: <code>h1</code>–<code>h3</code> use the display face (<code>--font-head</code> /
+<code>--weight-head</code>); <code>h4</code>–<code>h6</code> are <em>not</em> decorative — they step down to
+<code>--font-subhead</code> / <code>--weight-subhead</code> (typically a sans or serif at 500 variable /
+400 pre-weighted). Scale: <code>h1</code>=<code>--text-4xl</code>,
+<code>h2</code>=<code>--text-3xl</code>, <code>h3</code>=<code>--text-2xl</code>, <code>h4</code>=<code>--text-xl</code>, <code>h5</code>=<code>--text-lg</code>,
+<code>h6</code>=<code>--text-base</code>; <code>h1.super</code>=<code>--text-6xl</code>.</li>
+<li><strong>Heading step modifiers</strong> — <code>h2.down-step</code>, <code>h2.down-step-x2</code>, <code>h2.up-step</code>
+nudge a heading up or down the scale without changing the tag.</li>
+<li><strong>Inline</strong> — <code>strong/b/.font-medium</code> use <code>--font-body-medium</code> / <code>--weight-body-medium</code>
+(see the callout below); <code>em</code> uses a real italic face (<code>--font-italic</code>) rather
+than a synthetic slant; links use <code>--link</code> → <code>--hover</code>.</li>
+<li><strong>Mono (stylistic)</strong> — <code>code</code>, <code>kbd</code>, <code>samp</code>, <code>pre</code> and the <code>.mono</code> helper use
+<code>--font-mono</code> / <code>--weight-mono</code>. This is a <em>typeface</em> choice — the monospace
+texture for code and technical strings — and has nothing to do with column
+alignment. The inline three stay at <code>1em</code> to match their host context.</li>
+<li><strong>Column data</strong> — <code>.data</code> stays in the <strong>body face</strong> and switches only the
+numerals to a fixed advance via <code>font-variant-numeric: tabular-nums</code>, with
+tracking tokenised as <code>--data-tracking</code>. Columns align and live values stop
+jittering <em>without</em> importing the monospace texture. It inherits, so <code>.data</code>
+on a <code>&lt;table&gt;</code> covers every cell; compose with <code>.small</code> for the small step.</li>
+<li><strong>Helpers</strong> — <code>.heads</code> and <code>.decor</code> opt into the display face (<code>--font-head</code>),
+<code>.headsans</code> forces the subhead face (<code>--font-subhead</code>), <code>.leading-tighter</code> tightens
+line-height, <code>.small</code> steps down to <code>--text-sm</code>.</li>
+</ul>
+
+<blockquote>
+<p><strong><code>strong</code>/<code>b</code> stay in the body family.</strong> They are <em>inline body markup</em> — a bold
+word inside a paragraph must not change typeface. So they use
+<strong><code>--font-body-medium</code></strong>, the body family&#8217;s medium cut, never a heading face.
+Wiring them to <code>--font-subhead</code> (the h4–h6 subhead token) is a common mistake: it
+happens to look right when the subhead and body share a superfamily, and breaks
+the moment a brand&#8217;s subhead face differs.</p>
+</blockquote>
+
+<p><strong>Family + weight pairs.</strong> Every face is a <code>--*-font</code> / <code>--*-weight</code> pair, because
+that pair is the seam between the two ways a brand ships type:</p>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Strategy </th>
+	<th> Family </th>
+	<th> Weight </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <strong>Pre-weighted</strong> (static cuts, one file each) </td>
+	<td> changes (<code>Gotham-Book</code> → <code>Gotham-Med</code>) </td>
+	<td> stays <code>400</code> </td>
+</tr>
+<tr>
+	<td> <strong>Variable</strong> (one family, <code>wght</code> axis) </td>
+	<td> stays the same </td>
+	<td> rises (<code>400</code> → <code>500/600</code>) </td>
+</tr>
+</tbody>
+</table>
+
+<p>Codey&#8217;s defaults assume pre-weighted faces. A variable-font project sets
+<code>--font-body-medium: var(--font-body)</code> and <code>--weight-body-medium: 500</code> instead — all in
+the brand typography sheet, no vendored CSS edited.</p>
+
+<blockquote>
+<p><code>typography.css</code> deliberately contains <strong>no <code>@font-face</code></strong> <em>and no</em>
+<code>font-variation-settings</code>. The latter is an inherited property that overrides
+<code>font-weight</code> on descendants for variable fonts, which would silently defeat
+every weight token. Browsers map <code>font-weight</code> onto the <code>wght</code> axis anyway.
+The faces themselves are yours; see below.</p>
+</blockquote>
+
+<h3 id="11.1brandtypographysheet_brand-typography.css—project-owned">11.1 Brand typography sheet (<code>_brand-typography.css</code>) — project-owned</h3>
+
+<p>All <code>@font-face</code> rules live <strong>outside the package</strong>, in a customizable sheet you
+own. The package ships no fonts and no face declarations (typefaces are
+brand-specific and licence-bound), so nothing here is ever overwritten by a sync.</p>
+
+<p>Create <code>src/assets/css/_brand-typography.css</code> — a starter is provided at
+<code>package/fonts/brand-typography.example.css</code>; copy it once (that folder is
+guidance only and is <strong>not</strong> synced):</p>
+
+<pre><code class="css">/* Project-owned. Never place this inside a codey/ zone — those get wiped. */
+@font-face {
+  font-family: &quot;Gotham-Med&quot;;
+  src: url(&quot;../fonts/GothamHTF-Medium.woff2&quot;) format(&quot;woff2&quot;);
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+/* …one @font-face per weight/style you ship… */
+
+/* Point the design-system tokens at your faces (or keep the defaults). */
+@theme {
+  --font-body: &quot;Gotham-Book&quot;, var(--font-fallback);
+  --font-head: &quot;YourDisplay&quot;, var(--font-fallback);   /* h1–h3 */
+  --font-subhead:  &quot;Gotham-Med&quot;,  var(--font-fallback);   /* h4–h6, strong */
+}
+</code></pre>
+
+<p>Load it <strong>after</strong> the codey core in <code>main.css</code> so its <code>@theme</code> wins:</p>
+
+<pre><code class="css">@import &quot;./codey/index.css&quot;;        /* core (tier 1) */
+@import &quot;./_brand-typography.css&quot;;   /* faces + font-token overrides */
+@import &quot;./_brand.css&quot;;              /* the rest of your brand overrides (tier 2) */
+</code></pre>
+
+<p><strong>Critical faces are also declared in <code>head.php</code>.</strong> Fonts needed for first paint
+should be preloaded (or their <code>@font-face</code> inlined) in the Kirby head snippet, so
+text doesn&#8217;t flash the fallback while <code>main.css</code> loads:</p>
+
+<pre><code class="php">&lt;?php /* src/site/snippets/head.php — project-owned */ ?&gt;
+&lt;link rel=&quot;preload&quot; as=&quot;font&quot; type=&quot;font/woff2&quot;
+      href=&quot;&lt;?= url('assets/fonts/GothamHTF-Medium.woff2') ?&gt;&quot; crossorigin&gt;
+&lt;style&gt;
+  /* inline ONLY the critical face(s) — keep this tiny */
+  @font-face {
+    font-family: &quot;Gotham-Med&quot;;
+    src: url(&quot;&lt;?= url('assets/fonts/GothamHTF-Medium.woff2') ?&gt;&quot;) format(&quot;woff2&quot;);
+    font-display: swap;
+  }
+&lt;/style&gt;
+</code></pre>
+
+<p>Rule of thumb: <strong>critical faces → preloaded/inlined in <code>head.php</code>; everything else
+→ <code>_brand-typography.css</code>.</strong> Both are project-owned; neither is ever synced. Until
+you supply faces, every font token resolves to <code>--font-fallback</code> and the site
+renders correctly in system UI.</p>
+
+<hr />
+
+<h2 id="12.elementscodeylibelements.css">12. Elements (<code>codey/lib/elements.css</code>)</h2>
+
+<p>Responsive media boxes that hold aspect ratio. <code>.img</code> and <code>.video</code> are ratio
+containers driven by <code>--w</code> / <code>--h</code>:</p>
+
+<pre><code class="html">&lt;div class=&quot;img&quot; style=&quot;--w: 16; --h: 9&quot;&gt;
+  &lt;img src=&quot;…&quot; alt=&quot;…&quot;&gt;
+&lt;/div&gt;
+</code></pre>
+
+<p>The inner <code>&lt;img&gt;</code> / <code>&lt;iframe&gt;</code> is absolutely positioned and <code>object-cover</code>;
+<code>data-contain</code> on <code>.img</code> switches to <code>object-contain</code>. These use <code>@apply</code>, so they
+resolve in your Tailwind context (which is why they live in the compiled bundle,
+not a standalone file).</p>
+
+<hr />
+
+<h2 id="13.per-templatedefaultscodeytemplates">13. Per-template defaults (<code>codey/templates/</code>)</h2>
+
+<p>The core ships a tier-1 default for named templates, e.g. <code>note.css</code>:</p>
+
+<pre><code class="css">.note { max-width: 60ch; padding-block: var(--spacing-8); }
+</code></pre>
+
+<p>Your project&#8217;s own <code>src/assets/css/templates/note.css</code> (tier 3, loaded later via
+<code>css('@auto')</code>) overrides it for that template only. This is the mechanism for
+template-scoped styling that doesn&#8217;t leak globally.</p>
+
+<hr />
+
+<h2 id="14.optionalcomponentseedscodeylib">14. Optional component seeds (<code>codey/lib/</code>)</h2>
+
+<p>Four optional files ship as <strong>token seeds, not full components</strong> — the generically
+useful custom properties distilled from real components, with guidance comments.
+You enable them (see §6/§9.4 for the <em>permanent</em> way, from <code>main.css</code>) and then
+build your own markup on the tokens, so every project shares one vocabulary while
+keeping its own HTML.</p>
+
+<ul>
+<li><strong><code>form.css</code></strong> — <code>--form-radius</code>, <code>--input-border-color</code>, <code>--input-focus-color</code>,
+<code>--input-focus-ring</code>, <code>--input-padding</code>, <code>--btn-bg/-text/-radius/-transition</code>.
+Build <code>.your-form input { border-radius: var(--form-radius); … }</code> on top.</li>
+<li><strong><code>accordion.css</code></strong> — <code>--accordion-duration(-fast)</code>, <code>--accordion-ease</code>,
+<code>--accordion-header-height</code>, <code>--accordion-gap</code>, <code>--accordion-fade-in/-out</code>. Pair
+with your own <code>details/summary</code> or Alpine disclosure.</li>
+<li><strong><code>transitions.css</code></strong> — <code>--transition-fast/-base/-slow</code>, <code>--ease-standard/-out</code>,
+and a <code>--rise-from/--rise-to</code> pair seeding a fade-rise entrance.</li>
+<li><strong><code>cards.css</code></strong> — <code>--card-bg</code>, <code>--card-radius</code>, <code>--card-gap</code>,
+<code>--card-pad-block/-inline</code>, <code>--card-check-color</code>, <code>--card-badge-color/-bg</code>.
+Palette references re-skin with the theme; structural literals (radius/gap) are
+intentionally fixed.</li>
+</ul>
+
+<p>The point of seeds: you get consistent motion/spacing/colour vocabulary without the
+system dictating your component markup. Override any literal in <code>_brand.css</code>.</p>
+
+<hr />
+
+<h2 id="15.thekirbylayerplainsitefiles">15. The Kirby layer (plain site files)</h2>
+
+<p>The Kirby layer is ordinary Kirby source under <code>src/site/</code>, mirrored to
+<code>build/site/</code> by the build. There is no plugin and no registration — every snippet,
+blueprint and template resolves natively by its path, exactly like site files you
+wrote yourself. The layout engine (the pieces that make Codey <em>Codey</em>) is grouped
+under a <code>codey/</code> snippet namespace so it reads as core.</p>
+
+<p><strong>How things resolve.</strong> Path-addressed things live at their name:
+<code>snippet('codey/frame')</code> → <code>src/site/snippets/codey/layout.php</code>;
+<code>extends: fields/layout</code> → <code>src/site/blueprints/fields/layout.yml</code>. Name-addressed
+things resolve against Kirby&#8217;s flat namespaces natively: a layout field&#8217;s
+<code>fieldsets: [heading, image]</code> finds <code>src/site/blueprints/blocks/heading.yml</code>. As
+plain files these Just Work — no registration, no namespace juggling (the very
+thing the old plugin had to hand-register is now free).</p>
+
+<p><strong>Customising.</strong> You own the clone, so the direct route is to edit the file. If you
+prefer to keep the <code>codey/</code> engine pristine for clean updates, Kirby still resolves
+duplicates in your favour, so you can shadow a core snippet by adding your own —
+e.g. a project <code>site/snippets/codey/header.php</code> — without touching the original.</p>
+
+<p>Shipped files:</p>
+
+<table>
+<colgroup>
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Kind  </th>
+	<th> Names                 </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> Blueprints </td>
+	<td> <code>blocks/animations</code> · <code>heading</code> · <code>image</code> · <code>list</code> · <code>markdown</code> · <code>spacer</code> · <code>svg</code> · <code>text</code>; <code>files/blocks/svg</code>; <code>fields/cover</code> · <code>fields/layout</code>; <code>pages/{default,note,notes}</code> </td>
+</tr>
+<tr>
+	<td> Snippets </td>
+	<td> core: <code>codey/card</code> · <code>codey/footer</code> · <code>codey/header</code> · <code>codey/layout</code> · <code>codey/layouts</code>; project starters: <code>head</code> · <code>head-hidden</code> · <code>cover-image</code> · <code>intro</code> · <code>prevnext</code> · <code>note-small</code> · <code>pagination</code> </td>
+</tr>
+<tr>
+	<td> Templates </td>
+	<td> <code>default</code> · <code>home</code> · <code>note</code> · <code>notes</code>         </td>
+</tr>
+<tr>
+	<td> Controllers</td>
+	<td> <code>notes</code> · <code>note</code> (project starters)          </td>
+</tr>
+</tbody>
+</table>
+
+<p>The block names deliberately shadow Kirby&#8217;s core blocks of the same name.</p>
+
+<h3 id="15.1thelayoutshell—snippetcodeyframe">15.1 The layout shell — <code>snippet('codey/frame')</code></h3>
+
+<p>A slot-based two-axis page shell. Templates call it like:</p>
+
+<pre><code class="php">&lt;?php snippet('codey/frame', ['pad' =&gt; 'large', 'reach' =&gt; 'spread'], slots: true) ?&gt;
+  &lt;?php slot() ?&gt;
+    …page content…
+  &lt;?php endslot() ?&gt;
+&lt;?php endsnippet() ?&gt;
+</code></pre>
+
+<p>Params:</p>
+
+<ul>
+<li><p><code>head</code> — <code>'default'</code> or <code>'hidden'</code> (hidden = a noindex <code>&lt;head&gt;</code> variant).</p></li>
+<li><p><code>pad</code> — <code>'narrow' | 'medium' | 'large'</code> → <code>&lt;main&gt;</code> vertical rhythm (<code>data-pad</code>).</p></li>
+<li><p><code>mode</code> — <code>'spread' | 'bleed' | 'frame'</code> → <code>.frame</code> track mode (<code>data-reach</code>),</p>
+
+<p>defaulting to <code>spread</code>. See §10 for what each means and why only <code>bleed</code>
+carries a rule.</p></li>
+</ul>
+
+<p>Slots: the default slot becomes <code>&lt;main&gt;</code> content; an <code>intro</code> slot injects before
+<code>&lt;main&gt;</code>. The shell sets <code>&lt;body class=&quot;&lt;?= $page-&gt;theme()-&gt;or('theme-codey') ?&gt;&quot;&gt;</code>
+and declares Alpine <code>x-data=&quot;{ showNav: false }&quot;</code> for the mobile nav. It renders the
+<strong>project&#8217;s own</strong> <code>head</code> snippet (you own <code>&lt;head&gt;</code>), then <code>codey/header</code>, your
+content, then <code>codey/footer</code>.</p>
+
+<h3 id="15.2header—snippetcodeyheader">15.2 Header — <code>snippet('codey/header')</code></h3>
+
+<p>Structural only: logo (site title) + primary nav built from
+<code>$site-&gt;children()-&gt;listed()</code> + a mobile toggle wired to the Alpine <code>showNav</code>
+state. Decoration (logo SVG, social links) was stripped on extraction — add it back
+by defining your own <code>codey/header</code> snippet at site level, which wins by name.</p>
+
+<h3 id="15.3footer—snippetcodeyfooter">15.3 Footer — <code>snippet('codey/footer')</code></h3>
+
+<p>Closes <code>&lt;main&gt;</code>, renders a <code>&lt;footer&gt;</code> using the <code>.grid-12</code> column system, and
+emits the body-tail JS via <code>js(['@auto'])</code>. It&#8217;s a generic scaffold — replace the
+inner content by shadowing the snippet.</p>
+
+<h3 id="15.4layout-fieldrenderer—snippetcodeyframe">15.4 Layout-field renderer — <code>snippet('codey/frame'')</code></h3>
+
+<p>Renders a Kirby <strong>layout field</strong> into the content track:</p>
+
+<pre><code class="php">&lt;?php snippet('codey/frame'', ['field' =&gt; $page-&gt;layout()]) ?&gt;
+</code></pre>
+
+<p>Each layout row becomes:</p>
+
+<pre><code class="html">&lt;section class=&quot;{theme}&quot; id=&quot;…&quot;&gt;
+  &lt;div class=&quot;column&quot; style=&quot;--span: 6&quot;&gt;&lt;div class=&quot;text&quot;&gt;…blocks…&lt;/div&gt;&lt;/div&gt;
+&lt;/section&gt;
+</code></pre>
+
+<p>The row&#8217;s <code>theme</code> attr is emitted as the class, and <strong>that class is the grid</strong> —
+<code>grid.css</code> defines the device on it (§10.1). The renderer adds no grid class of
+its own, deliberately: choosing the device is the editor&#8217;s decision in the Panel,
+not the renderer&#8217;s. Each column carries its Panel width as an inline <code>--span</code>,
+which the 12-col devices consume at ≥60rem and <code>grid-bleed</code> ignores.</p>
+
+<h3 id="15.5thelayoutblueprintfield—fieldslayout">15.5 The layout blueprint field — <code>fields/layout</code></h3>
+
+<p>Extend it in a page blueprint:</p>
+
+<pre><code class="yaml">fields:
+  layout:                       # field key → $page-&gt;layout() in the template
+    extends: fields/layout
+</code></pre>
+
+<blockquote>
+<p><strong>How the reference resolves.</strong> An <code>extends:</code> value is a <strong>logical name</strong> minus
+the <code>.yml</code>. <code>fields/layout</code> resolves to
+<code>src/site/blueprints/fields/layout.yml</code> (mirrored to <code>build/site/…</code>) — a plain
+file, no registration involved.</p>
+
+<ul>
+<li><code>layout</code> is a Kirby <strong>field type</strong>, not a core blueprint, so there is no
+default <code>layout.yml</code> to collide with.</li>
+<li>The field <strong>key</strong> (<code>layout</code>) is the method you call: <code>$page-&gt;layout()</code>. Rename
+the key and you rename the method.</li>
+<li>Override any key <em>after</em> <code>extends:</code> (a page-specific <code>label:</code>, different
+<code>layouts:</code> presets, etc.) — later keys win.</li>
+<li>It&#8217;s part of the <code>codey</code> core; to change presets/fieldsets, edit it upstream
+and pull, or override inline in the page blueprint after <code>extends:</code>.</li>
+</ul>
+</blockquote>
+
+<p>It provides a layout field with column presets (<code>1/1</code>, <code>1/2,1/2</code>, <code>1/3,1/3,1/3</code>,
+<code>1/4×4</code>, <code>2/3,1/3</code>, <code>1/3,2/3</code>), two per-row settings — a <strong>Width</strong> select
+(<code>frame</code> / <code>spread</code> / <code>bleed</code>, §10.1) and a <strong>Layout Theme</strong> select
+(<code>grid-plain</code> / <code>grid-plain-padded</code> / <code>grid-cards</code>) — and a generic fieldset
+set (heading, text, image, line, list, markdown, quote, gallery, code).</p>
+
+<h3 id="15.6templates—default·home·note·notes">15.6 Templates — <code>default</code> · <code>home</code> · <code>note</code> · <code>notes</code></h3>
+
+<p>Registered, so they work out of the box, and superseded the moment you create
+<code>site/templates/{name}.php</code> in your project. <code>default.php</code> shows the shell +
+renderer together:</p>
+
+<pre><code class="php">&lt;?php snippet('codey/frame', ['pad' =&gt; 'large'], slots: true) ?&gt;
+  &lt;?php slot() ?&gt;
+    &lt;?php snippet('codey/frame'', ['field' =&gt; $page-&gt;layout()]) ?&gt;
+  &lt;?php endslot() ?&gt;
+&lt;?php endsnippet() ?&gt;
+</code></pre>
+
+<h3 id="15.7wiringhead—theload-orderglue">15.7 Wiring <code>&lt;head&gt;</code> — the load-order glue</h3>
+
+<p>Your project&#8217;s <code>head</code> snippet is where tiers 1–3 get their precedence, via load
+order:</p>
+
+<pre><code class="php">&lt;?= css('assets/css/main.css') ?&gt;   &lt;!-- core (tier 1) + _brand.css (tier 2) --&gt;
+&lt;?= css('@auto') ?&gt;                  &lt;!-- per-template tier-3 file, if it exists --&gt;
+</code></pre>
+
+<p><code>css('@auto')</code> loads <code>assets/css/templates/{template}.css</code> only when present, and
+because it comes after <code>main.css</code>, the template file wins for that page.</p>
+
+<hr />
+
+<h2 id="16.thebuildpipeline">16. The build pipeline</h2>
+
+<p>Codey requires only that <code>src/assets/css/main.css</code> compiles through Tailwind v4 and
+that <code>src/</code> mirrors to <code>build/</code>, which Kirby serves.</p>
+
+<ul>
+<li><strong><code>npm run build</code></strong> (no CodeKit): compiles <code>src/assets → build/assets</code> (Tailwind
+CSS only — CodeKit compiles the Alpine bundle) and mirrors <code>src/site → build/site</code>.
+<code>npm run css:watch</code> gives live CSS.</li>
+<li><strong>CodeKit</strong>: point it at the project; it mirrors PHP and compiles CSS/JS on save,
+doing the same <code>src → build</code> work live.</li>
+</ul>
+
+<p>Kirby loads from <code>build/</code> (its index path). Content lives under <code>build/content/</code>,
+which is why <code>main.css</code>&#8217;s <code>@source</code> globs point there for class detection. <code>src/</code>
+is the source of truth; the compiled <code>build/assets</code> + <code>build/site</code> are committed
+(the server runs the repo), while Composer-installed dirs, rsynced binaries and
+Kirby&#8217;s generated data (media/cache/content) are gitignored.</p>
+
+<hr />
+
+<h2 id="17.updatingcodeyandsendingfixesback">17. Updating Codey, and sending fixes back</h2>
+
+<h3 id="thereisnogitpull">There is no <code>git pull</code></h3>
+
+<p>Earlier revisions of this guide said to <code>git pull</code> or cherry-pick from upstream.
+<strong>That does not work</strong>, and it never did for any real project. The quickstart tells
+you to <code>rm -rf .git &amp;&amp; git init</code> on clone, so a project and this repo share <strong>no
+common ancestor</strong> — merge, rebase, cherry-pick and subtree all have nothing to
+anchor to. Verified: the SHA sets of the two repos intersect in zero commits.</p>
+
+<h3 id="whatworksinstead:patches">What works instead: patches</h3>
+
+<p>Git blobs are content-addressed, not history-addressed. An <strong>unmodified</strong> core file
+therefore has the <em>same blob SHA</em> in both repos, so a diff built against it applies
+cleanly across disjoint histories. That is the whole mechanism.</p>
+
+<p>Fixes flow <strong>one way — project → Codey</strong>. The producing project owns the tooling
+(see <code>scripts/codey-export.mjs</code> in the Rosie Boylan repo for the reference
+implementation):</p>
+
+<pre><code class="bash">npm run codey:export              # dry run: what would travel, and does it apply
+npm run codey:export -- go        # apply upstream, unstaged, for human review
+npm run codey:export -- --drift   # how far have the core zones drifted?
+</code></pre>
+
+<p>It exports only the three core zones (<code>src/assets/css/codey/</code>,
+<code>src/assets/js/codey/</code>, <code>src/site/snippets/codey/</code>), never commits, never pushes,
+refuses deletions, and warns when a file has diverged upstream — because a clean
+apply is not necessarily a correct apply.</p>
+
+<p>To pull a newer Codey <em>into</em> an existing project, diff the core zones by hand and
+copy across; there is deliberately no automated import. If you need many live sites
+updating in place, that is the plugin-promotion path in
+<a href="ARCHITECTURE.md">ARCHITECTURE.md</a>.</p>
+
+<h3 id="whythisstaysclean">Why this stays clean</h3>
+
+<p>You edit <code>brand/</code> and your own templates; <code>codey/</code> holds rules only, no brand
+values. So core stays byte-identical to upstream, every core blob keeps matching,
+and patches keep applying. The moment a project edits a core file to change a
+<em>value</em>, that guarantee is gone — put the value in <code>brand/</code> instead.</p>
+
+<h3 id="17.1migratingto2.0breaking">17.1 Migrating to 2.0 (breaking)</h3>
+
+<p><strong>The palette scale was reversed to <code>0</code> = darkest → <code>9</code> = lightest.</strong> Every
+<code>--color-N</code> now means a different tone, so any project CSS written against the
+old order must be inverted:</p>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Old </th>
+	<th> New </th>
+	<th> Notes </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <code>--color-N</code> </td>
+	<td> <code>--color-(9−N)</code> </td>
+	<td> e.g. <code>--color-3</code> → <code>--color-6</code> </td>
+</tr>
+<tr>
+	<td> <code>--color-65</code> </td>
+	<td> <code>--color-25</code> </td>
+	<td> half steps moved to the dark end </td>
+</tr>
+<tr>
+	<td> <code>--color-75</code> </td>
+	<td> <code>--color-15</code> </td>
+	<td> </td>
+</tr>
+<tr>
+	<td> <code>--keycolor-5…8</code> </td>
+	<td> <code>--keycolor-4…1</code> </td>
+	<td> same rule </td>
+</tr>
+</tbody>
+</table>
+
+<p>Semantic aliases (<code>--link</code>, <code>--color-text</code>, <code>--nav-item-bg</code>, …) were remapped
+inside the package, so <strong>if you only ever used semantic tokens, nothing changes</strong>.
+Only direct <code>--color-N</code> references in project CSS need attention.</p>
+
+<p>Also in 2.0:</p>
+
+<ul>
+<li><strong><code>strong</code>/<code>b</code> now use <code>--font-body-medium</code></strong> (the body family&#8217;s medium cut), not
+<code>--font-subhead</code>. If you relied on bold body copy rendering in the subhead face,
+set <code>--font-body-medium: var(--font-subhead)</code> in <code>_brand-typography.css</code>.</li>
+<li><strong><code>.data</code> no longer sets a monospace face.</strong> It stays in the body face with
+tabular figures. For the old behaviour use <code>.mono .data</code> together, or set
+<code>--font-body-medium</code>/<code>--font-mono</code> to taste.</li>
+<li><strong><code>font-variation-settings</code> was removed</strong> from the typographic base — it
+overrode <code>font-weight</code> on descendants and broke variable-font weighting.</li>
+<li><strong>New tokens:</strong> <code>--weight-body</code>, <code>--weight-body-medium</code>, <code>--weight-head</code>,
+<code>--weight-subhead</code>, <code>--font-mono</code>, <code>--weight-mono</code>, <code>--data-tracking</code>.</li>
+<li><strong>Palettes are generated</strong> — <code>_users.css</code> is gone; use <code>brand-palette.cjs</code>
+(§9.0) to produce a project palette instead.</li>
+</ul>
+
+<hr />
+
+<h2 id="18.fresh-projectchecklist">18. Fresh-project checklist</h2>
+
+<ol>
+<li><code>git clone &lt;codey-repo-url&gt; my-site &amp;&amp; cd my-site</code>.</li>
+<li><code>cd build &amp;&amp; composer install &amp;&amp; cd ..</code> (Kirby + PHP deps).</li>
+<li><code>npm install &amp;&amp; npm run build</code> (compiles <code>src/assets → build/assets</code>, mirrors
+<code>src/site → build/site</code>).</li>
+<li><code>npm run serve</code>, create the Panel admin at <code>/panel</code>.</li>
+<li>Customise <code>src/assets/css/_brand.css</code> — <code>@theme</code> token overrides (type rescale,
+colours). <code>main.css</code> is already wired.</li>
+<li>Generate a palette: <code>npm run palette -- --dark … --light … --mid …</code>, then
+uncomment its import in <code>_brand.css</code>.</li>
+<li>Supply real font files into <code>src/assets/fonts/</code> and point the font tokens at
+them from <code>_brand.css</code>.</li>
+<li>Pick/build a colour theme; set the <code>.theme-*</code> class on <code>&lt;body&gt;</code> (the starter
+<code>codey/layout</code> uses <code>$page-&gt;theme()-&gt;or('theme-codey')</code>).</li>
+<li>Edit the starter <code>head</code> snippet if needed (it already links
+<code>assets/css/main.css</code> + <code>@auto</code> + Alpine).</li>
+<li>Build pages from <code>codey/layout</code> + <code>codey/layouts</code>; add
+<code>layout: { extends: fields/layout }</code> to your page blueprint.</li>
+<li>Deploy <code>build/</code> (its <code>.htaccess</code> + <code>index.php</code> are the web root).</li>
+</ol>
+
+<hr />
+
+<h2 id="appendixa—tokenquickreference">Appendix A — Token quick reference</h2>
+
+<p><strong>Type scale:</strong> <code>--text-xs · sm · base · lg · xl · 2xl · 3xl · 4xl · 5xl · 6xl · 7xl · 8xl</code> (fluid <code>clamp()</code>).</p>
+
+<p><strong>Spacing scale:</strong> <code>--spacing-4xs · 1 … 17</code> plus pair steps <code>--spacing-3-s · 4-m · 5-l · 6-xl · 7-2xl · 8-3xl · 9-4xl … 14-9xl</code>.</p>
+
+<p><strong>Line-heights:</strong> <code>--leading-tight · mid · mad · big · tighter · base · head</code>.</p>
+
+<p><strong>Fonts (family + weight pairs):</strong> <code>--font-body</code> (Gotham-Book, body) · <code>--font-body-medium</code> (Gotham-Med, <code>strong</code>/<code>b</code>) · <code>--font-head</code> (Gradual, h1–h3) · <code>--font-subhead</code> (Gotham-Med, h4–h6) · <code>--font-italic</code> (Gotham-Ital, <code>em</code>) · <code>--font-fallback</code>.
+<strong>Mono (stylistic):</strong> <code>--font-mono</code> (defaults to <code>--mono-fallback</code>, the system mono stack — works with no face supplied) · <code>--mono-fallback</code>.
+<strong>Column data:</strong> <code>--data-tracking</code> (letter-spacing for <code>.data</code>; <code>0em</code> default). <code>.data</code> keeps the body face and uses tabular figures.
+<strong>Weights:</strong> <code>--weight-body</code> · <code>--weight-body-medium</code> · <code>--weight-head</code> · <code>--weight-subhead</code> · <code>--weight-mono</code> — all <code>400</code> by default (pre-weighted faces); variable-font projects raise <code>--weight-body-medium</code>/<code>--weight-subhead</code> to <code>500</code>.</p>
+
+<p><strong>Effect tokens:</strong> <code>--blur</code> · <code>--glass-transparency</code> · <code>--radius-lg</code> · <code>--border-radius</code>.</p>
+
+<p><strong>Palette scale (per theme):</strong> <code>--color-0 … 9</code> — <strong>0 = darkest → 9 = lightest</strong> (+ half steps, e.g. <code>--color-15</code>, <code>--color-25</code>), <code>--keycolor-1…4</code>, <code>--color-active-1…4</code>.</p>
+
+<p><strong>Semantic aliases:</strong> <code>--link · --hover · --logo · --cta-fill · --cta-text · --nav-text · --nav-social · --nav-item-bg · --nav-item-bg-current · --blockquote-color · --blockquote-border · --shadow-color · --saturate · --color-button-bg · --color-button-text · --color-text-muted · --colour-hr · --color-background · --color-text</code>.</p>
+
+<p><strong>Global constants:</strong> <code>--color-black · --color-white · --report-{green,orange,red}(-bg)</code>.</p>
+
+<h2 id="appendixb—layoutattributes">Appendix B — Layout attributes</h2>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Attribute / class  </th>
+	<th> Where   </th>
+	<th> Effect            </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <code>.frame</code>    </td>
+	<td> usually <code>&lt;main&gt;</code></td>
+	<td> the track-axis column grid (content/full)   </td>
+</tr>
+<tr>
+	<td> <code>data-reach=&quot;frame\|spread\|bleed&quot;</code> </td>
+	<td> <code>.frame</code> </td>
+	<td> page mode; only <code>bleed</code> has a rule (gutter → 0) </td>
+</tr>
+<tr>
+	<td> <code>data-pad=&quot;narrow\|medium\|large&quot;</code> </td>
+	<td> <code>.frame</code> </td>
+	<td> vertical rhythm on <code>&lt;main&gt;</code>    </td>
+</tr>
+<tr>
+	<td> <code>.bleed</code>    </td>
+	<td> <code>.frame</code> child </td>
+	<td> opt a child out to the full (edge-to-edge) track </td>
+</tr>
+<tr>
+	<td> <code>.grid-plain(-padded)</code> / <code>.grid-cards</code> </td>
+	<td> layout row </td>
+	<td> 12-col grid device (grid.css) </td>
+</tr>
+<tr>
+	<td> <code>.grid-bleed</code>  </td>
+	<td> layout row  </td>
+	<td> auto-fit grid, edge to edge — ignores <code>--span</code> </td>
+</tr>
+<tr>
+	<td> <code>.track</code> / <code>.track.bleed</code> </td>
+	<td> nested  </td>
+	<td> subgrid container inheriting page columns   </td>
+</tr>
+<tr>
+	<td> <code>.grid-12</code>   </td>
+	<td> section   </td>
+	<td> 12-track content grid (pairs with layout renderer) </td>
+</tr>
+<tr>
+	<td> <code>.column</code> + <code>--span</code></td>
+	<td> <code>.grid-12</code> child </td>
+	<td> span N of 12 tracks (stacks below 60rem)  </td>
+</tr>
+<tr>
+	<td> <code>--frame-gutter</code>  </td>
+	<td> <code>:root</code>/override</td>
+	<td> side gutter width         </td>
+</tr>
+<tr>
+	<td> <code>--measure-page</code>  </td>
+	<td> <code>:root</code>/override</td>
+	<td> max content width (default 82rem)     </td>
+</tr>
+</tbody>
+</table>
+
+</body>
+</html>
+

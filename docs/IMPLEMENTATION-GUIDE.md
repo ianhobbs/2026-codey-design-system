@@ -779,7 +779,7 @@ Codey requires only that `src/assets/css/main.css` compiles through Tailwind v4 
 that `src/` mirrors to `build/`, which Kirby serves.
 
 - **`npm run build`** (no CodeKit): compiles `src/assets → build/assets` (Tailwind
-  CSS + esbuild Alpine bundle) and mirrors `src/site → build/site`.
+  CSS only — CodeKit compiles the Alpine bundle) and mirrors `src/site → build/site`.
   `npm run css:watch` gives live CSS.
 - **CodeKit**: point it at the project; it mirrors PHP and compiles CSS/JS on save,
   doing the same `src → build` work live.

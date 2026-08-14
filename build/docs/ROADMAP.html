@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="extractionroadmap">Extraction Roadmap</h1>
+
+<blockquote>
+<p><strong>Delivery migrated (2026&#8211;07).</strong> Codey is now a <strong>Git starter you clone</strong>, not a
+Composer package. The old <code>package/</code> payload was promoted into the project tree:
+<code>package/css/</code> → <code>src/assets/css/codey/</code>, <code>package/js/</code> → <code>src/assets/js/codey/</code>,
+<code>package/kirby/</code> → <code>src/site/</code>. Read <code>package/…</code> paths below as their new
+<code>src/…/codey/</code> homes. See <a href="ARCHITECTURE.md">ARCHITECTURE.md</a> and
+<a href="Theme-Strategy.md">Theme-Strategy.md</a>.</p>
+</blockquote>
+
+<p>How the design system gets populated from the source project without dragging its
+complexity across. Source: <code>/Volumes/2000/Sites/codey-new-2025</code> (the hand-authored
+layer is <code>src/</code>; <code>build/</code> is the compiled runnable Kirby install and is <strong>not</strong> an
+extraction source).</p>
+
+<p>Sequence: <strong>tokens → colour → CSS core → Kirby → assets → tools → dogfood.</strong> Each
+step leaves the package compiling and the mechanism verifiable.</p>
+
+<p>Status legend: ✅ done · 🟡 partial · ⬜ pending.</p>
+
+<hr />
+
+<h2 id="✅phase1—tokenspackagecsstheme.cssglobals.css">✅ Phase 1 — Tokens (<code>package/css/theme.css</code>, <code>globals.css</code>)</h2>
+
+<ul>
+<li>✅ <code>@theme</code> Utopia fluid type + spacing scale → <code>theme.css</code>.</li>
+<li>✅ Theme-independent <code>:root</code> globals (black/white, active colours, report
+colours, note-width) + secondary <code>@font-face</code> → <code>globals.css</code>.</li>
+<li>Decouple: fonts removed from the package (project override — see below);
+first-paint
+hex literals kept with why-comments.</li>
+</ul>
+
+<h2 id="✅phase2a—coloursystempackagecsspalettesthemes">✅ Phase 2a — Colour system (<code>package/css/palettes/</code>, <code>themes/</code>)</h2>
+
+<ul>
+<li>✅ Raw palette: <code>_codey.css</code> — regenerated in OKLCH via <code>brand-palette.cjs</code>,
+0 = darkest → 9 = lightest. Project palettes are generated, not shipped.</li>
+<li>✅ Semantic mapping layer: <code>theme-codey.css</code>, <code>theme-caramel.css</code> (aliases
+<code>--link</code>/<code>--hover</code>/<code>--blockquote-*</code>/<code>--nav-*</code> etc.), decorative leaf-SVG
+backgrounds + products-block overrides stripped to commented placeholders.</li>
+</ul>
+
+<h2 id="✅phase2b—csscorepackagecsslib">✅ Phase 2b — CSS core (<code>package/css/lib/</code>)</h2>
+
+<ul>
+<li>✅ <code>layout.css</code> — two-axis page frame (row tracks + <code>.frame</code>/<code>.track</code>
+column grid, <code>data-reach</code>/<code>data-pad</code> modes) + the generic <code>.grid-12</code>
+content grid (replaces opinionated <code>.grid-home</code>; <code>.grid-bleed</code> dropped as
+redundant to <code>.frame &gt; .bleed</code>).</li>
+<li>✅ <code>grid.css</code> — the content grid devices, split out from the page frame.
+<code>layout.css</code> owns <strong>where</strong> a block sits on the column axis; <code>grid.css</code> owns
+<strong>how</strong> it divides its width. Column divisions play no part in framing.</li>
+</ul>
+
+<p><strong>Fixes an extraction bug:</strong> the first pass replaced the source&#8217;s theme-class
+grids with a generic <code>.grid-12</code> and dropped <code>grid-bleed</code> from the
+blueprint as &#8220;redundant&#8221; — but left the theme names in the select. The result
+was three Panel options with no CSS behind them and no per-row bleed-viewport
+choice at all. The theme class <strong>is</strong> the grid (<code>.grid-plain</code>,
+<code>.grid-plain-padded</code>, <code>.grid-cards</code> share 12-col geometry and differ only in
+gap/margin/surface; <code>.grid-bleed</code> is a different device on auto-fit tracks
+that ignores <code>--span</code>). <code>.grid-12</code> survives as a plain utility grid for
+hand-written markup such as the footer.</p>
+
+<ul>
+<li>✅ <code>typography.css</code> — element type base on the Utopia/TW scale.</li>
+<li>✅ <code>elements.css</code> — aspect-ratio media boxes.</li>
+</ul>
+
+<h2 id="✅phase2c—componenttokenseedspackagecssliboptional">✅ Phase 2c — Component token seeds (<code>package/css/lib/</code>, optional)</h2>
+
+<p>Distilled the <em>generically useful tokens</em> from each component (not full CSS),
+shipped commented-out in the manifest as opt-in seeds with guidance comments:</p>
+
+<ul>
+<li>✅ <code>form.css</code>, <code>accordion.css</code>, <code>transitions.css</code>, <code>cards.css</code>.</li>
+</ul>
+
+<h2 id="✅phase3—kirbylayoutsnippetsblueprintpackagekirby">✅ Phase 3 — Kirby layout snippets + blueprint (<code>package/kirby/</code>)</h2>
+
+<ul>
+<li>✅ <code>snippets/layout.php</code> (slot-based two-axis shell), <code>header.php</code>, <code>footer.php</code>
+(structural, decoration stripped), <code>layouts.php</code> (layout-field renderer →
+<code>.grid-12</code>).</li>
+<li>✅ <code>blueprints/fields/layout.yml</code> (generic column presets + block set; project
+blocks like <code>my-products</code>/<code>swiper</code> dropped).</li>
+<li>✅ <code>templates/</code> — <code>default</code>, <code>home</code>, <code>note</code>, <code>notes</code>. (<code>about</code> was dropped: what
+remained after stripping the client logo carousel — which belongs to the
+separate swiper plugin — was identical to <code>default</code>.)</li>
+<li>✅ <strong>Delivery: registered plugin.</strong> Package is Composer type <code>kirby-plugin</code>, so
+it installs to <code>site/plugins/codey-design-system/</code> and Kirby auto-loads the root
+<code>index.php</code>, which registers snippets (<code>codey/*</code>), blueprints (<code>blocks/*</code>,
+<code>files/blocks/*</code>, <code>codey/fields/*</code>) and templates by logical name. This replaced
+the 1.1.0 &#8220;plug-free vanilla sync&#8221; approach: block fieldsets resolve against the
+flat <code>blocks/</code> namespace, which can&#8217;t be scoped to a <code>codey/</code> subfolder, so
+syncing them would mean writing into project-owned directories. CSS/JS are still
+injected via <code>codey-sync</code>; PHP/YAML never enter the project tree.</li>
+</ul>
+
+<h2 id="⬜remainingcsscomponentsoptionalfullcss">⬜ Remaining CSS components (optional, full CSS)</h2>
+
+<ul>
+<li>⬜ <code>prose.css</code> — the <code>.text</code> rich-text block (source <code>lib/typography.css</code>).</li>
+<li>⬜ Full <code>form</code> / <code>accordion</code> / <code>effects</code> / <code>media</code> component CSS to back the
+token seeds, if/when a project wants the ready-made component rather than seeds.</li>
+</ul>
+
+<h2 id="phase4—assetsicons">Phase 4 — Assets (icons)</h2>
+
+<ul>
+<li>✅ Fonts: <strong>decided as a project override.</strong> The package ships no fonts and no
+<code>@font-face</code> — typefaces are brand-specific. See <code>package/fonts/README.md</code>.</li>
+<li>⬜ System icons (leaf set) — not client logos.</li>
+</ul>
+
+<h2 id="⬜phase5—styleguidegeneratorpackagestyleguide">⬜ Phase 5 — Styleguide generator (<code>package/styleguide/</code>)</h2>
+
+<p>Port the <code>styleguide-builder</code> from <code>codey-new-2025</code> into the package: a build-time
+tool that renders a client-facing visualisation of the design tokens and layout
+rules.</p>
+
+<p><strong>Two purposes.</strong> For clients, a quick readable picture of the system. For us, a
+deliberate <strong>robustness test</strong> — if a project can generate a correct styleguide
+from nothing but the synced core plus its own brand files, the override seams
+genuinely work. It is the first end-to-end exercise of the contract.</p>
+
+<p><strong>The requirement it proves:</strong> the design system <em>requires</em> a project palette and
+project fonts. The styleguide must render the <strong>user&#8217;s</strong> colours and the <strong>user&#8217;s</strong>
+faces — never the codey defaults. If it shows codey blue and Gotham on a client
+site, the seam is broken.</p>
+
+<h3 id="5.1outputcontract">5.1 Output contract</h3>
+
+<ul>
+<li>Emit <strong><code>src/style-guide.php</code></strong> — a single PHP file at the <strong>root of <code>src/</code></strong>, so
+it is <strong>Kirby-agnostic</strong>: not a template, not a snippet, no route, no blueprint,
+no <code>$page</code>. It mirrors to <code>build/style-guide.php</code> through the normal pipeline
+and is servable directly.</li>
+<li>CSS, fonts and JS are referenced from <code>assets/**/*</code> (relative) or printed inline
+into the <code>&lt;head&gt;</code>. No absolute paths, no Kirby helpers — that&#8217;s what keeps it
+portable.</li>
+<li>Honours the <code>src → build</code> split and must be production-safe: authored/emitted
+into <code>src/</code>, served from <code>build/</code>.</li>
+</ul>
+
+<h3 id="5.2tokenresolution—thesubstantivepiece">5.2 Token resolution — the substantive piece</h3>
+
+<p>Parse the sources <strong>in load order</strong> and merge last-wins, mirroring the cascade:</p>
+
+<ol>
+<li><code>src/assets/css/codey/theme.css</code> — core defaults</li>
+<li><code>src/assets/css/_brand-palette.css</code> — the project&#8217;s colours</li>
+<li><code>src/assets/css/_brand-typography.css</code> — the project&#8217;s faces</li>
+<li><code>src/assets/css/_brand.css</code> — remaining overrides</li>
+</ol>
+
+<p>Do <strong>not</strong> read only the compiled CSS: Tailwind v4 tree-shakes unused <code>@theme</code>
+vars (confirmed — <code>--text-base</code> is absent until something references it), so a
+compiled-only extract would silently omit tokens. Source + load order is both
+complete and brand-accurate.</p>
+
+<h3 id="5.3portfixesallconfirmedbrokenagainst2.0">5.3 Port fixes (all confirmed broken against 2.0)</h3>
+
+<ul>
+<li><strong>Palette discovery</strong> — the extractor globs <code>_palette-*.css</code>; we ship
+<code>palettes/_codey.css</code> and projects supply <code>_brand-palette.css</code>. Currently 0
+matches. Rewrite discovery around the resolution order in 5.2.</li>
+<li><strong>Colour parsing is hex-only</strong> — finds <strong>0 of 14</strong> colours in the OKLCH palette.
+Reuse the existing <code>parseRootColors()</code> matcher, which already accepts
+<code>oklch|lab|rgb|hsl|…</code>.</li>
+<li><strong><code>@theme</code> moved</strong> from <code>main.css</code> to <code>codey/theme.css</code> — config path.</li>
+<li><strong>Scale orientation</strong> is now 0 = darkest → 9 = lightest; ordering and labels
+must follow, including half steps (<code>--color-15</code>, <code>--color-25</code>).</li>
+<li><strong><code>codey-arch.md</code></strong> section points at the old site — drop it or promote the doc
+into the package.</li>
+</ul>
+
+<h3 id="5.4dependencies—allowedbutpinnedanddeclared">5.4 Dependencies — allowed, but pinned and declared</h3>
+
+<p>Unlike the other tools, the styleguide may take dependencies (Mustache may ship
+to the client as fully-supported JS). The condition is that they are <strong>tagged and
+noted</strong> so an <code>npm update</code> in this repo surfaces them:</p>
+
+<ul>
+<li><code>package/styleguide/package.json</code> with <strong>exact pinned versions</strong>.</li>
+<li>Listed in the docs, with what each is for.</li>
+<li><strong><code>codey-sync.cjs</code> and <code>brand-palette.cjs</code> stay zero-dependency</strong> — installing
+and using the design system must never require an npm install of the styleguide&#8217;s
+deps. The styleguide is opt-in.</li>
+</ul>
+
+<h3 id="5.5placement">5.5 Placement</h3>
+
+<p><code>package/styleguide/</code> — shipped in the dist but <strong>not synced</strong> into <code>src/</code> (same
+treatment as <code>fonts/</code>). It runs from <code>vendor/…</code> as a build step; only its <em>output</em>
+(<code>src/style-guide.php</code>) lands in the project.</p>
+
+<h3 id="5.6othertoolsdeferred">5.6 Other tools (deferred)</h3>
+
+<ul>
+<li>⬜ Utopia regen + <code>convertVariables.js</code>, SVG colour-harmony / <code>svg-render</code>.</li>
+</ul>
+
+<h2 id="✅phase6—runinarealkirbyinstall">✅ Phase 6 — Run in a real Kirby install</h2>
+
+<ul>
+<li>✅ <code>example-project/</code> — a Kirby 5 harness consuming the package through a
+<strong>path repository with <code>symlink: true</code></strong>, so edits to <code>package/kirby/</code> are live
+with no reinstall. Export-ignored from the dist.</li>
+<li>✅ <code>example-project/verify.php</code> — asserts install, registration, snippet
+references and render. <strong>Verified 24/24 on v3.0.0:</strong> the plugin lands in
+<code>site/plugins/</code>, Kirby auto-loads it, all 21 extensions resolve, and
+<code>extends: codey/fields/layout</code> resolves from the plugin registration.</li>
+<li>Two install gotchas, both documented in the harness README: Composer 2.2+
+needs <code>getkirby/composer-installer</code> in <code>config.allow-plugins</code> (it fails
+<em>silently</em> to <code>vendor/</code> otherwise), and a path repo resolves as <code>dev-master</code>,
+so the require needs <code>*@dev</code> or it trips <code>minimum-stability</code>.</li>
+</ul>
+
+<p><strong>Finding — missing snippets fail silently.</strong> Kirby&#8217;s <code>snippet()</code> renders
+nothing and throws nothing when the snippet doesn&#8217;t exist. <code>home</code> and <code>note</code>
+therefore render without error while omitting their entire content region. Only <code>notes</code> errors outright, and for a different reason (<code>$notes</code> is a
+controller variable, and no controllers ship). Treat a clean render as necessary
+but not sufficient — <code>verify.php</code> §2c audits snippet references directly.</p>
+
+<h2 id="⬜phase7—dogfood">⬜ Phase 7 — Dogfood</h2>
+
+<ul>
+<li>⬜ Migrate <code>codey-new-2025</code> to consume the package instead of its local copies.</li>
+</ul>
+
+<hr />
+
+<h2 id="knownissues">Known issues</h2>
+
+<h3 id="⬜codeycsslacksthe_partialprefixnon-critical">⬜ <code>codey/</code> CSS lacks the <code>_</code> partial prefix (non-critical)</h3>
+
+<p>CodeKit skips files whose names begin with <code>_</code>, so the prefix is how a partial gets
+tagged as non-renderable. These are <code>@import</code>-ed fragments, each carrying an
+<code>@theme</code> block with no <code>@import &quot;tailwindcss&quot;</code> of its own, so compiling one
+standalone emits broken CSS.</p>
+
+<p><strong>Done:</strong> the whole SEED tier is now underscored — <code>brand/_tokens.css</code>,
+<code>_globals.css</code>, <code>_theme-codey.css</code>, <code>_palette-codey.css</code>, <code>_palette.css</code>,
+<code>_overrides.css</code>.</p>
+
+<p><strong>Still open:</strong> <code>codey/index.css</code> and <code>codey/lib/*.css</code> are not underscored, so a
+CodeKit-driven project would try to compile each one alone and produce stray,
+broken output in <code>build/assets/css/codey/</code>.</p>
+
+<p><strong>Not urgent</strong> — projects compiling only <code>main.css</code> through the Tailwind CLI
+(Codey itself, and Rosieboy) are unaffected.</p>
+
+<p><strong>Why it&#8217;s still deferred:</strong> renaming them changes the documented entry point
+<code>@import &quot;./codey/index.css&quot;</code>, which is a breaking change for every consumer. This
+was deliberately <em>not</em> bundled into the <code>brand/</code> restructure, to keep that change
+confined to the seed tier.</p>
+
+<p>Options when it&#8217;s picked up: underscore everything except <code>main.css</code>; or keep the
+names and tell CodeKit to skip <code>codey/</code> (weak — CodeKit rewrites <code>config.codekit3</code>
+itself, so hand edits get reverted).</p>
+
+<hr />
+
+<h2 id="guardrails">Guardrails</h2>
+
+<ul>
+<li>Nothing hardcoded that a token could express.</li>
+<li>Nothing project-specific in the package (content, licenses, client logos,
+decorative backgrounds, keys).</li>
+<li>Versioned releases via Composer; projects pin a version.</li>
+<li><code>build/</code> in the source is never an extraction source — only <code>src/</code>.</li>
+</ul>
+
+</body>
+</html>
+
