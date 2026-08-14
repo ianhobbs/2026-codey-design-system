@@ -6,7 +6,7 @@
  * @var \Kirby\Cms\Pages $pages
  */
 ?>
-<?php snippet('codey/layout', ['pad' => 'large'], slots: true) ?>
+<?php snippet('codey/frame', ['pad' => 'large'], slots: true) ?>
 <?php slot() ?>
 <?php if (empty($tag) === false): ?>
 <header class="h1">
@@ -21,7 +21,7 @@
 
 <ul class="grid gap-3 md:gap-5 w-full mx-auto">
   <?php foreach ($notes as $note): ?>
-  <li class="column" style="--columns: 4">
+  <li class="column" style="--span: 4">
       <?php snippet('note-small', ['note' => $note]) ?>
   </li>
   <?php endforeach ?>

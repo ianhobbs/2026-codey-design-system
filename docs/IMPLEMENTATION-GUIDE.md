@@ -181,9 +181,9 @@ than the single steps.
 --font-weight: initial;  --font-weight-*: initial;
 ```
 
-**Augments** — extra tokens layered on top: `--padding`, a set of `--leading-*`
+**Augments** — extra tokens layered on top: a set of `--leading-*`
 line-heights (`tight`, `mid`, `mad`, `big`, `tighter`, `base`, `head`), the font
-stacks (`--body-font`, `--bodymed-font`, `--head-font`, `--med-font`, `--ital-font`,
+stacks (`--font-body`, `--font-body-medium`, `--font-head`, `--font-subhead`, `--font-italic`,
 each with a matching `--*-weight`, over a
 `--font-fallback`), and `--blur`, `--glass-transparency`, `--radius-lg`,
 `--border-radius`.
@@ -212,13 +212,12 @@ to change in your `_brand.css` `@theme` — because it loads last, it wins:
   theme may override these within its scope).
 - **Report status colours** — `--report-green/-orange/-red` and their `-bg`
   variants, for score/report components.
-- **`--note-width`** — the default text measure (47rem).
 
 `globals.css` declares **no `@font-face`** and the package ships **no font files** —
 typefaces are brand-specific and licence-bound, so they live in a project-owned
 **brand typography sheet** (see §11.1) and in `head.php` for critical weights. The
-package only *names* the expected families in the font tokens (`--body-font`,
-`--bodymed-font`, `--head-font`, `--med-font`, `--ital-font` — each
+package only *names* the expected families in the font tokens (`--font-body`,
+`--font-body-medium`, `--font-head`, `--font-subhead`, `--font-italic` — each
 with a paired `--*-weight`), each falling back to
 `--font-fallback` (system UI) until your project supplies the faces.
 
@@ -357,43 +356,43 @@ brand, skip the new palette and just override the specific `--color-*` /
 The layout is a **two-axis frame** built from two non-competing grids that compose
 because they never touch the same property.
 
-**Skeleton axis (vertical).** `<body>` is a grid with three rows —
+**Row axis (vertical).** `<body>` is a grid with three rows —
 `header / main / footer` — using `grid-template-rows: auto 1fr auto`, giving a
 sticky footer (main fills the gap). `header` and `footer` cap to the content
 measure and centre.
 
-**Track axis (horizontal).** `.layout` (normally on `<main>`) is a named-column
+**Column axis (horizontal).** `.frame` (normally on `<main>`) is a named-column
 grid:
 
 ```
 [full-start] gutter [content-start] measure [content-end] gutter [full-end]
 ```
 
-- `.layout > *` sits in the **content** track by default (framed).
-- `.layout > .bleed` opts out to the **full** track (edge-to-edge).
-- Legacy `.full-bleed` / `.full-bleed-grid` children are remapped to the full
+- `.frame > *` sits in the **content** track by default (framed).
+- `.frame > .bleed` opts out to the **full** track (edge-to-edge).
+- Legacy `.bleed-viewport` / `.grid-bleed` children are remapped to the full
   track automatically, so existing bleed markup keeps working.
 
 **Two knobs** drive the frame, both overridable:
 
 - `--frame-gutter` (default `--spacing-4-m`) — the side gutter.
-- `--layout-measure` (default `82rem`) — the max content width; header, footer, and
+- `--measure-page` (default `82rem`) — the max content width; header, footer, and
   main all cap to the same measure so they stay edge-aligned.
 
-**Mode switch** — `data-layout` on the layout root:
+**Mode switch** — `data-reach` on the layout root:
 
 | Mode | Meaning | Rule |
 |---|---|---|
 | `frame` | gutter present, single centred measure | none needed — this *is* the default |
 | `spread` | the default, plus per-block `.bleed` opt-outs. The global default on `<main>`. | none needed |
-| `bleed` | whole page edge-to-edge | `--layout-gutter: 0` |
+| `bleed` | whole page edge-to-edge | `--frame-gutter-current: 0` |
 
 Only `bleed` carries a rule. `frame` is the default behaviour and `spread` is
 that default plus children opting out individually — the absence of rules for
 those two is the design, not an omission.
 
 **Vertical rhythm** — `data-pad` on the layout root, a 3-step scale:
-`narrow` / `medium` / `large` set `--main-pt` / `--main-pb` padding.
+`narrow` / `medium` / `large` set `--pad-block-start` / `--pad-block-end` padding.
 
 **Nested containers** — `.track` uses `grid-template-columns: subgrid` to inherit
 the page's column tracks while running its own rows; `.track.bleed` spans full.
@@ -403,7 +402,7 @@ the page's column tracks while running its own rows; `.track.bleed` spans full.
 ## 10.1 Grids (`codey/lib/grid.css`)
 
 Separate file, separate question. `layout.css` decides **where** a block sits on
-the horizontal track axis; `grid.css` decides **how** that block divides its own
+the horizontal column axis; `grid.css` decides **how** that block divides its own
 width. Column divisions play no part in framing, and framing plays no part in
 column division — keeping them in two files is what keeps that true.
 
@@ -413,35 +412,35 @@ class and the renderer adds nothing of its own (§15.4).
 
 | Class | Geometry | Surface |
 |---|---|---|
-| `.plain-blocks` | 12-col ≥60rem, no gap | none |
-| `.plain-blocks-padded` | 12-col ≥60rem, gap + block margin | none |
-| `.card-blocks` | 12-col ≥60rem, gap + block margin | `--color-1` background, `--radius-lg`, `--spacing-6` padding |
-| `.full-bleed-grid` | **auto-fit** tracks sized by `--min` | none |
+| `.grid-plain` | 12-col ≥60rem, no gap | none |
+| `.grid-plain-padded` | 12-col ≥60rem, gap + block margin | none |
+| `.grid-cards` | 12-col ≥60rem, gap + block margin | `--color-1` background, `--radius-lg`, `--spacing-6` padding |
+| `.grid-bleed` | **auto-fit** tracks sized by `--min` | none |
 
 The first three are one family — identical geometry, differing only in gap,
 block margin and surface. Below `60rem` they collapse to a single column and
-`--columns` is ignored entirely; from `60rem` a `.column` spans its inline
-`--columns`.
+`--span` is ignored entirely; from `60rem` a `.column` spans its inline
+`--span`.
 
-`.full-bleed-grid` is a **different device, not a wider variant**. It runs
+`.grid-bleed` is a **different device, not a wider variant**. It runs
 `repeat(auto-fit, minmax(var(--min, 16rem), 1fr))` and never consults
-`--columns` — the Panel's column widths genuinely don't apply to a full-bleed
+`--span` — the Panel's column widths genuinely don't apply to a bleed-viewport
 row. Standalone it escapes its container with `100dvw` + a negative margin; as a
-direct child of `.layout` that hack is neutralised in favour of clean track
+direct child of `.frame` that hack is neutralised in favour of clean track
 placement (§10).
 
-`.full-bleed` and `.full-bleed-clip` are the same escape hatch without the grid
+`.bleed-viewport` and `.bleed-viewport-clip` are the same escape hatch without the grid
 (the latter adds `overflow-x: clip` for decoration that would otherwise widen the
 document).
 
-**`.blocks-grid`** is a plain 12-track utility grid for hand-written markup — the
-core footer uses it. Same `.column` + `--columns` contract, so columns behave
+**`.grid-12`** is a plain 12-track utility grid for hand-written markup — the
+core footer uses it. Same `.column` + `--span` contract, so columns behave
 identically wherever they appear:
 
 ```html
-<section class="blocks-grid">
-  <div class="column" style="--columns: 6">…</div>
-  <div class="column" style="--columns: 6">…</div>
+<section class="grid-12">
+  <div class="column" style="--span: 6">…</div>
+  <div class="column" style="--span: 6">…</div>
 </section>
 ```
 
@@ -453,21 +452,21 @@ Element-level defaults on the Utopia/Tailwind scale, imported into `layer(base)`
 utilities can still override them. Token-referencing only — semantic colours resolve
 from the active theme.
 
-- **`body`** — `--body-font` in `--color-text` on `--color-background`,
+- **`body`** — `--font-body` in `--color-text` on `--color-background`,
   `--leading-base`, `--text-base`, `geometricPrecision`, smooth scroll.
-- **Headings** split by level: `h1`–`h3` use the display face (`--head-font` /
-  `--head-weight`); `h4`–`h6` are *not* decorative — they step down to
-  `--med-font` / `--med-weight` (typically a sans or serif at 500 variable /
+- **Headings** split by level: `h1`–`h3` use the display face (`--font-head` /
+  `--weight-head`); `h4`–`h6` are *not* decorative — they step down to
+  `--font-subhead` / `--weight-subhead` (typically a sans or serif at 500 variable /
   400 pre-weighted). Scale: `h1`=`--text-4xl`,
   `h2`=`--text-3xl`, `h3`=`--text-2xl`, `h4`=`--text-xl`, `h5`=`--text-lg`,
   `h6`=`--text-base`; `h1.super`=`--text-6xl`.
 - **Heading step modifiers** — `h2.down-step`, `h2.down-step-x2`, `h2.up-step`
   nudge a heading up or down the scale without changing the tag.
-- **Inline** — `strong/b/.font-medium` use `--bodymed-font` / `--bodymed-weight`
-  (see the callout below); `em` uses a real italic face (`--ital-font`) rather
+- **Inline** — `strong/b/.font-medium` use `--font-body-medium` / `--weight-body-medium`
+  (see the callout below); `em` uses a real italic face (`--font-italic`) rather
   than a synthetic slant; links use `--link` → `--hover`.
 - **Mono (stylistic)** — `code`, `kbd`, `samp`, `pre` and the `.mono` helper use
-  `--mono-font` / `--mono-weight`. This is a *typeface* choice — the monospace
+  `--font-mono` / `--weight-mono`. This is a *typeface* choice — the monospace
   texture for code and technical strings — and has nothing to do with column
   alignment. The inline three stay at `1em` to match their host context.
 - **Column data** — `.data` stays in the **body face** and switches only the
@@ -475,14 +474,14 @@ from the active theme.
   tracking tokenised as `--data-tracking`. Columns align and live values stop
   jittering *without* importing the monospace texture. It inherits, so `.data`
   on a `<table>` covers every cell; compose with `.small` for the small step.
-- **Helpers** — `.heads` and `.decor` opt into the display face (`--head-font`),
-  `.headsans` forces the subhead face (`--med-font`), `.leading-tighter` tightens
+- **Helpers** — `.heads` and `.decor` opt into the display face (`--font-head`),
+  `.headsans` forces the subhead face (`--font-subhead`), `.leading-tighter` tightens
   line-height, `.small` steps down to `--text-sm`.
 
 > **`strong`/`b` stay in the body family.** They are *inline body markup* — a bold
 > word inside a paragraph must not change typeface. So they use
-> **`--bodymed-font`**, the body family's medium cut, never a heading face.
-> Wiring them to `--med-font` (the h4–h6 subhead token) is a common mistake: it
+> **`--font-body-medium`**, the body family's medium cut, never a heading face.
+> Wiring them to `--font-subhead` (the h4–h6 subhead token) is a common mistake: it
 > happens to look right when the subhead and body share a superfamily, and breaks
 > the moment a brand's subhead face differs.
 
@@ -495,7 +494,7 @@ that pair is the seam between the two ways a brand ships type:
 | **Variable** (one family, `wght` axis) | stays the same | rises (`400` → `500/600`) |
 
 Codey's defaults assume pre-weighted faces. A variable-font project sets
-`--bodymed-font: var(--body-font)` and `--bodymed-weight: 500` instead — all in
+`--font-body-medium: var(--font-body)` and `--weight-body-medium: 500` instead — all in
 the brand typography sheet, no vendored CSS edited.
 
 > `typography.css` deliberately contains **no `@font-face`** *and no*
@@ -525,9 +524,9 @@ guidance only and is **not** synced):
 
 /* Point the design-system tokens at your faces (or keep the defaults). */
 @theme {
-  --body-font: "Gotham-Book", var(--font-fallback);
-  --head-font: "YourDisplay", var(--font-fallback);   /* h1–h3 */
-  --med-font:  "Gotham-Med",  var(--font-fallback);   /* h4–h6, strong */
+  --font-body: "Gotham-Book", var(--font-fallback);
+  --font-head: "YourDisplay", var(--font-fallback);   /* h1–h3 */
+  --font-subhead:  "Gotham-Med",  var(--font-fallback);   /* h4–h6, strong */
 }
 ```
 
@@ -631,7 +630,7 @@ wrote yourself. The layout engine (the pieces that make Codey *Codey*) is groupe
 under a `codey/` snippet namespace so it reads as core.
 
 **How things resolve.** Path-addressed things live at their name:
-`snippet('codey/layout')` → `src/site/snippets/codey/layout.php`;
+`snippet('codey/frame')` → `src/site/snippets/codey/layout.php`;
 `extends: fields/layout` → `src/site/blueprints/fields/layout.yml`. Name-addressed
 things resolve against Kirby's flat namespaces natively: a layout field's
 `fieldsets: [heading, image]` finds `src/site/blueprints/blocks/heading.yml`. As
@@ -654,12 +653,12 @@ Shipped files:
 
 The block names deliberately shadow Kirby's core blocks of the same name.
 
-### 15.1 The layout shell — `snippet('codey/layout')`
+### 15.1 The layout shell — `snippet('codey/frame')`
 
 A slot-based two-axis page shell. Templates call it like:
 
 ```php
-<?php snippet('codey/layout', ['pad' => 'large', 'mode' => 'spread'], slots: true) ?>
+<?php snippet('codey/frame', ['pad' => 'large', 'reach' => 'spread'], slots: true) ?>
   <?php slot() ?>
     …page content…
   <?php endslot() ?>
@@ -670,7 +669,7 @@ Params:
 
 - `head` — `'default'` or `'hidden'` (hidden = a noindex `<head>` variant).
 - `pad` — `'narrow' | 'medium' | 'large'` → `<main>` vertical rhythm (`data-pad`).
-- `mode` — `'spread' | 'bleed' | 'frame'` → `.layout` track mode (`data-layout`),
+- `mode` — `'spread' | 'bleed' | 'frame'` → `.frame` track mode (`data-reach`),
   defaulting to `spread`. See §10 for what each means and why only `bleed`
   carries a rule.
 
@@ -689,31 +688,31 @@ by defining your own `codey/header` snippet at site level, which wins by name.
 
 ### 15.3 Footer — `snippet('codey/footer')`
 
-Closes `<main>`, renders a `<footer>` using the `.blocks-grid` column system, and
+Closes `<main>`, renders a `<footer>` using the `.grid-12` column system, and
 emits the body-tail JS via `js(['@auto'])`. It's a generic scaffold — replace the
 inner content by shadowing the snippet.
 
-### 15.4 Layout-field renderer — `snippet('codey/layouts')`
+### 15.4 Layout-field renderer — `snippet('codey/frame'')`
 
 Renders a Kirby **layout field** into the content track:
 
 ```php
-<?php snippet('codey/layouts', ['field' => $page->layout()]) ?>
+<?php snippet('codey/frame'', ['field' => $page->layout()]) ?>
 ```
 
 Each layout row becomes:
 
 ```html
 <section class="{theme}" id="…">
-  <div class="column" style="--columns: 6"><div class="text">…blocks…</div></div>
+  <div class="column" style="--span: 6"><div class="text">…blocks…</div></div>
 </section>
 ```
 
 The row's `theme` attr is emitted as the class, and **that class is the grid** —
 `grid.css` defines the device on it (§10.1). The renderer adds no grid class of
 its own, deliberately: choosing the device is the editor's decision in the Panel,
-not the renderer's. Each column carries its Panel width as an inline `--columns`,
-which the 12-col devices consume at ≥60rem and `full-bleed-grid` ignores.
+not the renderer's. Each column carries its Panel width as an inline `--span`,
+which the 12-col devices consume at ≥60rem and `grid-bleed` ignores.
 
 ### 15.5 The layout blueprint field — `fields/layout`
 
@@ -742,7 +741,7 @@ fields:
 It provides a layout field with column presets (`1/1`, `1/2,1/2`, `1/3,1/3,1/3`,
 `1/4×4`, `2/3,1/3`, `1/3,2/3`), two per-row settings — a **Width** select
 (`frame` / `spread` / `bleed`, §10.1) and a **Layout Theme** select
-(`plain-blocks` / `plain-blocks-padded` / `card-blocks`) — and a generic fieldset
+(`grid-plain` / `grid-plain-padded` / `grid-cards`) — and a generic fieldset
 set (heading, text, image, line, list, markdown, quote, gallery, code).
 
 ### 15.6 Templates — `default` · `home` · `note` · `notes`
@@ -752,9 +751,9 @@ Registered, so they work out of the box, and superseded the moment you create
 renderer together:
 
 ```php
-<?php snippet('codey/layout', ['pad' => 'large'], slots: true) ?>
+<?php snippet('codey/frame', ['pad' => 'large'], slots: true) ?>
   <?php slot() ?>
-    <?php snippet('codey/layouts', ['field' => $page->layout()]) ?>
+    <?php snippet('codey/frame'', ['field' => $page->layout()]) ?>
   <?php endslot() ?>
 <?php endsnippet() ?>
 ```
@@ -855,16 +854,16 @@ Only direct `--color-N` references in project CSS need attention.
 
 Also in 2.0:
 
-- **`strong`/`b` now use `--bodymed-font`** (the body family's medium cut), not
-  `--med-font`. If you relied on bold body copy rendering in the subhead face,
-  set `--bodymed-font: var(--med-font)` in `_brand-typography.css`.
+- **`strong`/`b` now use `--font-body-medium`** (the body family's medium cut), not
+  `--font-subhead`. If you relied on bold body copy rendering in the subhead face,
+  set `--font-body-medium: var(--font-subhead)` in `_brand-typography.css`.
 - **`.data` no longer sets a monospace face.** It stays in the body face with
   tabular figures. For the old behaviour use `.mono .data` together, or set
-  `--bodymed-font`/`--mono-font` to taste.
+  `--font-body-medium`/`--font-mono` to taste.
 - **`font-variation-settings` was removed** from the typographic base — it
   overrode `font-weight` on descendants and broke variable-font weighting.
-- **New tokens:** `--body-weight`, `--bodymed-weight`, `--head-weight`,
-  `--med-weight`, `--mono-font`, `--mono-weight`, `--data-tracking`.
+- **New tokens:** `--weight-body`, `--weight-body-medium`, `--weight-head`,
+  `--weight-subhead`, `--font-mono`, `--weight-mono`, `--data-tracking`.
 - **Palettes are generated** — `_users.css` is gone; use `brand-palette.cjs`
   (§9.0) to produce a project palette instead.
 
@@ -901,31 +900,31 @@ Also in 2.0:
 
 **Line-heights:** `--leading-tight · mid · mad · big · tighter · base · head`.
 
-**Fonts (family + weight pairs):** `--body-font` (Gotham-Book, body) · `--bodymed-font` (Gotham-Med, `strong`/`b`) · `--head-font` (Gradual, h1–h3) · `--med-font` (Gotham-Med, h4–h6) · `--ital-font` (Gotham-Ital, `em`) · `--font-fallback`.
-**Mono (stylistic):** `--mono-font` (defaults to `--mono-fallback`, the system mono stack — works with no face supplied) · `--mono-fallback`.
+**Fonts (family + weight pairs):** `--font-body` (Gotham-Book, body) · `--font-body-medium` (Gotham-Med, `strong`/`b`) · `--font-head` (Gradual, h1–h3) · `--font-subhead` (Gotham-Med, h4–h6) · `--font-italic` (Gotham-Ital, `em`) · `--font-fallback`.
+**Mono (stylistic):** `--font-mono` (defaults to `--mono-fallback`, the system mono stack — works with no face supplied) · `--mono-fallback`.
 **Column data:** `--data-tracking` (letter-spacing for `.data`; `0em` default). `.data` keeps the body face and uses tabular figures.
-**Weights:** `--body-weight` · `--bodymed-weight` · `--head-weight` · `--med-weight` · `--mono-weight` — all `400` by default (pre-weighted faces); variable-font projects raise `--bodymed-weight`/`--med-weight` to `500`.
+**Weights:** `--weight-body` · `--weight-body-medium` · `--weight-head` · `--weight-subhead` · `--weight-mono` — all `400` by default (pre-weighted faces); variable-font projects raise `--weight-body-medium`/`--weight-subhead` to `500`.
 
-**Effect tokens:** `--blur` · `--glass-transparency` · `--radius-lg` · `--border-radius` · `--padding`.
+**Effect tokens:** `--blur` · `--glass-transparency` · `--radius-lg` · `--border-radius`.
 
 **Palette scale (per theme):** `--color-0 … 9` — **0 = darkest → 9 = lightest** (+ half steps, e.g. `--color-15`, `--color-25`), `--keycolor-1…4`, `--color-active-1…4`.
 
 **Semantic aliases:** `--link · --hover · --logo · --cta-fill · --cta-text · --nav-text · --nav-social · --nav-item-bg · --nav-item-bg-current · --blockquote-color · --blockquote-border · --shadow-color · --saturate · --color-button-bg · --color-button-text · --color-text-muted · --colour-hr · --color-background · --color-text`.
 
-**Global constants:** `--color-black · --color-white · --report-{green,orange,red}(-bg) · --note-width`.
+**Global constants:** `--color-black · --color-white · --report-{green,orange,red}(-bg)`.
 
 ## Appendix B — Layout attributes
 
 | Attribute / class      | Where           | Effect                                             |
 |------------------------|-----------------|----------------------------------------------------|
-| `.layout`              | usually `<main>`| the track-axis column grid (content/full)          |
-| `data-layout="frame\|spread\|bleed"` | `.layout` | page mode; only `bleed` has a rule (gutter → 0) |
-| `data-pad="narrow\|medium\|large"` | `.layout` | vertical rhythm on `<main>`               |
-| `.bleed`               | `.layout` child | opt a child out to the full (edge-to-edge) track   |
-| `.plain-blocks(-padded)` / `.card-blocks` | layout row | 12-col grid device (grid.css)   |
-| `.full-bleed-grid`     | layout row      | auto-fit grid, edge to edge — ignores `--columns`  |
+| `.frame`              | usually `<main>`| the track-axis column grid (content/full)          |
+| `data-reach="frame\|spread\|bleed"` | `.frame` | page mode; only `bleed` has a rule (gutter → 0) |
+| `data-pad="narrow\|medium\|large"` | `.frame` | vertical rhythm on `<main>`               |
+| `.bleed`               | `.frame` child | opt a child out to the full (edge-to-edge) track   |
+| `.grid-plain(-padded)` / `.grid-cards` | layout row | 12-col grid device (grid.css)   |
+| `.grid-bleed`     | layout row      | auto-fit grid, edge to edge — ignores `--span`  |
 | `.track` / `.track.bleed` | nested        | subgrid container inheriting page columns          |
-| `.blocks-grid`         | section         | 12-track content grid (pairs with layout renderer) |
-| `.column` + `--columns`| `.blocks-grid` child | span N of 12 tracks (stacks below 60rem)     |
+| `.grid-12`         | section         | 12-track content grid (pairs with layout renderer) |
+| `.column` + `--span`| `.grid-12` child | span N of 12 tracks (stacks below 60rem)     |
 | `--frame-gutter`       | `:root`/override| side gutter width                                  |
-| `--layout-measure`     | `:root`/override| max content width (default 82rem)                  |
+| `--measure-page`     | `:root`/override| max content width (default 82rem)                  |

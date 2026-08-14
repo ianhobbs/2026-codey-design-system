@@ -1,6 +1,6 @@
 ##
 # Codey layout field (core) — the Panel layout field that pairs with
-# snippets/layouts.php and the .layout / .blocks-grid CSS.
+# snippets/layouts.php and the .frame / .grid-12 CSS.
 #
 # Use in a page blueprint:
 #   layout:
@@ -20,15 +20,15 @@ settings:
     theme:
       label: Layout Theme
       type: select
-      default: plain-blocks-padded
+      default: grid-plain-padded
       options:
-        - value: plain-blocks
+        - value: grid-plain
           text: Plain grid — no background or padding
-        - value: plain-blocks-padded
+        - value: grid-plain-padded
           text: Plain grid — with padding
-        - value: card-blocks
+        - value: grid-cards
           text: Cards grid — background + padding
-        - value: full-bleed-grid
+        - value: grid-bleed
           text: Full bleed — edge to edge, auto-fit columns
 layouts:
   - "1/1"

@@ -59,7 +59,7 @@
 
 /* ── 1b. ONE family, several cuts — here the descriptor IS required.
    With this pattern every token points at "Gotham" and the WEIGHT selects
-   the file, so --bodymed-weight: 500 resolves to the Medium woff2. */
+   the file, so --weight-body-medium: 500 resolves to the Medium woff2. */
 /*
 @font-face {
   font-family: "Gotham";
@@ -90,7 +90,7 @@
 */
 
 /* ── 1d. MONO — purely STYLISTIC: code, keyboard input, technical strings.
-   Optional: --mono-font defaults to the SYSTEM mono stack, so code already
+   Optional: --font-mono defaults to the SYSTEM mono stack, so code already
    renders correctly without supplying a face. Declare one only if the brand
    has its own mono.
 
@@ -110,26 +110,26 @@
    Anything you leave alone keeps the Codey default and falls back to
    --font-fallback (system UI) if the face isn't supplied.
 
-   Key rule: strong/b use --bodymed-font — the BODY family's medium cut, never
+   Key rule: strong/b use --font-body-medium — the BODY family's medium cut, never
    a heading face. A bold word inside a paragraph must not change typeface. */
 
 /* ── 2a. PRE-WEIGHTED (static) faces — each cut is its own file ────────
    The family does the work, so weights stay 400. This is the Codey default. */
 /*
 @theme {
-  --body-font:    "Gotham-Book",     var(--font-fallback);   // body copy
-  --bodymed-font: "Gotham-Med",      var(--font-fallback);   // strong/b
-  --head-font:    "YourDisplay",     var(--font-fallback);   // h1–h3, .heads/.decor
-  --med-font:     "Gotham-Med",      var(--font-fallback);   // h4–h6 subheads
-  --ital-font:    "Gotham-Ital",     var(--font-fallback);   // em
+  --font-body:    "Gotham-Book",     var(--font-fallback);   // body copy
+  --font-body-medium: "Gotham-Med",      var(--font-fallback);   // strong/b
+  --font-head:    "YourDisplay",     var(--font-fallback);   // h1–h3, .heads/.decor
+  --font-subhead:     "Gotham-Med",      var(--font-fallback);   // h4–h6 subheads
+  --font-italic:    "Gotham-Ital",     var(--font-fallback);   // em
 
-  --body-weight:    400;
-  --bodymed-weight: 400;   // the Med file is already medium
-  --head-weight:    400;
-  --med-weight:     400;
+  --weight-body:    400;
+  --weight-body-medium: 400;   // the Med file is already medium
+  --weight-head:    400;
+  --weight-subhead:     400;
 
-  --mono-font:   "YourMono", var(--mono-fallback);   // optional; omit for system mono
-  --mono-weight: 400;
+  --font-mono:   "YourMono", var(--mono-fallback);   // optional; omit for system mono
+  --weight-mono: 400;
 
   --data-tracking: 0em;    // tracking for .data columns — tune per face
 }
@@ -139,15 +139,15 @@
    Keep the same family everywhere and raise the weight instead. */
 /*
 @theme {
-  --body-font:    "GothamVar", var(--font-fallback);
-  --bodymed-font: var(--body-font);                 // same family…
-  --med-font:     var(--body-font);                 // …h4–h6 too
-  --head-font:    "YourDisplay", var(--font-fallback);   // display stays distinct
+  --font-body:    "GothamVar", var(--font-fallback);
+  --font-body-medium: var(--font-body);                 // same family…
+  --font-subhead:     var(--font-body);                 // …h4–h6 too
+  --font-head:    "YourDisplay", var(--font-fallback);   // display stays distinct
 
-  --body-weight:    400;
-  --bodymed-weight: 500;   // …weight does the work
-  --head-weight:    400;
-  --med-weight:     500;
+  --weight-body:    400;
+  --weight-body-medium: 500;   // …weight does the work
+  --weight-head:    400;
+  --weight-subhead:     500;
 }
 */
 

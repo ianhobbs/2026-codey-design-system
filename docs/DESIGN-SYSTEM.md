@@ -73,7 +73,7 @@ fragments and compiling one standalone emits broken CSS. `main.css` is the only
 entry point.
 
 **Kirby side:** Codey's snippets live under `src/site/snippets/codey/` and are
-called by logical name (`snippet('codey/layout')`); field blueprints are referenced
+called by logical name (`snippet('codey/frame')`); field blueprints are referenced
 `extends: fields/layout`. To customise, edit the project's own templates/snippets
 directly (you own the clone), or — if you keep the core pristine — drop a same-named
 file into `site/`, which Kirby resolves before anything else.

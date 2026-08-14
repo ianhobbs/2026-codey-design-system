@@ -147,13 +147,13 @@ up. Full detail in [deploy/README.md](deploy/README.md).
 
 ## Using it
 
-- **Page shell** — `snippet('codey/layout', ['pad' => 'large'], slots: true)` wraps
+- **Page shell** — `snippet('codey/frame', ['pad' => 'large'], slots: true)` wraps
   a page (two-axis frame; `pad` sets vertical rhythm, `mode` sets the track).
-- **Layout field** — `snippet('codey/layouts', ['field' => $page->layout()])`
+- **Layout field** — `snippet('codey/frame'', ['field' => $page->layout()])`
   renders a Kirby layout field into the content track.
 - **Panel field** — `extends: fields/layout` (and `fields/cover`) in a page blueprint.
-- **Grids** — the layout row's theme class *is* the grid: `plain-blocks` ·
-  `plain-blocks-padded` · `card-blocks` (12-col family) · `full-bleed-grid`
+- **Grids** — the layout row's theme class *is* the grid: `grid-plain` ·
+  `grid-plain-padded` · `grid-cards` (12-col family) · `grid-bleed`
   (auto-fit, edge to edge). Framing is a separate axis in `codey/lib/layout.css`.
 - **Colours** — semantic tokens over a `0–9` scale where **0 is darkest**. Generate
   a brand palette: `npm run palette -- --dark "#111318" --light "#f6f8fb" --mid "#c8452f"`

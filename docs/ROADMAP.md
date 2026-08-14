@@ -38,22 +38,22 @@ Status legend: ✅ done · 🟡 partial · ⬜ pending.
 
 ## ✅ Phase 2b — CSS core (`package/css/lib/`)
 
-- ✅ `layout.css` — two-axis page frame (skeleton rows + `.layout`/`.track`
-  column grid, `data-layout`/`data-pad` modes) + the generic `.blocks-grid`
-  content grid (replaces opinionated `.grid-home`; `.full-bleed-grid` dropped as
-  redundant to `.layout > .bleed`).
+- ✅ `layout.css` — two-axis page frame (row tracks + `.frame`/`.track`
+  column grid, `data-reach`/`data-pad` modes) + the generic `.grid-12`
+  content grid (replaces opinionated `.grid-home`; `.grid-bleed` dropped as
+  redundant to `.frame > .bleed`).
 - ✅ `grid.css` — the content grid devices, split out from the page frame.
-  `layout.css` owns **where** a block sits on the track axis; `grid.css` owns
+  `layout.css` owns **where** a block sits on the column axis; `grid.css` owns
   **how** it divides its width. Column divisions play no part in framing.
 
   **Fixes an extraction bug:** the first pass replaced the source's theme-class
-  grids with a generic `.blocks-grid` and dropped `full-bleed-grid` from the
+  grids with a generic `.grid-12` and dropped `grid-bleed` from the
   blueprint as "redundant" — but left the theme names in the select. The result
-  was three Panel options with no CSS behind them and no per-row full-bleed
-  choice at all. The theme class **is** the grid (`.plain-blocks`,
-  `.plain-blocks-padded`, `.card-blocks` share 12-col geometry and differ only in
-  gap/margin/surface; `.full-bleed-grid` is a different device on auto-fit tracks
-  that ignores `--columns`). `.blocks-grid` survives as a plain utility grid for
+  was three Panel options with no CSS behind them and no per-row bleed-viewport
+  choice at all. The theme class **is** the grid (`.grid-plain`,
+  `.grid-plain-padded`, `.grid-cards` share 12-col geometry and differ only in
+  gap/margin/surface; `.grid-bleed` is a different device on auto-fit tracks
+  that ignores `--span`). `.grid-12` survives as a plain utility grid for
   hand-written markup such as the footer.
 - ✅ `typography.css` — element type base on the Utopia/TW scale.
 - ✅ `elements.css` — aspect-ratio media boxes.
@@ -69,7 +69,7 @@ shipped commented-out in the manifest as opt-in seeds with guidance comments:
 
 - ✅ `snippets/layout.php` (slot-based two-axis shell), `header.php`, `footer.php`
   (structural, decoration stripped), `layouts.php` (layout-field renderer →
-  `.blocks-grid`).
+  `.grid-12`).
 - ✅ `blueprints/fields/layout.yml` (generic column presets + block set; project
   blocks like `my-products`/`swiper` dropped).
 - ✅ `templates/` — `default`, `home`, `note`, `notes`. (`about` was dropped: what

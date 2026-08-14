@@ -4,9 +4,9 @@
 .video,
 .img {
   @apply relative block;
-  --w: 1;
-  --h: 1;
-  padding-bottom: calc(100% / var(--w) * var(--h));
+  --ratio-w: 1;
+  --ratio-h: 1;
+  padding-bottom: calc(100% / var(--ratio-w) * var(--ratio-h));
   background: var(--color-black);
 }
 .img img,

@@ -13,39 +13,39 @@ The current Codey site frames content ~80% of the time by positioning content in
 Stop padding inward on body. Make the gutter a **token** on a layout grid with named tracks; content defaults into a centered track, any block opts into full width. Mode becomes one switchable variable.
 
 ```css
-.layout {
+.frame {
   display: grid;
   grid-template-columns:
-    [full-start] minmax(var(--gutter), 1fr)
+    [full-start] minmax(var(--grid-gap), 1fr)
     [content-start] minmax(0, var(--measure)) [content-end]
-    minmax(var(--gutter), 1fr) [full-end];
+    minmax(var(--grid-gap), 1fr) [full-end];
 }
-.layout > *      { grid-column: content; }  /* framed by default */
-.layout > .bleed { grid-column: full; }      /* edge-to-edge opt-out */
+.frame > *      { grid-column: content; }  /* framed by default */
+.frame > .bleed { grid-column: full; }      /* edge-to-edge opt-out */
 ```
 
-Drive mode the Codey way: a `data-layout` attribute / Alpine state on the layout root flips `--gutter` / tracks.
+Drive mode the Codey way: a `data-reach` attribute / Alpine state on the layout root flips `--grid-gap` / tracks.
 
 ### Two-axis model (pinned terminology)
 
 The defining frame for Codey page layouts. header/main/footer and frame/bleed/spread are different axes, which is what keeps them clean. **They compose, they don't compete.**
 
-- **Skeleton axis** — vertical. header/main/footer document landmarks stacked top to bottom (rows).
-- **Track axis** — horizontal. frame/bleed/spread gutter/full-width track system (columns).
+- **Row axis** — vertical. header/main/footer document landmarks stacked top to bottom (rows).
+- **Column axis** — horizontal. inset/spread/bleed reach system over named column tracks (columns).
 
 Because they're different axes they never contend for the same property; every layout is one point on each axis.
 
 ### Speculative layout series (codified, not yet locked)
 - **frame** — current 80% case refactored; symmetric gutter owned by grid (not body padding), centered max-measure track.
-- **bleed** — full-screen edge-to-edge; `--gutter: 0`, content supplies local padding.
+- **bleed** — full-screen edge-to-edge; `--grid-gap: 0`, content supplies local padding.
 - **spread** — hybrid; framed by default with per-block `.bleed` opt-outs. Resolves the mode-switch problem on a single page.
 - **inset** — content-defines-margin; gutter derived from content (asymmetric rail / sidebar / image sets the column).
 - **rail / split** — multi-region asymmetric shells (fixed side + fluid main).
 
-### header / main / footer (skeleton axis)
-- **Vertical skeleton** (rows): `body { min-height: 100svh; display: grid; grid-template-rows: auto 1fr auto }` → header/main/footer + sticky-footer.
+### header / main / footer (row axis)
+- **Row axis** (rows): `body { min-height: 100svh; display: grid; grid-template-rows: auto 1fr auto }` → header/main/footer + sticky-footer.
 - **Horizontal tracks** (the full/content columns) live inside each landmark, ideally shared via `subgrid` so a bleed background in header and bleed media in main align to the same edges. header/footer commonly = framed content over a bleed background band; main is where **spread** earns its keep.
-- Menu-stack / push-stack off-page elements sit OUTSIDE this skeleton (fixed overlays over the canvas).
+- Menu-stack / push-stack off-page elements sit OUTSIDE this row axis (fixed overlays over the canvas).
 - Decision point: grid on body with landmarks as subgrid items (tightest alignment) vs re-applied per-landmark (looser but portable — likely better for the snippet/slot model).
 
 ### Sticky / scroll-detection header
@@ -72,7 +72,7 @@ Subgrid enforces the "compose, don't compete" two-axis model. Without it, every 
 
 With `grid-template-columns: subgrid` a container **adopts the parent's column tracks** (named lines `full`/`content` pass through), so even deeply nested blocks bleed to the exact same edge as top-level ones.
 
-**Subgrid is per-axis** — a container can subgrid *columns only* (inherit the horizontal track axis) while running its *own rows* (its private skeleton). That is the two-axis split made literal: horizontal alignment propagates down, vertical structure stays local.
+**Subgrid is per-axis** — a container can subgrid *columns only* (inherit the horizontal column axis) while running its *own rows* (its own row tracks). That is the two-axis split made literal: horizontal alignment propagates down, vertical structure stays local.
 
 ### Two kinds of container
 - **Track-aligned** — `subgrid` on columns; inherit the gutter system; content stays on the page rhythm. Default for structural containers.

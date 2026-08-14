@@ -55,7 +55,7 @@ fields:
     empty: true
     options:
       - value: "decor"
-      - value: "mysans"
+      - value: "subhead"
       - value: "down-step"
       - value: "down-step-x2"
       - value: "up-step"

@@ -1,0 +1,13 @@
+# Reusable pages section — used by site.yml and pages/notes.yml (multiple times,
+# with different status/labels). More: https://getkirby.com/docs/reference/panel/sections/pages
+type: pages
+label: Notes
+parent: kirby.page("notes")
+info: "{{ page.published }}"
+template: note
+empty: No notes yet
+sortBy: date desc
+image:
+  query: page.cover
+  cover: true
+  ratio: 3/2

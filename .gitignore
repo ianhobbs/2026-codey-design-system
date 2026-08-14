@@ -79,6 +79,12 @@ auth.json
 config.codekit3
 .codekit-cache/
 .DS_Store
+
+# FUSE stand-ins. Deleting or replacing a file while the mount still holds it
+# open leaves a .fuse_hidden* placeholder beside it, which git cannot read
+# ("Permission denied") and refuses to index. They vanish on their own once the
+# handle closes; ignoring them stops `git add -A` breaking in the meantime.
+.fuse_hidden*
 Icon
 *.map
 .vscode/*

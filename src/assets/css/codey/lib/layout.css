@@ -2,21 +2,32 @@
    CODEY LAYOUT — two-axis page frame (core). See docs/codey-arch notes.
    Imported layer(bespoke): authoritative, wins over utilities.
 
-   Two NON-COMPETING axes:
-     • Skeleton (vertical) — body grid rows: header / main / footer.
-     • Track (horizontal)  — .layout named columns: full / content.
-   They compose because they never touch the same property (rows vs columns).
+   In CSS Grid every row and every column is a TRACK. Codey uses one axis of
+   each, and the two never compete:
+
+     • Row axis (vertical)      — <body> row tracks: header / main / footer.
+     • Column axis (horizontal) — .frame column tracks, NAMED: full / content.
+
+   They compose because they touch different properties — grid-template-rows
+   vs grid-template-columns — so neither can overwrite the other. Naming the
+   column tracks (full / content) is what lets a child pick a track by name
+   instead of by arithmetic.
+
+   `.track` is an element that subgrids the frame's COLUMN tracks while
+   running its own rows. That per-axis split is this model made literal:
+   horizontal alignment propagates down, vertical structure stays local.
    ════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* The two knobs the frame draws from. --frame-gutter (NOT --gutter, which is
-     the grid *gap* token). --layout-measure lives here so header & footer cap
-     to the SAME measure as <main> content and stay edge-aligned. */
+  /* The two knobs the frame draws from. --measure-page lives here so header &
+     footer cap to the SAME measure as <main> content and stay edge-aligned.
+     (The grid's own gap is --grid-gap, in lib/grid.css — a different axis and,
+     since the rename, a name that says so.) */
   --frame-gutter: var(--spacing-4-m);
-  --layout-measure: 82rem;
+  --measure-page: 82rem;
 }
 
-/* ── Skeleton axis (vertical): document rows + sticky footer ── */
+/* ── Row axis (vertical): document row tracks + sticky footer ── */
 body {
   min-height: 100svh;
   display: grid;
@@ -26,7 +37,7 @@ body {
 /* ── Header & footer: cap to the content measure and centre ── */
 header,
 footer {
-  max-width: calc(var(--layout-measure) + 2 * var(--frame-gutter));
+  max-width: calc(var(--measure-page) + 2 * var(--frame-gutter));
   margin-inline: auto;
   padding-inline: var(--frame-gutter);
   width: 100%;
@@ -42,47 +53,52 @@ header {
   header { padding-block-start: var(--spacing-2); }
 }
 
-/* ── Track axis (horizontal): .layout column grid (normally on <main>) ── */
-.layout {
-  --layout-gutter: var(--frame-gutter);
+/* ── Column axis (horizontal): .frame named column tracks (on <main>) ── */
+.frame {
+  --frame-gutter-current: var(--frame-gutter);
   display: grid;
   grid-template-columns:
-    [full-start] minmax(var(--layout-gutter), 1fr)
-    [content-start] minmax(0, var(--layout-measure)) [content-end]
-    minmax(var(--layout-gutter), 1fr) [full-end];
+    [full-start] minmax(var(--frame-gutter-current), 1fr)
+    [content-start] minmax(0, var(--measure-page)) [content-end]
+    minmax(var(--frame-gutter-current), 1fr) [full-end];
 }
-.layout > *      { grid-column: content; }   /* framed by default */
-.layout > .bleed { grid-column: full;    }   /* edge-to-edge opt-out */
+.frame > *      { grid-column: content; }   /* framed by default */
+.frame > .bleed { grid-column: full;    }   /* edge-to-edge opt-out */
 
-/* Bleed helpers, as a direct layout child, switch from the negative-margin
-   hack to clean track placement — the `full-bleed-grid` layout option keeps
+/* Bleed helpers, as a direct frame child, switch from the negative-margin
+   hack to clean track placement — the `grid-bleed` layout option keeps
    working with no blueprint edits. The grid DEVICE itself is defined in
    lib/grid.css; what lives here is only its placement on the page frame. */
-.layout > .full-bleed,
-.layout > .full-bleed-grid {
+.frame > .bleed-viewport,
+.frame > .grid-bleed {
   grid-column: full;
   width: 100%;
   margin-inline: 0;
 }
 
-/* ── Mode switch — data-layout on the layout root ──────────────────────
-   frame  = default (gutter present, single centred measure).
-   spread = default + per-block .bleed opt-outs (the global default on <main>).
-   bleed  = whole page edge-to-edge (gutter collapses to 0).
+/* ── Reach switch — data-reach on the frame root ───────────────────────
+   How far content is allowed to reach across the horizontal axis:
+     inset  = default (gutter present, single centred measure).
+     spread = default + per-block .bleed opt-outs (the global default on <main>).
+     bleed  = whole page edge-to-edge (gutter collapses to 0).
 
-   Only `bleed` needs a rule: `frame` IS the default, and `spread` is the
+   Only `bleed` needs a rule: `inset` IS the default, and `spread` is the
    default plus children opting out via .bleed. The absence of rules for the
-   other two is the design, not an omission. */
-[data-layout="bleed"] { --layout-gutter: 0; }
+   other two is the design, not an omission.
 
-/* ── Vertical rhythm — data-pad on the layout root (3-step scale) ── */
-.layout[data-pad="narrow"] { --main-pt: var(--spacing-1); --main-pb: var(--spacing-3); }
-.layout[data-pad="medium"] { --main-pt: var(--spacing-3); --main-pb: var(--spacing-6); }
-.layout[data-pad="large"]  { --main-pt: var(--spacing-5); --main-pb: var(--spacing-8); }
-.layout[data-pad] { padding-block: var(--main-pt, var(--spacing-5)) var(--main-pb, var(--spacing-8)); }
+   The attribute is data-reach, not data-frame, so the frame and its state
+   never collide on one word — <main class="frame" data-reach="spread">. */
+[data-reach="bleed"] { --frame-gutter-current: 0; }
 
-/* ── Container: nested grid adopting the page tracks via subgrid (per-axis:
-   inherit columns, run own rows) ── */
+/* ── Vertical rhythm — data-pad on the frame root (3-step scale) ── */
+.frame[data-pad="narrow"] { --pad-block-start: var(--spacing-1); --pad-block-end: var(--spacing-3); }
+.frame[data-pad="medium"] { --pad-block-start: var(--spacing-3); --pad-block-end: var(--spacing-6); }
+.frame[data-pad="large"]  { --pad-block-start: var(--spacing-5); --pad-block-end: var(--spacing-8); }
+.frame[data-pad] { padding-block: var(--pad-block-start, var(--spacing-5)) var(--pad-block-end, var(--spacing-8)); }
+
+/* ── .track — adopts the frame's COLUMN tracks via subgrid, runs its own
+   row tracks. Per-axis subgrid is the whole point: inherit horizontal
+   alignment from the frame, keep vertical structure private. ── */
 .track {
   display: grid;
   grid-template-columns: subgrid;
@@ -92,8 +108,8 @@ header {
 
 /* ── Content grids live in lib/grid.css ────────────────────────────────
    This file owns the PAGE FRAME only: where a block sits on the horizontal
-   track axis. How a block divides its own width into columns is a separate
-   concern — see lib/grid.css for .plain-blocks / .card-blocks /
-   .full-bleed-grid / .blocks-grid. Column divisions play no part in framing,
+   column axis. How a block divides its own width into columns is a separate
+   concern — see lib/grid.css for .grid-plain / .grid-cards /
+   .grid-bleed / .grid-12. Column divisions play no part in framing,
    and framing plays no part in column division; keeping the two files apart
    is what keeps that true. */

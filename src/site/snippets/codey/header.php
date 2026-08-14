@@ -6,7 +6,7 @@
      * Structural only: project decoration (logo SVG, social + mobile-nav
      * snippets) was stripped on extraction. Override by name (a project
      * `codey/header` snippet wins) or add the decoration back here.
-     * Uses the Alpine `showNav` state declared on <body> in codey/layout.
+     * Uses the Alpine `showNav` state declared on <body> in codey/frame.
      */
 ?>
   <header>

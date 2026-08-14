@@ -14,7 +14,7 @@ from updates and is never exported back upstream. See
 fallback:
 
 ```css
---body-font  --head-font  --med-font  --ital-font  --mono-font
+--font-body  --font-head  --font-subhead  --font-italic  --font-mono
 ```
 
 `brand/_globals.css` is where the matching `@font-face` blocks go. Each project:
@@ -46,8 +46,8 @@ so the weight token stays `400` and the family does the work. A **variable**-fon
 project keeps one family and raises the axis instead, in `brand/_tokens.css`:
 
 ```css
---bodymed-font: var(--body-font);  --bodymed-weight: 500;
---med-font:     var(--body-font);  --med-weight:     500;
+--font-body-medium: var(--font-body);  --weight-body-medium: 500;
+--font-subhead:     var(--font-body);  --weight-subhead:     500;
 ```
 
 Why `400` for a medium cut: the typographer builds the weight into the stroke

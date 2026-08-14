@@ -26,15 +26,12 @@
   --report-orange-bg: oklch(96% 0.04 55);
   --report-red:       oklch(52% 0.19 25);
   --report-red-bg:    oklch(96% 0.04 25);
-
-  /* Layout default — width of a text measure ("note"). */
-  --note-width: 47rem;
 }
 
 /* ── Fonts are a PROJECT override ──────────────────────────────────────
    No @font-face and no font files ship with the design system — typefaces are
    brand-specific. Codey only names the EXPECTED families in the
-   brand/tokens.css @theme (--body-font, --head-font, --med-font, --ital-font),
+   brand/tokens.css @theme (--font-body, --font-head, --font-subhead, --font-italic),
    each with a system fallback. Every project either:
      • declares its own @font-face for those family names (here, or inlined in
        the <head> for critical first-paint weights), OR

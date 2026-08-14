@@ -24,7 +24,7 @@
    and export that change upstream so every Codey site gets it.
    ════════════════════════════════════════════════════════════════════ */
 
-@import "tailwindcss";
+@import "tailwindcss" source(none);
 
 /* ── Cascade contract (later layer = higher priority) ──────────────────
      theme < base < components < utilities < bespoke
@@ -35,6 +35,11 @@
 @layer theme, base, components, utilities, bespoke;
 
 /* ── Tailwind content sources (what gets scanned for class usage) ────── */
+/* source(none) above disables Tailwind's automatic content detection, which
+   otherwise sweeps the whole tree and mints utilities out of English words in
+   CSS comments and docs — .uppercase, .ring, .filter, .resize. None were ever
+   referenced by markup; they were half the bundle. These @source lines are now
+   the complete and only list of what gets scanned. */
 @source "../../site/**/*.php";               /* Codey + project templates, snippets, blueprints */
 @source "../../../build/content/**/*.txt";   /* page content (Kirby text files) */
 @source "../../../build/content/**/*.md";

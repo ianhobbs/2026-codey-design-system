@@ -16,11 +16,11 @@
    `font-weight` onto the wght axis automatically.
    ════════════════════════════════════════════════════════════════════ */
 
-/* --body-font is the default face for the document; everything inherits it
+/* --font-body is the default face for the document; everything inherits it
    unless a rule below opts into another token. */
 html, body {
-  font-family: var(--body-font);
-  font-weight: var(--body-weight);
+  font-family: var(--font-body);
+  font-weight: var(--weight-body);
 }
 
 body {
@@ -36,21 +36,21 @@ body {
 /* Display split: h1–h3 are the decorative/display face; h4–h6 are NOT — they
    step down to the subhead face at its own weight (commonly a sans or serif
    at 500 variable / 400 pre-weighted). */
-h1, h2, h3 { font-family: var(--head-font); font-weight: var(--head-weight); }
-h4, h5, h6 { font-family: var(--med-font);  font-weight: var(--med-weight); }
+h1, h2, h3 { font-family: var(--font-head); font-weight: var(--weight-head); }
+h4, h5, h6 { font-family: var(--font-subhead);  font-weight: var(--weight-subhead); }
 
-h1 { font-size: var(--text-4xl); line-height: var(--leading-head); }
+h1 { font-size: var(--text-4xl); line-height: var(--leading-headline-open); }
 h2 {
   font-size: var(--text-3xl);
-  line-height: var(--leading-mad);
+  line-height: var(--leading-headline);
   margin-bottom: var(--spacing-6);
 }
-h2.down-step    { font-size: var(--text-2xl); line-height: var(--leading-mad); }
-h2.down-step-x2 { font-size: var(--text-xl);  line-height: var(--leading-mad); }
-h2.up-step      { font-size: var(--text-4xl); line-height: var(--leading-head); }
-h3 { font-size: var(--text-2xl); line-height: var(--leading-mad); }
-h4 { font-size: var(--text-xl);  line-height: var(--leading-mid); }
-h5 { font-size: var(--text-lg);  line-height: var(--leading-mid); }
+h2.down-step    { font-size: var(--text-2xl); line-height: var(--leading-headline); }
+h2.down-step-x2 { font-size: var(--text-xl);  line-height: var(--leading-headline); }
+h2.up-step      { font-size: var(--text-4xl); line-height: var(--leading-headline-open); }
+h3 { font-size: var(--text-2xl); line-height: var(--leading-headline); }
+h4 { font-size: var(--text-xl);  line-height: var(--leading-subhead); }
+h5 { font-size: var(--text-lg);  line-height: var(--leading-subhead); }
 h6 { font-size: var(--text-base); }
 h1.super { font-size: var(--text-6xl); }
 h3 + p { margin-top: var(--spacing-3-s); }
@@ -61,15 +61,15 @@ p { font-size: var(--text-base); line-height: var(--leading-base); }
 
 /* strong/b are INLINE BODY markup — a bold word inside a paragraph must stay in
    the body family and gain WEIGHT. Never switch to a heading face mid-sentence.
-   --bodymed-font is the BODY family's medium cut (not a heading face); a
-   variable-font project sets it to var(--body-font) and raises
-   --bodymed-weight to 500/600 instead. */
+   --font-body-medium is the BODY family's medium cut (not a heading face); a
+   variable-font project sets it to var(--font-body) and raises
+   --weight-body-medium to 500/600 instead. */
 strong, b, .font-medium {
-  font-family: var(--bodymed-font);
-  font-weight: var(--bodymed-weight);
+  font-family: var(--font-body-medium);
+  font-weight: var(--weight-body-medium);
 }
 
-em { font-family: var(--ital-font); font-style: normal; font-weight: var(--body-weight); }
+em { font-family: var(--font-italic); font-style: normal; font-weight: var(--weight-body); }
 a { color: var(--link); text-decoration: none; }
 
 a:hover { color: var(--hover); }
@@ -82,11 +82,11 @@ small, .small { font-size: var(--text-sm); color: inherit; }
    `code`/`kbd`/`samp` sit INLINE in body copy, so they stay at 1em to match
    whatever context they land in (a heading, a paragraph, a caption). */
 code, kbd, samp, pre {
-  font-family: var(--mono-font);
-  font-weight: var(--mono-weight);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
 }
 code, kbd, samp { font-size: 1em; }
-.mono { font-family: var(--mono-font); font-weight: var(--mono-weight); }
+.mono { font-family: var(--font-mono); font-weight: var(--weight-mono); }
 
 /* ── Column data — stays in the BODY face ──────────────────────────────
    Numeric alignment is a FIGURE behaviour, not a typeface change. Keeping the
@@ -102,18 +102,18 @@ code, kbd, samp { font-size: 1em; }
    Quality text faces do; if one doesn't, the browser cannot synthesise them
    and the digits stay proportional. */
 .data {
-  font-family: var(--body-font);
-  font-weight: var(--body-weight);
+  font-family: var(--font-body);
+  font-weight: var(--weight-body);
   font-variant-numeric: tabular-nums;
   letter-spacing: var(--data-tracking);
 }
 
 /* Typography helpers */
-.heads           { font-family: var(--head-font); font-weight: var(--head-weight); }
-.decor           { font-family: var(--head-font); font-weight: var(--head-weight); }
-.headsans        { font-family: var(--med-font);  font-weight: var(--med-weight); }
+/* Two named heading faces an editor can pick per heading block
+   (blueprints/blocks/heading.yml). .decor is the display face, .subhead the
+   step-down face — the same pair h1–h3 / h4–h6 use, exposed as a choice.
+   `.heads` used to sit here as a byte-identical twin of .decor; it was a
+   duplicate, not a variant, and is gone. */
+.decor   { font-family: var(--font-head);    font-weight: var(--weight-head); }
+.subhead { font-family: var(--font-subhead); font-weight: var(--weight-subhead); }
 .leading-tighter { line-height: var(--leading-tighter); }
-
-@media screen and (min-width: 60rem) {
-  body { --padding: var(--spacing-5-l); }
-}
