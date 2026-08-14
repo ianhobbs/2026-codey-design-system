@@ -73,5 +73,25 @@ return [
         'excludeTemplates' => ['error'], // Exclude templates from sitemap
         'changefreq' => 'monthly', // Change frequency, can be a string or a function
         'priority' => fn (Page $p) => number_format(($p->isHomePage()) ? 1 : max(1 - 0.2 * $p->depth(), 0.2), 1), 
+    ],
+        'akibeo.csp' => [
+        'enabled' => true,
+
+        // Optional: only send the header on these hosts (compared
+        // lowercase, without port). Empty array = all hosts.
+        // 'hosts' => ['www.example.com'],
+        'hosts' => [],
+
+        // Optional: test the policy without enforcing it — sends
+        // Content-Security-Policy-Report-Only instead.
+        'reportOnly' => true,
+
+        // Only needed when Kirby's pages cache is enabled — it is not here.
+        // Leaving it on runs the placeholder swap on every response, and with
+        // komments rendering user-supplied HTML, anyone who writes the
+        // placeholder string into a comment gets a live nonce reflected back.
+        // If the pages cache is ever switched on, re-enable this AND set a
+        // random per-site 'cacheSafePlaceholder' (the default is public).
+        'cacheSafe' => false,
     ]
 ];

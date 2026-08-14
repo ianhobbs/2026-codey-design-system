@@ -4,8 +4,77 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c7d4e69805379043da05f16979fdeb00",
+    "content-hash": "46dd7b5a122bdaa31f392ba353cd3038",
     "packages": [
+        {
+            "name": "akibeo/kirby-csp",
+            "version": "1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wdebusschere/kirby-csp.git",
+                "reference": "c981f3a19e0d927afc9d9c17b6944ca88807ab3f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wdebusschere/kirby-csp/zipball/c981f3a19e0d927afc9d9c17b6944ca88807ab3f",
+                "reference": "c981f3a19e0d927afc9d9c17b6944ca88807ab3f",
+                "shasum": ""
+            },
+            "require": {
+                "getkirby/composer-installer": "^1.2",
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.6 || ^10.5 || ^11.0"
+            },
+            "type": "kirby-plugin",
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Akibeo\\Csp\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Wannes Debusschere",
+                    "email": "wannes@e-xperience.pt",
+                    "homepage": "https://e-xperience.pt"
+                },
+                {
+                    "name": "Yassine El Bouazzaoui",
+                    "email": "yassine@e-xperience.pt",
+                    "homepage": "https://e-xperience.pt"
+                }
+            ],
+            "description": "Content-Security-Policy headers with per-request nonce for Kirby, following Google's strict CSP guidance.",
+            "homepage": "https://github.com/akibeo/kirby-csp",
+            "keywords": [
+                "content-security-policy",
+                "csp",
+                "kirby",
+                "kirby-plugin",
+                "nonce",
+                "security",
+                "strict-dynamic"
+            ],
+            "support": {
+                "issues": "https://github.com/akibeo/kirby-csp/issues",
+                "source": "https://github.com/akibeo/kirby-csp"
+            },
+            "funding": [
+                {
+                    "url": "https://e-xperience.pt",
+                    "type": "custom"
+                }
+            ],
+            "time": "2026-07-27T10:05:21+00:00"
+        },
         {
             "name": "beebmx/kirby-email-plus",
             "version": "1.2.1",
@@ -946,21 +1015,21 @@
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "7.15.2",
+            "version": "7.15.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "744101956d78b7c1384d0cbf379db13e859167bf"
+                "reference": "ae311b8f045ea93ce7b1c9cdb7cec06c53f944bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/744101956d78b7c1384d0cbf379db13e859167bf",
-                "reference": "744101956d78b7c1384d0cbf379db13e859167bf",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/ae311b8f045ea93ce7b1c9cdb7cec06c53f944bc",
+                "reference": "ae311b8f045ea93ce7b1c9cdb7cec06c53f944bc",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "guzzlehttp/promises": "^2.5.1",
+                "guzzlehttp/promises": "^2.5.2",
                 "guzzlehttp/psr7": "^2.13",
                 "php": "^7.2.5 || ^8.0",
                 "psr/http-client": "^1.0",
@@ -1054,7 +1123,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/guzzle/issues",
-                "source": "https://github.com/guzzle/guzzle/tree/7.15.2"
+                "source": "https://github.com/guzzle/guzzle/tree/7.15.3"
             },
             "funding": [
                 {
@@ -1070,20 +1139,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-07-26T23:23:20+00:00"
+            "time": "2026-08-05T19:48:21+00:00"
         },
         {
             "name": "guzzlehttp/promises",
-            "version": "2.5.1",
+            "version": "2.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/promises.git",
-                "reference": "9ad1e4fc607446a055b95870c7f668e93b5cff29"
+                "reference": "2823687acff28b2dbe67b2508a6b300e2c3fa4ce"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/promises/zipball/9ad1e4fc607446a055b95870c7f668e93b5cff29",
-                "reference": "9ad1e4fc607446a055b95870c7f668e93b5cff29",
+                "url": "https://api.github.com/repos/guzzle/promises/zipball/2823687acff28b2dbe67b2508a6b300e2c3fa4ce",
+                "reference": "2823687acff28b2dbe67b2508a6b300e2c3fa4ce",
                 "shasum": ""
             },
             "require": {
@@ -1138,7 +1207,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/promises/issues",
-                "source": "https://github.com/guzzle/promises/tree/2.5.1"
+                "source": "https://github.com/guzzle/promises/tree/2.5.2"
             },
             "funding": [
                 {
@@ -1154,7 +1223,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-07-08T15:48:39+00:00"
+            "time": "2026-08-05T19:30:54+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
@@ -1281,36 +1350,25 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ianhobbs/swiper-block.git",
-                "reference": "8990c50aeaa1f02cad89a23a03614e68c1490b1e"
+                "reference": "f0c65c91b6429032d303a13ac6c871528a508d72"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ianhobbs/swiper-block/zipball/8990c50aeaa1f02cad89a23a03614e68c1490b1e",
-                "reference": "8990c50aeaa1f02cad89a23a03614e68c1490b1e",
+                "url": "https://api.github.com/repos/ianhobbs/swiper-block/zipball/f0c65c91b6429032d303a13ac6c871528a508d72",
+                "reference": "f0c65c91b6429032d303a13ac6c871528a508d72",
                 "shasum": ""
             },
             "require": {
                 "getkirby/composer-installer": "^1.2",
                 "php": ">=8.3"
             },
-            "require-dev": {
-                "pestphp/pest": "^3.0"
+            "conflict": {
+                "getkirby/cms": "<5.0.0 || >=6.0.0"
             },
             "default-branch": true,
             "type": "kirby-plugin",
             "extra": {
                 "installer-name": "kirby-swiper-block"
-            },
-            "scripts": {
-                "test": [
-                    "pest --colors=always"
-                ],
-                "test:coverage": [
-                    "pest --colors=always --coverage"
-                ],
-                "test:watch": [
-                    "pest --colors=always --watch"
-                ]
             },
             "license": [
                 "MIT"
@@ -1321,7 +1379,7 @@
                     "email": "admin@ianhobbsmedia.com"
                 }
             ],
-            "description": "Kirby CMS layout block plugin — Swiper 12 slider with panel editor and image cropping",
+            "description": "Kirby CMS layout block plugin — Swiper 12 carousel with panel editor and image cropping",
             "keywords": [
                 "kirby",
                 "kirby-cms",
@@ -1331,10 +1389,10 @@
                 "swiper"
             ],
             "support": {
-                "source": "https://github.com/ianhobbs/swiper-block/tree/main",
+                "source": "https://github.com/ianhobbs/swiper-block/tree/v1.3.6",
                 "issues": "https://github.com/ianhobbs/swiper-block/issues"
             },
-            "time": "2026-07-24T07:41:46+00:00"
+            "time": "2026-08-06T08:53:31+00:00"
         },
         {
             "name": "johannschopplich/kirby-helpers",
@@ -1590,16 +1648,16 @@
         },
         {
             "name": "medienbaecker/kirby-alter",
-            "version": "2.2.2",
+            "version": "2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/medienbaecker/kirby-alter.git",
-                "reference": "1ed99a43ae9b06f6184aa0f70a6ee4698e17c563"
+                "reference": "5684673cea73d961aed860012bf03e36f4fedd29"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/medienbaecker/kirby-alter/zipball/1ed99a43ae9b06f6184aa0f70a6ee4698e17c563",
-                "reference": "1ed99a43ae9b06f6184aa0f70a6ee4698e17c563",
+                "url": "https://api.github.com/repos/medienbaecker/kirby-alter/zipball/5684673cea73d961aed860012bf03e36f4fedd29",
+                "reference": "5684673cea73d961aed860012bf03e36f4fedd29",
                 "shasum": ""
             },
             "require": {
@@ -1619,9 +1677,9 @@
             ],
             "support": {
                 "issues": "https://github.com/medienbaecker/kirby-alter/issues",
-                "source": "https://github.com/medienbaecker/kirby-alter/tree/2.2.2"
+                "source": "https://github.com/medienbaecker/kirby-alter/tree/2.3.0"
             },
-            "time": "2026-06-10T19:54:26+00:00"
+            "time": "2026-08-07T07:20:17+00:00"
         },
         {
             "name": "michelf/php-smartypants",
@@ -2241,16 +2299,16 @@
         },
         {
             "name": "resend/resend-php",
-            "version": "v1.7.0",
+            "version": "v1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/resend/resend-php.git",
-                "reference": "9516207c4f6ff210c64b193e31074e925dd6193a"
+                "reference": "6c48361293493263e9acea53b5d6b66d5173a608"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/resend/resend-php/zipball/9516207c4f6ff210c64b193e31074e925dd6193a",
-                "reference": "9516207c4f6ff210c64b193e31074e925dd6193a",
+                "url": "https://api.github.com/repos/resend/resend-php/zipball/6c48361293493263e9acea53b5d6b66d5173a608",
+                "reference": "6c48361293493263e9acea53b5d6b66d5173a608",
                 "shasum": ""
             },
             "require": {
@@ -2262,7 +2320,7 @@
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.13",
                 "mockery/mockery": "^1.6",
-                "pestphp/pest": "^1.0|^2.0|^3.0|^4.0"
+                "pestphp/pest": "^1.0|^2.0|^3.0|^4.0|^5.0"
             },
             "type": "library",
             "autoload": {
@@ -2294,9 +2352,9 @@
             ],
             "support": {
                 "issues": "https://github.com/resend/resend-php/issues",
-                "source": "https://github.com/resend/resend-php/tree/v1.7.0"
+                "source": "https://github.com/resend/resend-php/tree/v1.8.0"
             },
-            "time": "2026-07-27T21:14:02+00:00"
+            "time": "2026-08-11T19:07:17+00:00"
         },
         {
             "name": "seld/cli-prompt",
@@ -4416,16 +4474,16 @@
         },
         {
             "name": "symfony/uid",
-            "version": "v8.1.0",
+            "version": "v8.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/uid.git",
-                "reference": "7393f157a55f7e70a4de0334435c55a5a8fe749a"
+                "reference": "50e98f8bc4c3fcdaf925545a65150fb42cf0caf2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/uid/zipball/7393f157a55f7e70a4de0334435c55a5a8fe749a",
-                "reference": "7393f157a55f7e70a4de0334435c55a5a8fe749a",
+                "url": "https://api.github.com/repos/symfony/uid/zipball/50e98f8bc4c3fcdaf925545a65150fb42cf0caf2",
+                "reference": "50e98f8bc4c3fcdaf925545a65150fb42cf0caf2",
                 "shasum": ""
             },
             "require": {
@@ -4470,7 +4528,7 @@
                 "uuid"
             ],
             "support": {
-                "source": "https://github.com/symfony/uid/tree/v8.1.0"
+                "source": "https://github.com/symfony/uid/tree/v8.1.4"
             },
             "funding": [
                 {
@@ -4490,7 +4548,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-29T05:06:50+00:00"
+            "time": "2026-08-02T11:29:46+00:00"
         },
         {
             "name": "webmozart/assert",
