@@ -120,6 +120,25 @@
       "rFN" : 0,
       "uCM" : 0
     },
+    "\/docs\/CHANGELOG.md" : {
+      "cB" : 0,
+      "cS" : 0,
+      "eF" : 1,
+      "eL" : 1,
+      "ema" : 1,
+      "eSQ" : 1,
+      "ft" : 4096,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/build\/docs\/CHANGELOG.html",
+      "oF" : 0,
+      "oFM" : 0,
+      "oS" : 0,
+      "pHT" : 0,
+      "pME" : 1,
+      "rFN" : 0,
+      "uCM" : 0
+    },
     "\/docs\/codey-arch.md" : {
       "cB" : 0,
       "cS" : 0,
@@ -427,30 +446,6 @@
       "oF" : 1,
       "pg" : 0
     },
-    "\/src\/assets\/css\/codey\/lib\/.fuse_hidden0000004c00000008" : {
-      "cB" : 0,
-      "ft" : 8192,
-      "hM" : 0,
-      "oA" : 0,
-      "oAP" : "\/build\/assets\/css\/codey\/lib\/.fuse_hidden0000004c00000008",
-      "oF" : 0
-    },
-    "\/src\/assets\/css\/codey\/lib\/.fuse_hidden0000005100000002" : {
-      "cB" : 0,
-      "ft" : 8192,
-      "hM" : 0,
-      "oA" : 0,
-      "oAP" : "\/build\/assets\/css\/codey\/lib\/.fuse_hidden0000005100000002",
-      "oF" : 0
-    },
-    "\/src\/assets\/css\/codey\/lib\/.fuse_hidden0000005200000001" : {
-      "cB" : 0,
-      "ft" : 8192,
-      "hM" : 0,
-      "oA" : 0,
-      "oAP" : "\/build\/assets\/css\/codey\/lib\/.fuse_hidden0000005200000001",
-      "oF" : 0
-    },
     "\/src\/assets\/css\/codey\/lib\/accordion.css" : {
       "aP" : 1,
       "bl" : 0,
@@ -638,17 +633,6 @@
       "pME" : 1,
       "rFN" : 0,
       "uCM" : 0
-    },
-    "\/src\/assets\/js\/codey\/alpine-min.js" : {
-      "bF" : 4,
-      "ft" : 64,
-      "ma" : 1,
-      "mi" : 1,
-      "oA" : 0,
-      "oAP" : "\/build\/assets\/js\/codey\/alpine-min-min.js",
-      "oF" : 0,
-      "sC" : 3,
-      "tS" : 1
     },
     "\/src\/assets\/js\/codey\/alpine.js" : {
       "bF" : 4,
@@ -861,38 +845,6 @@
       "oAP" : "\/build\/site\/controllers\/notes.php",
       "oF" : 0
     },
-    "\/src\/site\/snippets\/codey\/.fuse_hidden0000003000000006" : {
-      "cB" : 0,
-      "ft" : 8192,
-      "hM" : 0,
-      "oA" : 0,
-      "oAP" : "\/build\/site\/snippets\/codey\/.fuse_hidden0000003000000006",
-      "oF" : 0
-    },
-    "\/src\/site\/snippets\/codey\/.fuse_hidden0000003200000005" : {
-      "cB" : 0,
-      "ft" : 8192,
-      "hM" : 0,
-      "oA" : 0,
-      "oAP" : "\/build\/site\/snippets\/codey\/.fuse_hidden0000003200000005",
-      "oF" : 0
-    },
-    "\/src\/site\/snippets\/codey\/.fuse_hidden0000003300000004" : {
-      "cB" : 0,
-      "ft" : 8192,
-      "hM" : 0,
-      "oA" : 0,
-      "oAP" : "\/build\/site\/snippets\/codey\/.fuse_hidden0000003300000004",
-      "oF" : 0
-    },
-    "\/src\/site\/snippets\/codey\/.fuse_hidden0000003400000003" : {
-      "cB" : 0,
-      "ft" : 8192,
-      "hM" : 0,
-      "oA" : 0,
-      "oAP" : "\/build\/site\/snippets\/codey\/.fuse_hidden0000003400000003",
-      "oF" : 0
-    },
     "\/src\/site\/snippets\/codey\/card.php" : {
       "cB" : 0,
       "ft" : 8192,
@@ -909,36 +861,28 @@
       "oAP" : "\/build\/site\/snippets\/codey\/footer.php",
       "oF" : 0
     },
+    "\/src\/site\/snippets\/codey\/frame-hero.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/build\/site\/snippets\/codey\/frame-hero.php",
+      "oF" : 0
+    },
+    "\/src\/site\/snippets\/codey\/frame.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/build\/site\/snippets\/codey\/frame.php",
+      "oF" : 0
+    },
     "\/src\/site\/snippets\/codey\/header.php" : {
       "cB" : 0,
       "ft" : 8192,
       "hM" : 0,
       "oA" : 2,
       "oAP" : "\/build\/site\/snippets\/codey\/header.php",
-      "oF" : 0
-    },
-    "\/src\/site\/snippets\/codey\/layout.php" : {
-      "cB" : 0,
-      "ft" : 8192,
-      "hM" : 0,
-      "oA" : 2,
-      "oAP" : "\/build\/site\/snippets\/codey\/layout.php",
-      "oF" : 0
-    },
-    "\/src\/site\/snippets\/codey\/layouts-full.php" : {
-      "cB" : 0,
-      "ft" : 8192,
-      "hM" : 0,
-      "oA" : 2,
-      "oAP" : "\/build\/site\/snippets\/codey\/layouts-full.php",
-      "oF" : 0
-    },
-    "\/src\/site\/snippets\/codey\/layouts-hero.php" : {
-      "cB" : 0,
-      "ft" : 8192,
-      "hM" : 0,
-      "oA" : 2,
-      "oAP" : "\/build\/site\/snippets\/codey\/layouts-hero.php",
       "oF" : 0
     },
     "\/src\/site\/snippets\/codey\/layouts.php" : {
@@ -1003,14 +947,6 @@
       "hM" : 0,
       "oA" : 2,
       "oAP" : "\/build\/site\/snippets\/prevnext.php",
-      "oF" : 0
-    },
-    "\/src\/site\/templates\/.fuse_hidden0000002a00000007" : {
-      "cB" : 0,
-      "ft" : 8192,
-      "hM" : 0,
-      "oA" : 0,
-      "oAP" : "\/build\/site\/templates\/.fuse_hidden0000002a00000007",
       "oF" : 0
     },
     "\/src\/site\/templates\/default.php" : {

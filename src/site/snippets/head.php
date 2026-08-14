@@ -16,5 +16,11 @@
   <meta name="description" content="<?= $site->description()->esc('attr') ?>">
   <?php endif ?>
   <?= css(['assets/css/main.css', '@auto']) ?>
-  <?= js('assets/js/codey/alpine.js', ['defer' => true]) ?>
+  <?= js('assets/js/codey/alpine-min.js', [
+    'defer' => true,
+    // akibeo/kirby-csp emits a nonce-based policy; strict-dynamic makes
+    // browsers ignore 'self'/https: so ONLY nonce'd scripts run. Resolves to
+    // null when the plugin is absent — Html::attr drops the attribute.
+    'nonce' => function_exists('cspNonce') ? cspNonce() : null,
+  ]) ?>
 </head>

@@ -1,18 +1,41 @@
 <?php
 
+use JohannSchopplich\Helpers\Env;
+
 /**
- * Kirby config — STARTER. 
- * 
+ * Kirby config — STARTER.
+ *
  * Add a domain-name.config with some settings turned off for production
- * 
+ *
+ * Secrets come from glue/, which sits OUTSIDE the web root and is gitignored
+ * except for .env.example. Nothing secret is hardcoded here — a starter that
+ * ships a real cookie key hands every clone the same one.
  * */
-Kirby\Http\Cookie::$key = 'uibhbuouyyei8198Bhy';
+$glue = dirname(__DIR__, 3) . '/glue';
+
+// Dotenv's repository is immutable — first value wins — so the most specific
+// file loads first. .env.local is dev-only and never deployed; .env.production
+// only exists on the server; .env is the shared baseline.
+foreach (['.env.local', '.env.production', '.env'] as $envFile) {
+    if (is_file($glue . '/' . $envFile)) {
+        Env::load($glue, $envFile);
+    }
+}
+
+// Cookie::$key is typed string — only override when the env actually supplies
+// one, so a fresh clone without glue/.env still boots (on Kirby's weak default).
+if ($cookieKey = Env::get('KIRBY_COOKIE_KEY')) {
+    Kirby\Http\Cookie::$key = $cookieKey;
+}
 
 return [
+    'johannschopplich.helpers.env.path' => $glue,
+
     // Local development conveniences — turn OFF for production.
     'debug'   => true,
     'editor' => 'vscode',
-    'salt' => 'bhuoiyohoiuknpewmi902D',
+    // Kirby 5 reads content.salt, not salt — the old top-level key was a no-op.
+    'content.salt' => Env::get('KIRBY_SALT'),
     'panel'   => [
         'install' => true, 
         'vue' => [

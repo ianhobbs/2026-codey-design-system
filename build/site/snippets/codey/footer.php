@@ -19,6 +19,6 @@
     </div>
   </footer>
 
-  <?= js(['@auto']) ?>
+  <?= js(['@auto'], ['nonce' => function_exists('cspNonce') ? cspNonce() : null]) ?>
 </body>
 </html>

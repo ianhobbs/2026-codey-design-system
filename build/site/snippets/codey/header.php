@@ -20,6 +20,6 @@
         <a<?php e($item->isOpen(), ' aria-current="page"') ?> href="<?= $item->url() ?>" class="nav-bar-item"><?= $item->title()->esc() ?></a>
         <?php endforeach ?>
       </div>
-      <button class="nav-toggle md:hidden" aria-label="Toggle navigation" @click="showNav = !showNav">menu</button>
+      <button class="nav-toggle md:hidden" aria-label="Toggle navigation" @click="toggle">menu</button>
     </nav>
   </header>

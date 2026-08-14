@@ -31,7 +31,7 @@
     $headSnippet = (($head ?? 'default') === 'hidden') ? 'head-hidden' : 'head';
 ?>
 <?php snippet($headSnippet) ?>
-<body lang="en" class="<?= $page->theme()->or('theme-codey') ?>" x-data="{ showNav: false }">
+<body lang="en" class="<?= $page->theme()->or('theme-codey') ?>" x-data="nav">
 
   <?php snippet('codey/header') ?>
 
