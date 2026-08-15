@@ -61,6 +61,12 @@ header {
     [full-start] minmax(var(--frame-gutter-current), 1fr)
     [content-start] minmax(0, var(--measure-page)) [content-end]
     minmax(var(--frame-gutter-current), 1fr) [full-end];
+
+  /* Space between sections — the single control, tuned by --section-gap in
+     brand/. ROW-gap only, never the `gap` shorthand: a column-gap would open
+     space between the named tracks above and push bled rows off the viewport
+     edge, which is the one thing full-bleed must never do. */
+  row-gap: var(--section-gap, var(--spacing-6));
 }
 .frame > *      { grid-column: content; }   /* framed by default */
 .frame > .bleed { grid-column: full;    }   /* edge-to-edge opt-out */

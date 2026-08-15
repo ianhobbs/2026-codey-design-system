@@ -28,28 +28,31 @@
    width. That is why the span rule is inside the media query rather than
    guarded by a max-width override. */
 
+/* Vertical space BETWEEN rows is not set here — it is the frame's row-gap,
+   tuned with --section-gap (see lib/layout.css). These devices used to carry
+   `margin-block: 0.5rem` each, which put one control in three places and made
+   it invisible to anyone looking for a gap. Margins also don't collapse
+   between grid items, so those 0.5rems silently added up to 1rem. */
+
 .grid-plain {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0;
-  margin-block: 0;
 }
 
 .grid-plain-padded {
   display: grid;
   grid-template-columns: 1fr;
-  /* Literals carried over from the source project. Candidates for the fluid
-     scale, but they are visual decisions — retune deliberately, don't
-     "harmonise" them into a different look by accident. */
+  /* Literal carried over from the source project. A candidate for the fluid
+     scale, but it is a visual decision — retune deliberately, don't
+     "harmonise" it into a different look by accident. */
   gap: 1.5rem;
-  margin-block: 0.5rem;
 }
 
 .grid-cards {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.5rem;                                /* see note above */
-  margin-block: 0.5rem;
   background-color: var(--color-1);
   border-radius: var(--radius-lg, 0.5rem);
   padding: var(--spacing-6);

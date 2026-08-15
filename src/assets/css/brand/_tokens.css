@@ -127,6 +127,11 @@
   /* Tracking for column data (.data). Tabular figures are often set slightly
      open so columns read cleanly; 0 by default — tune per brand/face. */
   --data-tracking: 0em;
+
+  /* Space between layout-field sections. Consumed as row-gap on .frame
+     (codey/lib/layout.css) — the one place section spacing is set. */
+  --section-gap: var(--spacing-6);
+
   --blur: 10px;
   --glass-transparency: 45%;
   --radius-lg: 0.5rem;
