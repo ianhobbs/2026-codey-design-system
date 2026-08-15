@@ -115,6 +115,51 @@ The rule it exists to record: **the array key IS the srcset descriptor** Kirby
 writes into the markup, and the browser trusts it absolutely — it never measures
 the file. So the key must equal the width beside it.
 
+### Added — `heading` block renderer
+
+`src/site/snippets/codey/blocks/heading.php`.
+
+`blocks/heading.yml` has long offered seven fields. Kirby's default heading
+snippet renders **two** of them — `level` and `text` — and silently discarded
+the rest: `position`, `class`, `bgcolor`, `margin` and the animation trio. An
+editor picked an option, saved, and the page came back identical. Same silent
+no-op as the `mysans` option 4.0.0 fixed, across five fields instead of one.
+
+The snippet wires them up. No new design — the blueprint's existing promises,
+kept. `level` is allowlisted against `h1`–`h6` before it reaches the markup,
+since it lands in tag-name position, and a heading with nothing set still comes
+out as a bare `<h2>`.
+
+### Fixed — blueprint-authored utilities had no CSS
+
+Two of those fields are selects of **literal Tailwind class names**
+(`position`: `text-left|text-center|text-right`, `margin`: `my-3 md:my-5` and
+friends). Blueprints are `.yml`, and `main.css` scans PHP, content and JS — not
+`.yml`. So a utility reached the bundle only once some page's content already
+contained it.
+
+That failure is delayed and partial, which is what makes it hard to see: `my-3`
+and `md:my-5` were present, while `my-5`, `md:my-7`, `lg:my-11`, `text-center`
+and `text-right` were not. Options nobody had used yet looked permanently
+broken while their neighbours worked, and wiring the snippet alone would only
+have moved the silent failure one layer down.
+
+`main.css` now safelists them:
+
+```css
+@source inline("text-left text-center text-right");
+@source inline("my-3 md:my-5 my-5 md:my-7 lg:my-11");
+@source inline("p-3 md:p-4 lg:p-5 md:p-5 lg:p-6");
+```
+
+Safelisted rather than scanned: adding `*.yml` to `@source` would also mint
+utilities out of ordinary blueprint vocabulary — `block`, `inline` and `hidden`
+all appear as field values — which is the noise `source(none)` was introduced to
+remove. **Keep these lists in step with the blueprint options they mirror**; a
+new `margin` option needs a new safelist entry or it ships dead.
+
+`main.css` is PROJECT tier, so this one is a manual step (see Migration).
+
 ### Breaking — snippets
 
 | Old | New |
@@ -175,13 +220,22 @@ every zone by design, so each is a manual step:
    extends: codey/blocks/hero
    ```
 4. **Add `hero`** to `fieldsets:` in `src/site/blueprints/fields/layout.yml`.
-5. **Replace the `thumbs.srcsets` array** in `src/site/config/config.php` with
+5. **Create `src/site/snippets/blocks/heading.php`**:
+   ```php
+   <?php snippet('codey/blocks/heading', ['block' => $block]); ?>
+   ```
+6. **Add the three `@source inline(…)` lines** to `src/assets/css/main.css`
+   (see "blueprint-authored utilities" above). Without them the `heading`
+   block's `position` and `margin` options emit classes with no rules.
+7. **Replace the `thumbs.srcsets` array** in `src/site/config/config.php` with
    the ladder from `config/codey/thumbs.php` — hardwired, not required.
-6. **Rebuild CSS.** `hero.css` is imported from `index.css`, so the bundle is
+8. **Rebuild CSS.** `hero.css` is imported from `index.css`, so the bundle is
    stale until Tailwind reruns.
 
-Steps 1–4 are what an existing site needs to *use* the hero. Step 5 is the bug
-fix and applies whether or not you adopt the block.
+Steps 1–4 are what an existing site needs to *use* the hero. Steps 5–6 are a
+pair — either both or neither, since the snippet without the safelist just
+relocates the silent failure. Step 7 is the srcset bug fix and applies whether
+or not you adopt any of the blocks.
 
 ---
 

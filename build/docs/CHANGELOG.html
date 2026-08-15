@@ -124,6 +124,50 @@ missing the site does not boot.</p>
 writes into the markup, and the browser trusts it absolutely — it never measures
 the file. So the key must equal the width beside it.</p>
 
+<h3 id="added—headingblockrenderer">Added — <code>heading</code> block renderer</h3>
+
+<p><code>src/site/snippets/codey/blocks/heading.php</code>.</p>
+
+<p><code>blocks/heading.yml</code> has long offered seven fields. Kirby&#8217;s default heading
+snippet renders <strong>two</strong> of them — <code>level</code> and <code>text</code> — and silently discarded
+the rest: <code>position</code>, <code>class</code>, <code>bgcolor</code>, <code>margin</code> and the animation trio. An
+editor picked an option, saved, and the page came back identical. Same silent
+no-op as the <code>mysans</code> option 4.0.0 fixed, across five fields instead of one.</p>
+
+<p>The snippet wires them up. No new design — the blueprint&#8217;s existing promises,
+kept. <code>level</code> is allowlisted against <code>h1</code>–<code>h6</code> before it reaches the markup,
+since it lands in tag-name position, and a heading with nothing set still comes
+out as a bare <code>&lt;h2&gt;</code>.</p>
+
+<h3 id="fixed—blueprint-authoredutilitieshadnocss">Fixed — blueprint-authored utilities had no CSS</h3>
+
+<p>Two of those fields are selects of <strong>literal Tailwind class names</strong>
+(<code>position</code>: <code>text-left|text-center|text-right</code>, <code>margin</code>: <code>my-3 md:my-5</code> and
+friends). Blueprints are <code>.yml</code>, and <code>main.css</code> scans PHP, content and JS — not
+<code>.yml</code>. So a utility reached the bundle only once some page&#8217;s content already
+contained it.</p>
+
+<p>That failure is delayed and partial, which is what makes it hard to see: <code>my-3</code>
+and <code>md:my-5</code> were present, while <code>my-5</code>, <code>md:my-7</code>, <code>lg:my-11</code>, <code>text-center</code>
+and <code>text-right</code> were not. Options nobody had used yet looked permanently
+broken while their neighbours worked, and wiring the snippet alone would only
+have moved the silent failure one layer down.</p>
+
+<p><code>main.css</code> now safelists them:</p>
+
+<pre><code class="css">@source inline(&quot;text-left text-center text-right&quot;);
+@source inline(&quot;my-3 md:my-5 my-5 md:my-7 lg:my-11&quot;);
+@source inline(&quot;p-3 md:p-4 lg:p-5 md:p-5 lg:p-6&quot;);
+</code></pre>
+
+<p>Safelisted rather than scanned: adding <code>*.yml</code> to <code>@source</code> would also mint
+utilities out of ordinary blueprint vocabulary — <code>block</code>, <code>inline</code> and <code>hidden</code>
+all appear as field values — which is the noise <code>source(none)</code> was introduced to
+remove. <strong>Keep these lists in step with the blueprint options they mirror</strong>; a
+new <code>margin</code> option needs a new safelist entry or it ships dead.</p>
+
+<p><code>main.css</code> is PROJECT tier, so this one is a manual step (see Migration).</p>
+
 <h3 id="breaking—snippets">Breaking — snippets</h3>
 
 <table>
@@ -237,14 +281,27 @@ yet upstream):</li>
 
 <ol>
 <li><strong>Add <code>hero</code></strong> to <code>fieldsets:</code> in <code>src/site/blueprints/fields/layout.yml</code>.</li>
+<li><strong>Create <code>src/site/snippets/blocks/heading.php</code></strong>:</li>
+</ol>
+
+<pre><code class="```php">   &lt;?php snippet('codey/blocks/heading', ['block' =&gt; $block]); ?&gt;
+
+</code></pre>
+
+<ol>
+<li><strong>Add the three <code>@source inline(…)</code> lines</strong> to <code>src/assets/css/main.css</code>
+(see &#8220;blueprint-authored utilities&#8221; above). Without them the <code>heading</code>
+block&#8217;s <code>position</code> and <code>margin</code> options emit classes with no rules.</li>
 <li><strong>Replace the <code>thumbs.srcsets</code> array</strong> in <code>src/site/config/config.php</code> with
 the ladder from <code>config/codey/thumbs.php</code> — hardwired, not required.</li>
 <li><strong>Rebuild CSS.</strong> <code>hero.css</code> is imported from <code>index.css</code>, so the bundle is
 stale until Tailwind reruns.</li>
 </ol>
 
-<p>Steps 1–4 are what an existing site needs to <em>use</em> the hero. Step 5 is the bug
-fix and applies whether or not you adopt the block.</p>
+<p>Steps 1–4 are what an existing site needs to <em>use</em> the hero. Steps 5–6 are a
+pair — either both or neither, since the snippet without the safelist just
+relocates the silent failure. Step 7 is the srcset bug fix and applies whether
+or not you adopt any of the blocks.</p>
 
 <hr />
 
