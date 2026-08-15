@@ -443,7 +443,7 @@
       "ma" : 1,
       "oA" : 1,
       "oAP" : "\/build\/assets\/css\/codey\/index-min.css",
-      "oF" : 1,
+      "oF" : 0,
       "pg" : 0
     },
     "\/src\/assets\/css\/codey\/lib\/accordion.css" : {
@@ -503,6 +503,18 @@
       "ma" : 1,
       "oA" : 1,
       "oAP" : "\/build\/assets\/css\/codey\/lib\/grid-min.css",
+      "oF" : 0,
+      "pg" : 0
+    },
+    "\/src\/assets\/css\/codey\/lib\/hero.css" : {
+      "aP" : 1,
+      "bl" : 0,
+      "ci" : 1,
+      "co" : 0,
+      "ft" : 16,
+      "ma" : 1,
+      "oA" : 1,
+      "oAP" : "\/build\/assets\/css\/codey\/lib\/hero-min.css",
       "oF" : 0,
       "pg" : 0
     },
@@ -709,6 +721,14 @@
       "oAP" : "\/build\/site\/blueprints\/blocks\/text.yml",
       "oF" : 0
     },
+    "\/src\/site\/blueprints\/codey\/blocks\/hero.yml" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/build\/site\/blueprints\/codey\/blocks\/hero.yml",
+      "oF" : 0
+    },
     "\/src\/site\/blueprints\/fields\/cover.yml" : {
       "cB" : 0,
       "ft" : 8192,
@@ -813,6 +833,14 @@
       "oAP" : "\/build\/site\/commands\/thumbs.php",
       "oF" : 0
     },
+    "\/src\/site\/config\/codey\/thumbs.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/build\/site\/config\/codey\/thumbs.php",
+      "oF" : 0
+    },
     "\/src\/site\/config\/config.php" : {
       "cB" : 0,
       "ft" : 8192,
@@ -845,6 +873,22 @@
       "oAP" : "\/build\/site\/controllers\/notes.php",
       "oF" : 0
     },
+    "\/src\/site\/snippets\/codey\/blocks\/hero.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/build\/site\/snippets\/codey\/blocks\/hero.php",
+      "oF" : 0
+    },
+    "\/src\/site\/snippets\/codey\/blocks\/image.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/build\/site\/snippets\/codey\/blocks\/image.php",
+      "oF" : 0
+    },
     "\/src\/site\/snippets\/codey\/card.php" : {
       "cB" : 0,
       "ft" : 8192,
@@ -861,12 +905,12 @@
       "oAP" : "\/build\/site\/snippets\/codey\/footer.php",
       "oF" : 0
     },
-    "\/src\/site\/snippets\/codey\/frame-hero.php" : {
+    "\/src\/site\/snippets\/codey\/frame-overlay.php" : {
       "cB" : 0,
       "ft" : 8192,
       "hM" : 0,
       "oA" : 2,
-      "oAP" : "\/build\/site\/snippets\/codey\/frame-hero.php",
+      "oAP" : "\/build\/site\/snippets\/codey\/frame-overlay.php",
       "oF" : 0
     },
     "\/src\/site\/snippets\/codey\/frame.php" : {

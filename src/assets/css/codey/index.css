@@ -21,3 +21,4 @@
 @import "./lib/grid.css"       layer(bespoke); /* content grid devices (HOW it divides) */
 @import "./lib/typography.css" layer(base);    /* typographic base (Utopia/TW) */
 @import "./lib/elements.css"   layer(base);    /* aspect-ratio media boxes */
+@import "./lib/hero.css"       layer(bespoke); /* full-screen hero block */

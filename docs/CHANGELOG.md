@@ -13,6 +13,178 @@ entry claims the number and `package.json` was set back to match.
 
 ---
 
+## 4.1.0 — 2026-08-15
+
+Codey ships its first **block**, and grows the two export zones a block needs.
+Origin: a responsive-image defect found on the Rosie Boylan site, where one
+hardcoded `sizes` was simultaneously too small on bled rows and twice too large
+on framed ones.
+
+### Why a block changes the shape of the system
+
+Up to 4.0.0, core was CSS, JS and layout snippets — artefacts a project imports
+and never has to wire. A block is not one artefact but **three**: a renderer, a
+Panel schema, and rules. Ship only the renderer and you ship a block that cannot
+be configured; ship the rules as an opt-in import and you ship one that renders
+unstyled.
+
+Kirby resolves blocks at fixed paths — `snippets/blocks/{type}.php` and
+`blueprints/blocks/{type}.yml` — and **those paths cannot be core zones**. A
+project must stay free to add its own blocks there, and a `kirby` CLI scaffold
+run after cloning writes into exactly those directories. So core files sit under
+a `codey/` subdirectory and each project keeps a shim at the path Kirby expects.
+
+That shim is not boilerplate, it is the seam: replace its body and the block
+stops tracking Codey.
+
+### Added — export zones
+
+```js
+'src/site/blueprints/codey/'    // Panel schemas for core blocks
+'src/site/config/codey/'        // config fragments and templates core owns
+```
+
+`scripts/codey-export.mjs` now guards five zones instead of three. **Two limits
+of the export worth knowing**, both hit while shipping this release:
+
+- A new core file must be `git add`ed before export sees it. The patch is built
+  from `git diff`, so an untracked file is silently omitted — the export reports
+  success having carried nothing.
+- Renames are a delete plus an add, and deletions are refused by default. Use
+  `--allow-delete` deliberately.
+
+### Added — `hero` block
+
+A full-screen image, edge to edge, that bleeds from wherever it is dropped
+(it carries `bleed-viewport`, so it does **not** need a `grid-bleed` row).
+
+```
+src/site/snippets/codey/blocks/hero.php
+src/site/blueprints/codey/blocks/hero.yml
+src/assets/css/codey/lib/hero.css
+```
+
+Panel controls: image, alt, caption, height (full screen / 70% / natural), focal
+point (centre / top / bottom).
+
+**It is a separate block from `image` on purpose.** `image` declares
+`sizes="auto"`, which the spec only permits with `loading="lazy"` — and
+lazy-loading the LCP image is the worst thing you can do to Largest Contentful
+Paint. A hero needs the opposite on every axis: `eager`, `fetchpriority="high"`,
+and a flat `100vw` the preload scanner can act on before layout exists. Those
+two configurations cannot coexist on one element.
+
+`hero.css` is imported from `codey/index.css`, **not** added to `main.css`'s
+opt-in list. The opt-in components are token seeds you build markup on — nothing
+breaks while they are commented out. `hero.css` styles markup core itself emits,
+so a commented-out import would ship the block as an unstyled full-height image.
+A block and its rules travel together.
+
+### Added — `image` block renderer
+
+`src/site/snippets/codey/blocks/image.php` — core's first block renderer.
+Previously Codey shipped block *blueprints* and left rendering to Kirby's
+defaults, so **existing sites will see markup they did not have before**:
+
+- `sizes="auto, (min-width: 900px) 80vw, 90vw"` — the browser measures the real
+  laid-out width instead of guessing from the viewport. Container-query units
+  are invalid in `sizes` (it resolves before layout), so `auto` is the only
+  container-responsive mechanism available. Browsers without support drop the
+  invalid first entry and fall through to the viewport list.
+- `width` / `height` emitted from the Kirby file — reserves the box (CLS).
+- `srcset` on the fallback `<img>` — without one, any browser taking that branch
+  downloaded the untouched master.
+- `loading="lazy"` `decoding="async"`.
+- One `<picture>`; the optional `<a>` opens around it rather than duplicating it.
+
+The fallback `sizes` list is the only value in the file, so it reads
+`option('codey.blocks.image.sizes', …)` rather than a literal.
+
+### Added — `config/codey/thumbs.php`
+
+The canonical srcset ladder, **as a template to copy, not to require**. Read by
+nothing at runtime.
+
+A `require` from `config.php` was the first shape and was withdrawn: config must
+boot from itself alone. Requiring reaches out of the project into a tree that a
+Codey update overwrites and a CLI scaffold can delete — and when a stylesheet
+goes missing a site looks wrong, while when config.php's require target goes
+missing the site does not boot.
+
+The rule it exists to record: **the array key IS the srcset descriptor** Kirby
+writes into the markup, and the browser trusts it absolutely — it never measures
+the file. So the key must equal the width beside it.
+
+### Breaking — snippets
+
+| Old | New |
+|---|---|
+| `codey/frame-hero.php` | `codey/frame-overlay.php` |
+
+Still reserved and still unwired, so nothing to migrate unless you referenced it
+(nothing did). Renamed because `hero` now names the block that ships one, and
+two unrelated things called hero is the ambiguity 4.0.0 spent a release
+removing. `frame-overlay` names the overlapping-grid device for what it is.
+
+### Fixed — srcset descriptors lied
+
+The shipped ladders declared widths the files did not have:
+
+| Was | Actual | Ladders |
+|---|---|---|
+| `'2000w' => ['width' => 2200]` | 2200 | default, webp, avif |
+| `'1700w' => ['width' => 1800]` | 1800 | webp |
+
+Every browser was told those files were ~10% narrower than they are, and
+selected accordingly. New ladder, identical across all three formats, every key
+matching its width:
+
+```
+400 · 600 · 900 · 1200 · 1600 · 2000 · 2560
+```
+
+Note the ceiling only holds if masters reach it — **Kirby does not upscale**, so
+a master narrower than a step yields a smaller file while the descriptor still
+claims the full width. Same lie, per-image. Drop the top steps rather than
+overstate them.
+
+### Fixed — stale core comment
+
+`codey/lib/grid.css` documented the `sizes` defect as open and prescribed
+threading the row `theme` down into blocks to fix it. That route was rejected —
+it couples every block to the grid device it sits in, which is the coupling the
+two-axis model exists to prevent — and `sizes="auto"` gets the same answer by
+measurement. The comment now says so.
+
+### Migration
+
+Core files arrive by export. **The wiring does not** — these paths are outside
+every zone by design, so each is a manual step:
+
+1. **Create `src/site/snippets/blocks/image.php`** (the directory does not exist
+   yet upstream):
+   ```php
+   <?php snippet('codey/blocks/image', ['block' => $block]); ?>
+   ```
+2. **Create `src/site/snippets/blocks/hero.php`**:
+   ```php
+   <?php snippet('codey/blocks/hero', ['block' => $block]); ?>
+   ```
+3. **Create `src/site/blueprints/blocks/hero.yml`**:
+   ```yaml
+   extends: codey/blocks/hero
+   ```
+4. **Add `hero`** to `fieldsets:` in `src/site/blueprints/fields/layout.yml`.
+5. **Replace the `thumbs.srcsets` array** in `src/site/config/config.php` with
+   the ladder from `config/codey/thumbs.php` — hardwired, not required.
+6. **Rebuild CSS.** `hero.css` is imported from `index.css`, so the bundle is
+   stale until Tailwind reruns.
+
+Steps 1–4 are what an existing site needs to *use* the hero. Step 5 is the bug
+fix and applies whether or not you adopt the block.
+
+---
+
 ## 4.0.0 — 2026-08-14
 
 A naming pass across the whole system. Almost every change is a rename, so the

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="changelog">Changelog</h1>
+
+<p>Notable changes to the Codey design system. Newest first.</p>
+
+<p>Codey clones sever git history (<code>rm -rf .git &amp;&amp; git init</code>), so nothing here
+reaches an existing project automatically. Treat each entry as a manual
+migration list.</p>
+
+<p><strong>Versions follow the git tags.</strong> <code>package.json</code> had drifted a major ahead —
+it read <code>4.0.0</code> while the newest tag was <code>v3.0.0</code>, and no <code>v4.0.0</code> was ever
+cut. That untagged <code>4.0.0</code> is treated as drift rather than a release, so this
+entry claims the number and <code>package.json</code> was set back to match.</p>
+
+<hr />
+
+<h2 id="4.1.0—2026-08-15">4.1.0 — 2026&#8211;08&#8211;15</h2>
+
+<p>Codey ships its first <strong>block</strong>, and grows the two export zones a block needs.
+Origin: a responsive-image defect found on the Rosie Boylan site, where one
+hardcoded <code>sizes</code> was simultaneously too small on bled rows and twice too large
+on framed ones.</p>
+
+<h3 id="whyablockchangestheshapeofthesystem">Why a block changes the shape of the system</h3>
+
+<p>Up to 4.0.0, core was CSS, JS and layout snippets — artefacts a project imports
+and never has to wire. A block is not one artefact but <strong>three</strong>: a renderer, a
+Panel schema, and rules. Ship only the renderer and you ship a block that cannot
+be configured; ship the rules as an opt-in import and you ship one that renders
+unstyled.</p>
+
+<p>Kirby resolves blocks at fixed paths — <code>snippets/blocks/{type}.php</code> and
+<code>blueprints/blocks/{type}.yml</code> — and <strong>those paths cannot be core zones</strong>. A
+project must stay free to add its own blocks there, and a <code>kirby</code> CLI scaffold
+run after cloning writes into exactly those directories. So core files sit under
+a <code>codey/</code> subdirectory and each project keeps a shim at the path Kirby expects.</p>
+
+<p>That shim is not boilerplate, it is the seam: replace its body and the block
+stops tracking Codey.</p>
+
+<h3 id="added—exportzones">Added — export zones</h3>
+
+<pre><code class="js">'src/site/blueprints/codey/'    // Panel schemas for core blocks
+'src/site/config/codey/'        // config fragments and templates core owns
+</code></pre>
+
+<p><code>scripts/codey-export.mjs</code> now guards five zones instead of three. <strong>Two limits
+of the export worth knowing</strong>, both hit while shipping this release:</p>
+
+<ul>
+<li>A new core file must be <code>git add</code>ed before export sees it. The patch is built
+from <code>git diff</code>, so an untracked file is silently omitted — the export reports
+success having carried nothing.</li>
+<li>Renames are a delete plus an add, and deletions are refused by default. Use
+<code>--allow-delete</code> deliberately.</li>
+</ul>
+
+<h3 id="added—heroblock">Added — <code>hero</code> block</h3>
+
+<p>A full-screen image, edge to edge, that bleeds from wherever it is dropped
+(it carries <code>bleed-viewport</code>, so it does <strong>not</strong> need a <code>grid-bleed</code> row).</p>
+
+<pre><code>src/site/snippets/codey/blocks/hero.php
+src/site/blueprints/codey/blocks/hero.yml
+src/assets/css/codey/lib/hero.css
+</code></pre>
+
+<p>Panel controls: image, alt, caption, height (full screen / 70% / natural), focal
+point (centre / top / bottom).</p>
+
+<p><strong>It is a separate block from <code>image</code> on purpose.</strong> <code>image</code> declares
+<code>sizes=&quot;auto&quot;</code>, which the spec only permits with <code>loading=&quot;lazy&quot;</code> — and
+lazy-loading the LCP image is the worst thing you can do to Largest Contentful
+Paint. A hero needs the opposite on every axis: <code>eager</code>, <code>fetchpriority=&quot;high&quot;</code>,
+and a flat <code>100vw</code> the preload scanner can act on before layout exists. Those
+two configurations cannot coexist on one element.</p>
+
+<p><code>hero.css</code> is imported from <code>codey/index.css</code>, <strong>not</strong> added to <code>main.css</code>&#8217;s
+opt-in list. The opt-in components are token seeds you build markup on — nothing
+breaks while they are commented out. <code>hero.css</code> styles markup core itself emits,
+so a commented-out import would ship the block as an unstyled full-height image.
+A block and its rules travel together.</p>
+
+<h3 id="added—imageblockrenderer">Added — <code>image</code> block renderer</h3>
+
+<p><code>src/site/snippets/codey/blocks/image.php</code> — core&#8217;s first block renderer.
+Previously Codey shipped block <em>blueprints</em> and left rendering to Kirby&#8217;s
+defaults, so <strong>existing sites will see markup they did not have before</strong>:</p>
+
+<ul>
+<li><code>sizes=&quot;auto, (min-width: 900px) 80vw, 90vw&quot;</code> — the browser measures the real
+laid-out width instead of guessing from the viewport. Container-query units
+are invalid in <code>sizes</code> (it resolves before layout), so <code>auto</code> is the only
+container-responsive mechanism available. Browsers without support drop the
+invalid first entry and fall through to the viewport list.</li>
+<li><code>width</code> / <code>height</code> emitted from the Kirby file — reserves the box (CLS).</li>
+<li><code>srcset</code> on the fallback <code>&lt;img&gt;</code> — without one, any browser taking that branch
+downloaded the untouched master.</li>
+<li><code>loading=&quot;lazy&quot;</code> <code>decoding=&quot;async&quot;</code>.</li>
+<li>One <code>&lt;picture&gt;</code>; the optional <code>&lt;a&gt;</code> opens around it rather than duplicating it.</li>
+</ul>
+
+<p>The fallback <code>sizes</code> list is the only value in the file, so it reads
+<code>option('codey.blocks.image.sizes', …)</code> rather than a literal.</p>
+
+<h3 id="added—configcodeythumbs.php">Added — <code>config/codey/thumbs.php</code></h3>
+
+<p>The canonical srcset ladder, <strong>as a template to copy, not to require</strong>. Read by
+nothing at runtime.</p>
+
+<p>A <code>require</code> from <code>config.php</code> was the first shape and was withdrawn: config must
+boot from itself alone. Requiring reaches out of the project into a tree that a
+Codey update overwrites and a CLI scaffold can delete — and when a stylesheet
+goes missing a site looks wrong, while when config.php&#8217;s require target goes
+missing the site does not boot.</p>
+
+<p>The rule it exists to record: <strong>the array key IS the srcset descriptor</strong> Kirby
+writes into the markup, and the browser trusts it absolutely — it never measures
+the file. So the key must equal the width beside it.</p>
+
+<h3 id="breaking—snippets">Breaking — snippets</h3>
+
+<table>
+<colgroup>
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Old </th>
+	<th> New </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <code>codey/frame-hero.php</code> </td>
+	<td> <code>codey/frame-overlay.php</code> </td>
+</tr>
+</tbody>
+</table>
+
+<p>Still reserved and still unwired, so nothing to migrate unless you referenced it
+(nothing did). Renamed because <code>hero</code> now names the block that ships one, and
+two unrelated things called hero is the ambiguity 4.0.0 spent a release
+removing. <code>frame-overlay</code> names the overlapping-grid device for what it is.</p>
+
+<h3 id="fixed—srcsetdescriptorslied">Fixed — srcset descriptors lied</h3>
+
+<p>The shipped ladders declared widths the files did not have:</p>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Was </th>
+	<th> Actual </th>
+	<th> Ladders </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <code>'2000w' =&gt; ['width' =&gt; 2200]</code> </td>
+	<td> 2200 </td>
+	<td> default, webp, avif </td>
+</tr>
+<tr>
+	<td> <code>'1700w' =&gt; ['width' =&gt; 1800]</code> </td>
+	<td> 1800 </td>
+	<td> webp </td>
+</tr>
+</tbody>
+</table>
+
+<p>Every browser was told those files were <sub>10</sub>% narrower than they are, and
+selected accordingly. New ladder, identical across all three formats, every key
+matching its width:</p>
+
+<pre><code>400 · 600 · 900 · 1200 · 1600 · 2000 · 2560
+</code></pre>
+
+<p>Note the ceiling only holds if masters reach it — <strong>Kirby does not upscale</strong>, so
+a master narrower than a step yields a smaller file while the descriptor still
+claims the full width. Same lie, per-image. Drop the top steps rather than
+overstate them.</p>
+
+<h3 id="fixed—stalecorecomment">Fixed — stale core comment</h3>
+
+<p><code>codey/lib/grid.css</code> documented the <code>sizes</code> defect as open and prescribed
+threading the row <code>theme</code> down into blocks to fix it. That route was rejected —
+it couples every block to the grid device it sits in, which is the coupling the
+two-axis model exists to prevent — and <code>sizes=&quot;auto&quot;</code> gets the same answer by
+measurement. The comment now says so.</p>
+
+<h3 id="migration">Migration</h3>
+
+<p>Core files arrive by export. <strong>The wiring does not</strong> — these paths are outside
+every zone by design, so each is a manual step:</p>
+
+<ol>
+<li><strong>Create <code>src/site/snippets/blocks/image.php</code></strong> (the directory does not exist
+yet upstream):</li>
+</ol>
+
+<pre><code class="```php">   &lt;?php snippet('codey/blocks/image', ['block' =&gt; $block]); ?&gt;
+
+</code></pre>
+
+<ol>
+<li><strong>Create <code>src/site/snippets/blocks/hero.php</code></strong>:</li>
+</ol>
+
+<pre><code class="```php">   &lt;?php snippet('codey/blocks/hero', ['block' =&gt; $block]); ?&gt;
+
+</code></pre>
+
+<ol>
+<li><strong>Create <code>src/site/blueprints/blocks/hero.yml</code></strong>:</li>
+</ol>
+
+<pre><code class="```yaml">   extends: codey/blocks/hero
+
+</code></pre>
+
+<ol>
+<li><strong>Add <code>hero</code></strong> to <code>fieldsets:</code> in <code>src/site/blueprints/fields/layout.yml</code>.</li>
+<li><strong>Replace the <code>thumbs.srcsets</code> array</strong> in <code>src/site/config/config.php</code> with
+the ladder from <code>config/codey/thumbs.php</code> — hardwired, not required.</li>
+<li><strong>Rebuild CSS.</strong> <code>hero.css</code> is imported from <code>index.css</code>, so the bundle is
+stale until Tailwind reruns.</li>
+</ol>
+
+<p>Steps 1–4 are what an existing site needs to <em>use</em> the hero. Step 5 is the bug
+fix and applies whether or not you adopt the block.</p>
+
+<hr />
+
+<h2 id="4.0.0—2026-08-14">4.0.0 — 2026&#8211;08&#8211;14</h2>
+
+<p>A naming pass across the whole system. Almost every change is a rename, so the
+old→new tables below are the entire migration. Three things were <strong>deleted</strong> and
+one <strong>Panel option was broken and is now fixed</strong> — those are called out.</p>
+
+<p>Verified behaviour-preserving: every class used by markup or stored content
+resolved identically before and after (Codey 53 used / 30 unresolved; the
+consuming Rosie Boylan site 74 / 36 — the unresolved sets are pre-existing and
+unchanged).</p>
+
+<h3 id="why">Why</h3>
+
+<p>Five words were each doing several unrelated jobs. <code>layout</code> named the page
+frame, the page shell, the field renderer, the Kirby field and the mode
+attribute — <code>&lt;main class=&quot;layout&quot; data-layout=&quot;spread&quot;&gt;</code> used one word for two
+unrelated things on one element. <code>theme</code> named the colour flavour, the page
+theme field and the grid device. <code>gutter</code> named both a page inset and a grid
+gap, with a comment in <code>layout.css</code> warning you which was which.</p>
+
+<p>A comment that has to explain a name is a rename waiting to happen.</p>
+
+<h3 id="breaking—cssclasses">Breaking — CSS classes</h3>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Old </th>
+	<th> New </th>
+	<th> Notes </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <code>.layout</code> </td>
+	<td> <code>.frame</code> </td>
+	<td> The page frame. <code>--frame-gutter</code> already existed and now has a frame to belong to. </td>
+</tr>
+<tr>
+	<td> <code>.plain-blocks</code> </td>
+	<td> <code>.grid-plain</code> </td>
+	<td> Grid devices share a <code>grid-*</code> prefix, so the prefix carries the category. </td>
+</tr>
+<tr>
+	<td> <code>.plain-blocks-padded</code> </td>
+	<td> <code>.grid-plain-padded</code> </td>
+	<td> </td>
+</tr>
+<tr>
+	<td> <code>.card-blocks</code> </td>
+	<td> <code>.grid-cards</code> </td>
+	<td> </td>
+</tr>
+<tr>
+	<td> <code>.full-bleed-grid</code> </td>
+	<td> <code>.grid-bleed</code> </td>
+	<td> </td>
+</tr>
+<tr>
+	<td> <code>.blocks-grid</code> </td>
+	<td> <code>.grid-12</code> </td>
+	<td> The generic 12-track utility, not a layout-field device. </td>
+</tr>
+<tr>
+	<td> <code>.full-bleed</code> </td>
+	<td> <code>.bleed-viewport</code> </td>
+	<td> The <code>dvw</code> escape hatch. <code>.bleed</code> (track opt-out) is unchanged. </td>
+</tr>
+<tr>
+	<td> <code>.full-bleed-clip</code> </td>
+	<td> <code>.bleed-viewport-clip</code> </td>
+	<td> </td>
+</tr>
+<tr>
+	<td> <code>.headsans</code> </td>
+	<td> <code>.subhead</code> </td>
+	<td> Named for the token it applies (<code>--font-subhead</code>), which need not be a sans. </td>
+</tr>
+<tr>
+	<td> <code>.heads</code> </td>
+	<td> <em>removed</em> </td>
+	<td> Byte-identical twin of <code>.decor</code>. Core <code>footer.php</code> now uses <code>.decor</code>. </td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="breaking—attributes">Breaking — attributes</h3>
+
+<table>
+<colgroup>
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Old </th>
+	<th> New </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <code>data-layout=&quot;frame\|spread\|bleed&quot;</code> </td>
+	<td> <code>data-reach=&quot;inset\|spread\|bleed&quot;</code> </td>
+</tr>
+</tbody>
+</table>
+
+<p>The axis controls how far content reaches, and the attribute now says so. The
+mode formerly called <code>frame</code> is <code>inset</code>, so the element and its state never
+collide on one word: <code>&lt;main class=&quot;frame&quot; data-reach=&quot;spread&quot;&gt;</code>.</p>
+
+<h3 id="breaking—snippets">Breaking — snippets</h3>
+
+<table>
+<colgroup>
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Old </th>
+	<th> New </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <code>snippet('codey/layout', …)</code> </td>
+	<td> <code>snippet('codey/frame', …)</code> </td>
+</tr>
+<tr>
+	<td> <code>codey/layouts-hero.php</code> </td>
+	<td> <code>codey/frame-hero.php</code> (reserved, not yet wired up) </td>
+</tr>
+<tr>
+	<td> <code>codey/layouts-full.php</code> </td>
+	<td> <em>removed</em> — referenced nowhere; differed from <code>codey/layouts</code> by a wrapper element </td>
+</tr>
+</tbody>
+</table>
+
+<p><code>codey/frame</code> takes <code>reach</code> where it used to take <code>mode</code>. There is no
+compatibility shim: the old file is gone, so a stale <code>snippet('codey/layout')</code>
+call fails loudly rather than silently rendering nothing.</p>
+
+<p><code>codey/layouts.php</code> keeps its name — it renders a Kirby <strong>layout field</strong>, so the
+Kirby word is correct there.</p>
+
+<h3 id="breaking—customproperties">Breaking — custom properties</h3>
+
+<p><strong>Core</strong> (<code>assets/css/codey/**</code>)</p>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Old </th>
+	<th> New </th>
+	<th> Notes </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <code>--gutter</code> </td>
+	<td> <code>--grid-gap</code> </td>
+	<td> It was a grid <em>gap</em>, not a gutter. </td>
+</tr>
+<tr>
+	<td> <code>--layout-gutter</code> </td>
+	<td> <code>--frame-gutter-current</code> </td>
+	<td> Scoped alias of <code>--frame-gutter</code>. </td>
+</tr>
+<tr>
+	<td> <code>--layout-measure</code> </td>
+	<td> <code>--measure-page</code> </td>
+	<td> </td>
+</tr>
+<tr>
+	<td> <code>--columns</code> </td>
+	<td> <code>--span</code> </td>
+	<td> Sits on <code>.column</code>; it is a span, not a count of columns. </td>
+</tr>
+<tr>
+	<td> <code>--main-pt</code> / <code>--main-pb</code> </td>
+	<td> <code>--pad-block-start</code> / <code>--pad-block-end</code> </td>
+	<td> </td>
+</tr>
+<tr>
+	<td> <code>--w</code> / <code>--h</code> </td>
+	<td> <code>--ratio-w</code> / <code>--ratio-h</code> </td>
+	<td> Aspect-ratio media boxes. </td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>Seed</strong> (<code>assets/css/brand/**</code> — a project owns these; update in place)</p>
+
+<table>
+<colgroup>
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Old </th>
+	<th> New </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <code>--body-font</code> </td>
+	<td> <code>--font-body</code> </td>
+</tr>
+<tr>
+	<td> <code>--bodymed-font</code> </td>
+	<td> <code>--font-body-medium</code> </td>
+</tr>
+<tr>
+	<td> <code>--head-font</code> </td>
+	<td> <code>--font-head</code> </td>
+</tr>
+<tr>
+	<td> <code>--med-font</code> </td>
+	<td> <code>--font-subhead</code> </td>
+</tr>
+<tr>
+	<td> <code>--ital-font</code> </td>
+	<td> <code>--font-italic</code> </td>
+</tr>
+<tr>
+	<td> <code>--mono-font</code> </td>
+	<td> <code>--font-mono</code> </td>
+</tr>
+<tr>
+	<td> <code>--body-weight</code> </td>
+	<td> <code>--weight-body</code> </td>
+</tr>
+<tr>
+	<td> <code>--bodymed-weight</code> </td>
+	<td> <code>--weight-body-medium</code> </td>
+</tr>
+<tr>
+	<td> <code>--head-weight</code> </td>
+	<td> <code>--weight-head</code> </td>
+</tr>
+<tr>
+	<td> <code>--med-weight</code> </td>
+	<td> <code>--weight-subhead</code> </td>
+</tr>
+<tr>
+	<td> <code>--mono-weight</code> </td>
+	<td> <code>--weight-mono</code> </td>
+</tr>
+<tr>
+	<td> <code>--leading-mid</code> </td>
+	<td> <code>--leading-subhead</code> </td>
+</tr>
+<tr>
+	<td> <code>--leading-mad</code> </td>
+	<td> <code>--leading-headline</code> </td>
+</tr>
+<tr>
+	<td> <code>--leading-head</code> </td>
+	<td> <code>--leading-headline-open</code> </td>
+</tr>
+</tbody>
+</table>
+
+<p>Font <strong>families</strong> moved into Tailwind&#8217;s <code>--font-*</code> namespace, so they now
+generate real <code>font-body</code> / <code>font-head</code> utilities, which the old names could not.
+<strong>Weights</strong> deliberately did <em>not</em> become <code>--font-weight-*</code>: that namespace also
+emits <code>font-{name}</code>, which would collide with the family&#8217;s own utility. They are
+plain <code>--weight-*</code> vars, consumed by rules rather than utilities.</p>
+
+<p>One consequence worth knowing: naming the mono token <code>--font-mono</code> hooks it into
+Tailwind&#8217;s built-in <code>--default-mono-font-family</code>, so preflight now styles
+<code>code</code>/<code>kbd</code>/<code>pre</code> from the same token the typographic base uses. The resolved
+value is unchanged out of the box.</p>
+
+<h3 id="removed">Removed</h3>
+
+<table>
+<colgroup>
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Token </th>
+	<th> Why </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <code>--padding</code> </td>
+	<td> Declared in <code>@theme</code>, read by nothing. Squatted a generic name. </td>
+</tr>
+<tr>
+	<td> <code>--note-width</code> </td>
+	<td> Declared, read by nothing. Also collided with the <code>note</code> page type. </td>
+</tr>
+<tr>
+	<td> <code>--leading-tight</code> </td>
+	<td> <code>23.5px</code> — the only unit in a set of unitless ratios, and read by nothing. A line-height with a unit stops scaling with its font-size. </td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="fixed">Fixed</h3>
+
+<ul>
+<li><strong><code>blocks/heading.yml</code> offered a class option <code>mysans</code> that matched no CSS
+rule.</strong> An editor could pick it and nothing happened, silently. The option is
+now <code>subhead</code> and resolves. No content migration needed — nothing had used it.</li>
+</ul>
+
+<h3 id="changed—values">Changed — values</h3>
+
+<ul>
+<li><code>--leading-headline-open</code> is <code>1.08</code>, where the <code>--leading-head</code> it replaces was
+<code>1.1</code>. <code>h1</code> and <code>.up-step</code> render very slightly tighter.</li>
+</ul>
+
+<h3 id="changed—build">Changed — build</h3>
+
+<p><code>main.css</code> now imports Tailwind with <code>source(none)</code> and lists every scanned path
+explicitly. Automatic content detection was sweeping the whole tree and minting
+utilities out of English words in CSS comments and docs — <code>.uppercase</code>, <code>.ring</code>,
+<code>.filter</code>, <code>.resize</code>, <code>.invisible</code> — none referenced by any markup. Removing them
+halved the bundle (Codey 25,759 → 13,074 bytes; Rosie 29,659 → 18,067).</p>
+
+<p>If you add a directory that markup or content lives in, it now needs its own
+<code>@source</code> line. Nothing is scanned implicitly any more.</p>
+
+<h3 id="contentmigration">Content migration</h3>
+
+<p>The grid device names are the layout field&#8217;s stored <code>theme</code> values, so existing
+content must be rewritten:</p>
+
+<pre><code>&quot;theme&quot;:&quot;plain-blocks&quot;         →  &quot;theme&quot;:&quot;grid-plain&quot;
+&quot;theme&quot;:&quot;plain-blocks-padded&quot;  →  &quot;theme&quot;:&quot;grid-plain-padded&quot;
+&quot;theme&quot;:&quot;card-blocks&quot;          →  &quot;theme&quot;:&quot;grid-cards&quot;
+&quot;theme&quot;:&quot;full-bleed-grid&quot;      →  &quot;theme&quot;:&quot;grid-bleed&quot;
+</code></pre>
+
+<p><code>build/content</code> is gitignored — back it up before running this.</p>
+
+<h3 id="unchangeddeliberately">Unchanged, deliberately</h3>
+
+<p><strong>Kirby&#8217;s vocabulary is untouched.</strong> The <code>layout</code> field type, <code>$page-&gt;layout()</code>,
+<code>$layout-&gt;columns()</code>, <code>$column-&gt;span()</code>, <code>blueprints/fields/layout.yml</code> and
+<code>codey/layouts.php</code> all keep their names.</p>
+
+<p>The layout row&#8217;s attr <strong>key</strong> is still <code>theme</code> even though it selects a grid
+device — renaming it to <code>grid</code> is deferred, since it would need a second content
+migration. Its <em>values</em> changed (above); the key did not.</p>
+
+<p><code>.track</code>, <code>.bleed</code>, <code>.column</code> and <code>.text</code> are unchanged. <code>.text</code> is a project
+hook that core deliberately leaves unstyled.</p>
+
+<h3 id="documentation">Documentation</h3>
+
+<p>The two axes are renamed in every doc and comment. In CSS Grid every row and
+every column is a <strong>track</strong>, so &#8220;track&#8221; was never one axis&#8217;s name — it is what
+both are made of:</p>
+
+<table>
+<colgroup>
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Old </th>
+	<th> New </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> Skeleton axis (vertical) </td>
+	<td> <strong>Row axis</strong> — <code>&lt;body&gt;</code> row tracks: header / main / footer </td>
+</tr>
+<tr>
+	<td> Track axis (horizontal) </td>
+	<td> <strong>Column axis</strong> — <code>.frame</code> column tracks, named: full / content </td>
+</tr>
+</tbody>
+</table>
+
+</body>
+</html>
+

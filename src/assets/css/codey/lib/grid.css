@@ -95,14 +95,21 @@
    the row going edge-to-edge, so the frame widens and the content doesn't:
      • the image block's <figure> is `items-center`, which REPLACES the flex
        default of stretch, so <picture> shrink-wraps;
-     • its <img> carries `max-w-full` — a cap, which can never fill;
-     • its `sizes="(min-width: 900px) 80vw, 90vw"` makes 80vw the image's
-       INTRINSIC width, because a w-descriptor srcset divides natural size by
-       (candidate ÷ sizes). That is the width that actually wins today.
+     • its <img> carries `max-w-full` — a cap, which can never fill.
    Scoped to this device on purpose: framed rows still want shrink-to-fit.
-   The `sizes` value remains a RESOLUTION issue here — the browser picks a
-   candidate for 80vw and upscales it into a 100vw slot. Fixing that needs the
-   row theme passed down to the block (layouts.php already has $layoutTheme). */
+
+   RESOLUTION, previously an open problem here, is fixed. This comment used to
+   say the block's hardcoded `sizes="80vw"` made the browser pick a candidate
+   for 80vw and upscale it into a 100vw slot, and that fixing it needed the row
+   theme threaded down to the block. It does not. The block now declares
+   `sizes="auto"` (codey/blocks/image.php), so the browser MEASURES the laid-out
+   width and selects against that — the same answer by measurement instead of by
+   prediction, with no coupling between a block and the grid device it sits in.
+   Threading the theme was rejected precisely because it would create that
+   coupling, in a model whose two axes exist to keep it out.
+
+   A hero belongs in the `hero` block, not here: it needs eager loading and a
+   flat 100vw, which `sizes="auto"` cannot give (auto requires lazy). */
 .grid-bleed figure            { align-items: stretch; }
 .grid-bleed :is(picture, img) { width: 100%; }
 
