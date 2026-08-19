@@ -1,0 +1,54 @@
+##
+# Hero block — full-screen image, edge to edge.
+#
+# Deliberately NOT a variant of the image block: a hero is the LCP element and
+# needs eager loading + high fetchpriority + a flat 100vw `sizes`, while the
+# image block needs lazy loading for its sizes="auto" measurement. Opposite on
+# every axis, so they are separate blocks. See snippets/blocks/hero.php.
+#
+# Kirby files only — no remote-URL option. Without a Kirby file there are no
+# thumbs, so a hero would ship one untouched master at full size.
+##
+name: Hero image
+icon: image
+preview: image
+fields:
+  image:
+    label: Image
+    type: files
+    multiple: false
+    help: "Use a master at least 2560px wide — Kirby does not upscale, so a smaller file caps the srcset ladder short of its top steps."
+  alt:
+    label: Alternative text
+    type: text
+  caption:
+    label: Caption
+    type: writer
+    inline: true
+  height:
+    label: Height
+    type: select
+    default: viewport
+    empty: false
+    width: 1/2
+    options:
+      - value: viewport
+        text: Full screen — fills the viewport
+      - value: tall
+        text: Tall — 70% of the viewport
+      - value: natural
+        text: Natural — the image's own aspect ratio
+  position:
+    label: Focal point
+    type: select
+    default: center
+    empty: false
+    width: 1/2
+    help: "Which part of the image survives the crop. Ignored at natural height, where nothing is cropped."
+    options:
+      - value: center
+        text: Centre
+      - value: top
+        text: Top
+      - value: bottom
+        text: Bottom

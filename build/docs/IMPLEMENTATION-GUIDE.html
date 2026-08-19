@@ -458,8 +458,9 @@ main all cap to the same measure so they stay edge-aligned.</li>
 that default plus children opting out individually — the absence of rules for
 those two is the design, not an omission.</p>
 
-<p><strong>Vertical rhythm</strong> — <code>data-pad</code> on the layout root, a 3-step scale:
-<code>narrow</code> / <code>medium</code> / <code>large</code> set <code>--pad-block-start</code> / <code>--pad-block-end</code> padding.</p>
+<p><strong>Vertical rhythm</strong> — <code>data-pad</code> on the layout root, a 4-step scale:
+<code>none</code> / <code>narrow</code> / <code>medium</code> / <code>large</code> set <code>--pad-block-start</code> / <code>--pad-block-end</code>
+padding. <code>none</code> (alias <code>zero</code>) sets both to <code>0</code> — flush to header and footer.</p>
 
 <p><strong>Nested containers</strong> — <code>.track</code> uses <code>grid-template-columns: subgrid</code> to inherit
 the page&#8217;s column tracks while running its own rows; <code>.track.bleed</code> spans full.</p>
@@ -819,7 +820,9 @@ e.g. a project <code>site/snippets/codey/header.php</code> — without touching 
 
 <ul>
 <li><p><code>head</code> — <code>'default'</code> or <code>'hidden'</code> (hidden = a noindex <code>&lt;head&gt;</code> variant).</p></li>
-<li><p><code>pad</code> — <code>'narrow' | 'medium' | 'large'</code> → <code>&lt;main&gt;</code> vertical rhythm (<code>data-pad</code>).</p></li>
+<li><p><p><code>pad</code> — <code>'none' | 'narrow' | 'medium' | 'large'</code> → <code>&lt;main&gt;</code> vertical rhythm</p>
+
+<p>(<code>data-pad</code>). <code>'zero'</code> is an accepted alias of <code>'none'</code>.</p></p></li>
 <li><p><code>mode</code> — <code>'spread' | 'bleed' | 'frame'</code> → <code>.frame</code> track mode (<code>data-reach</code>),</p>
 
 <p>defaulting to <code>spread</code>. See §10 for what each means and why only <code>bleed</code>
@@ -1131,9 +1134,9 @@ them from <code>_brand.css</code>.</li>
 	<td> page mode; only <code>bleed</code> has a rule (gutter → 0) </td>
 </tr>
 <tr>
-	<td> <code>data-pad=&quot;narrow\|medium\|large&quot;</code> </td>
+	<td> <code>data-pad=&quot;none\|narrow\|medium\|large&quot;</code> </td>
 	<td> <code>.frame</code> </td>
-	<td> vertical rhythm on <code>&lt;main&gt;</code>    </td>
+	<td> vertical rhythm on <code>&lt;main&gt;</code> (<code>none</code> = 0) </td>
 </tr>
 <tr>
 	<td> <code>.bleed</code>    </td>

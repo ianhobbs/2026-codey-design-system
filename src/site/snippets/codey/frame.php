@@ -10,7 +10,7 @@
      *   <?php endsnippet() ?>
      *
      * Params:  head  'default'|'hidden'          which <head> (hidden = noindex)
-     *          pad   'narrow'|'medium'|'large'   <main> vertical rhythm (layout.css)
+     *          pad   'none'|'narrow'|'medium'|'large'   <main> vertical rhythm (layout.css)
      *          reach 'inset'|'spread'|'bleed'    how far content reaches (layout.css)
      * Slots:   default → <main> content;  intro → injected before <main>
      *

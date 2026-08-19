@@ -391,8 +391,9 @@ Only `bleed` carries a rule. `frame` is the default behaviour and `spread` is
 that default plus children opting out individually — the absence of rules for
 those two is the design, not an omission.
 
-**Vertical rhythm** — `data-pad` on the layout root, a 3-step scale:
-`narrow` / `medium` / `large` set `--pad-block-start` / `--pad-block-end` padding.
+**Vertical rhythm** — `data-pad` on the layout root, a 4-step scale:
+`none` / `narrow` / `medium` / `large` set `--pad-block-start` / `--pad-block-end`
+padding. `none` (alias `zero`) sets both to `0` — flush to header and footer.
 
 **Nested containers** — `.track` uses `grid-template-columns: subgrid` to inherit
 the page's column tracks while running its own rows; `.track.bleed` spans full.
@@ -668,7 +669,8 @@ A slot-based two-axis page shell. Templates call it like:
 Params:
 
 - `head` — `'default'` or `'hidden'` (hidden = a noindex `<head>` variant).
-- `pad` — `'narrow' | 'medium' | 'large'` → `<main>` vertical rhythm (`data-pad`).
+- `pad` — `'none' | 'narrow' | 'medium' | 'large'` → `<main>` vertical rhythm
+  (`data-pad`). `'zero'` is an accepted alias of `'none'`.
 - `mode` — `'spread' | 'bleed' | 'frame'` → `.frame` track mode (`data-reach`),
   defaulting to `spread`. See §10 for what each means and why only `bleed`
   carries a rule.
@@ -919,7 +921,7 @@ Also in 2.0:
 |------------------------|-----------------|----------------------------------------------------|
 | `.frame`              | usually `<main>`| the track-axis column grid (content/full)          |
 | `data-reach="frame\|spread\|bleed"` | `.frame` | page mode; only `bleed` has a rule (gutter → 0) |
-| `data-pad="narrow\|medium\|large"` | `.frame` | vertical rhythm on `<main>`               |
+| `data-pad="none\|narrow\|medium\|large"` | `.frame` | vertical rhythm on `<main>` (`none` = 0)  |
 | `.bleed`               | `.frame` child | opt a child out to the full (edge-to-edge) track   |
 | `.grid-plain(-padded)` / `.grid-cards` | layout row | 12-col grid device (grid.css)   |
 | `.grid-bleed`     | layout row      | auto-fit grid, edge to edge — ignores `--span`  |

@@ -96,11 +96,13 @@ header {
    never collide on one word — <main class="frame" data-reach="spread">. */
 [data-reach="bleed"] { --frame-gutter-current: 0; }
 
-/* ── Vertical rhythm — data-pad on the frame root (3-step scale) ── */
+/* ── Vertical rhythm — data-pad on the frame root (4-step scale) ── */
+.frame[data-pad="none"],
+.frame[data-pad="zero"]   { --pad-block-start: 0; --pad-block-end: 0; }
 .frame[data-pad="narrow"] { --pad-block-start: var(--spacing-1); --pad-block-end: var(--spacing-3); }
-.frame[data-pad="medium"] { --pad-block-start: var(--spacing-3); --pad-block-end: var(--spacing-6); }
-.frame[data-pad="large"]  { --pad-block-start: var(--spacing-5); --pad-block-end: var(--spacing-8); }
-.frame[data-pad] { padding-block: var(--pad-block-start, var(--spacing-5)) var(--pad-block-end, var(--spacing-8)); }
+.frame[data-pad="medium"] { --pad-block-start: var(--spacing-3); --pad-block-end: var(--spacing-5); }
+.frame[data-pad="large"]  { --pad-block-start: var(--spacing-4); --pad-block-end: var(--spacing-6); }
+.frame[data-pad] { padding-block: var(--pad-block-start, var(--spacing-3)) var(--pad-block-end, var(--spacing-5)); }
 
 /* ── .track — adopts the frame's COLUMN tracks via subgrid, runs its own
    row tracks. Per-axis subgrid is the whole point: inherit horizontal
