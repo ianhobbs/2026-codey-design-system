@@ -13,7 +13,7 @@ entry claims the number and `package.json` was set back to match.
 
 ---
 
-## 4.1.0 — 2026-08-15
+## 4.1.0 — 2026-08-19
 
 Codey ships its first **block**, and grows the two export zones a block needs.
 Origin: a responsive-image defect found on the Rosie Boylan site, where one
@@ -201,6 +201,33 @@ it couples every block to the grid device it sits in, which is the coupling the
 two-axis model exists to prevent — and `sizes="auto"` gets the same answer by
 measurement. The comment now says so.
 
+### Changed — `data-pad` vertical rhythm scale
+
+`codey/lib/layout.css`. The scale gains a **zero step** and the two upper steps
+were retuned downward. Every page that renders through `codey/frame` sits on
+this scale, so the two retuned steps change spacing on **existing pages**:
+
+| `data-pad` | start | end | was |
+| ---------- | ----- | --- | --- |
+| `none` (alias `zero`) | `0` | `0` | *new* |
+| `narrow` | `--spacing-1` | `--spacing-3` | unchanged |
+| `medium` | `--spacing-3` | `--spacing-5` | `3` / `6` |
+| `large`  | `--spacing-4` | `--spacing-6` | `5` / `8` |
+
+`none` exists because a hero or full-bleed opener wants `<main>` flush against
+the header, and the previous floor (`narrow`) still emitted padding. `zero` is a
+deliberate alias, not a duplicate: the catch-all `.frame[data-pad]` rule feeds
+custom-property *fallbacks*, so an unrecognised token renders silently at the
+fallback rhythm instead of erroring. Accepting both spellings removes the one
+misspelling a hand-authored template is likely to produce.
+
+That same catch-all now falls back to `--spacing-3` / `--spacing-5` — **medium**,
+previously `5` / `8`, which after the retune was larger than `large` itself.
+
+Note `pad` only zeroes `<main>`. The `header` rule keeps
+`padding-block: var(--spacing-1) var(--spacing-8)`, so `pad => 'none'` alone
+does not put content flush against the header.
+
 ### Migration
 
 Core files arrive by export. **The wiring does not** — these paths are outside
@@ -236,6 +263,10 @@ Steps 1–4 are what an existing site needs to *use* the hero. Steps 5–6 are a
 pair — either both or neither, since the snippet without the safelist just
 relocates the silent failure. Step 7 is the srcset bug fix and applies whether
 or not you adopt any of the blocks.
+
+9. **Re-check `pad` on every template** if you adopt the new `layout.css`.
+   `medium` and `large` both shrank; a page that relied on the old values needs
+   the next step up, or its own `--pad-block-*` override in `brand/`.
 
 ---
 

@@ -20,7 +20,7 @@ entry claims the number and <code>package.json</code> was set back to match.</p>
 
 <hr />
 
-<h2 id="4.1.0—2026-08-15">4.1.0 — 2026&#8211;08&#8211;15</h2>
+<h2 id="4.1.0—2026-08-19">4.1.0 — 2026&#8211;08&#8211;19</h2>
 
 <p>Codey ships its first <strong>block</strong>, and grows the two export zones a block needs.
 Origin: a responsive-image defect found on the Rosie Boylan site, where one
@@ -249,6 +249,71 @@ it couples every block to the grid device it sits in, which is the coupling the
 two-axis model exists to prevent — and <code>sizes=&quot;auto&quot;</code> gets the same answer by
 measurement. The comment now says so.</p>
 
+<h3 id="changed—data-padverticalrhythmscale">Changed — <code>data-pad</code> vertical rhythm scale</h3>
+
+<p><code>codey/lib/layout.css</code>. The scale gains a <strong>zero step</strong> and the two upper steps
+were retuned downward. Every page that renders through <code>codey/frame</code> sits on
+this scale, so the two retuned steps change spacing on <strong>existing pages</strong>:</p>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> <code>data-pad</code> </th>
+	<th> start </th>
+	<th> end </th>
+	<th> was </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <code>none</code> (alias <code>zero</code>) </td>
+	<td> <code>0</code> </td>
+	<td> <code>0</code> </td>
+	<td> <em>new</em> </td>
+</tr>
+<tr>
+	<td> <code>narrow</code> </td>
+	<td> <code>--spacing-1</code> </td>
+	<td> <code>--spacing-3</code> </td>
+	<td> unchanged </td>
+</tr>
+<tr>
+	<td> <code>medium</code> </td>
+	<td> <code>--spacing-3</code> </td>
+	<td> <code>--spacing-5</code> </td>
+	<td> <code>3</code> / <code>6</code> </td>
+</tr>
+<tr>
+	<td> <code>large</code> </td>
+	<td> <code>--spacing-4</code> </td>
+	<td> <code>--spacing-6</code> </td>
+	<td> <code>5</code> / <code>8</code> </td>
+</tr>
+</tbody>
+</table>
+
+<p><code>none</code> exists because a hero or full-bleed opener wants <code>&lt;main&gt;</code> flush against
+the header, and the previous floor (<code>narrow</code>) still emitted padding. <code>zero</code> is a
+deliberate alias, not a duplicate: the catch-all <code>.frame[data-pad]</code> rule feeds
+custom-property <em>fallbacks</em>, so an unrecognised token renders silently at the
+fallback rhythm instead of erroring. Accepting both spellings removes the one
+misspelling a hand-authored template is likely to produce.</p>
+
+<p>That same catch-all now falls back to <code>--spacing-3</code> / <code>--spacing-5</code> — <strong>medium</strong>,
+previously <code>5</code> / <code>8</code>, which after the retune was larger than <code>large</code> itself.</p>
+
+<p>Note <code>pad</code> only zeroes <code>&lt;main&gt;</code>. The <code>header</code> rule keeps
+<code>padding-block: var(--spacing-1) var(--spacing-8)</code>, so <code>pad =&gt; 'none'</code> alone
+does not put content flush against the header.</p>
+
 <h3 id="migration">Migration</h3>
 
 <p>Core files arrive by export. <strong>The wiring does not</strong> — these paths are outside
@@ -302,6 +367,12 @@ stale until Tailwind reruns.</li>
 pair — either both or neither, since the snippet without the safelist just
 relocates the silent failure. Step 7 is the srcset bug fix and applies whether
 or not you adopt any of the blocks.</p>
+
+<ol>
+<li><strong>Re-check <code>pad</code> on every template</strong> if you adopt the new <code>layout.css</code>.
+<code>medium</code> and <code>large</code> both shrank; a page that relied on the old values needs
+the next step up, or its own <code>--pad-block-*</code> override in <code>brand/</code>.</li>
+</ol>
 
 <hr />
 

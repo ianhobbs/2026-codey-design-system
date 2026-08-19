@@ -1,6 +1,6 @@
 {
   "name": "codey",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "private": true,
   "description": "Codey — a Kirby design-system starter. Clone it to begin a new project. src/ is the source of truth; the build scripts compile src/assets → build/assets and mirror src/site → build/site.",
   "author": "Ian Hobbs Media",
