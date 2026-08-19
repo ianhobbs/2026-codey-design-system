@@ -17,7 +17,7 @@
     <nav class="menu flex items-center" aria-label="Main Navigation" id="nav-buttons">
       <div class="hidden md:flex items-center nav-bar">
         <?php foreach ($site->children()->listed() as $item): ?>
-        <a<?php e($item->isOpen(), ' aria-current="page"') ?> href="<?= $item->url() ?>" class="nav-bar-item"><?= $item->title()->esc() ?></a>
+        <a<?= $item->isOpen() ? ' aria-current="page"' : '' ?> href="<?= $item->url() ?>" class="nav-bar-item"><?= $item->title()->esc() ?></a>
         <?php endforeach ?>
       </div>
       <button class="nav-toggle md:hidden" aria-label="Toggle navigation" @click="toggle">menu</button>
