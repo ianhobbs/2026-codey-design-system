@@ -42,6 +42,14 @@ footer {
   padding-inline: var(--frame-gutter);
   width: 100%;
 }
+/* Was `flex items-center` as Tailwind utilities on codey/header.php. Same
+   boundary rule as the nav: core markup carries semantic classes only.
+   codey/footer.php also emits .logo, where display:flex is harmless. */
+.logo {
+  display: flex;
+  align-items: center;
+}
+
 header {
   display: flex;
   flex-wrap: wrap;

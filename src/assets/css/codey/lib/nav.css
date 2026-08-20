@@ -1,0 +1,223 @@
+/* ════════════════════════════════════════════════════════════════════
+   CODEY NAV — site navigation (core). Companion to snippets/codey/header.php.
+
+   WHY THIS FILE EXISTS. Until now the nav had no stylesheet at all: .menu,
+   .nav-bar, .nav-toggle and #nav-buttons matched zero rules in this repo or
+   upstream, and the only authored nav CSS anywhere was a right-padding pair
+   in brand/_overrides.css. Everything else arrived by accident — a blanket
+   legacy `a { color: … }` ported from the WordPress theme, and two Tailwind
+   utilities (`font-sans text-sm`) hardcoded onto a CORE snippet.
+
+   That second accident is the boundary violation this file exists to fix. A
+   utility class name is a PROJECT-tier dependency: its breakpoint, its spacing
+   scale, its very existence are project-owned. Core markup carrying one cannot
+   be replaced wholesale on update, which is the one thing core promises. Those
+   two utilities are now --nav-face and --nav-size, declared below.
+
+   NOT in main.css's opt-in list, and deliberately so — same reasoning as
+   lib/hero.css. The opt-in components (transitions, form, accordion, cards)
+   are TOKEN SEEDS you build your own markup on, and nothing breaks while they
+   sit commented out. This file styles markup CORE ITSELF EMITS, so a
+   commented-out import would ship an unstyled nav on every page of every Codey
+   site. A component and its rules travel together.
+
+   TOKEN HOMES — the rule that decides where a --nav-* token lives:
+
+     • DECLARED below, on .nav-bar → structural and typographic defaults. The
+       block owns the default; a project retunes it by writing `.nav-bar { … }`
+       in brand/_overrides.css. Declared without fallbacks, because the block
+       is the thing that defines them. Precedent: lib/hero.css.
+
+     • CONSUMED with a fallback → colour-adjacent semantic aliases, defined on
+       .theme-codey in brand/_theme-codey.css. The fallback is not optional:
+       brand/ is NEVER exported by `npm run codey:export`, so a Codey project
+       whose seed file predates this component must still get a working nav
+       from the core patch alone. Precedent: --section-gap in lib/layout.css.
+
+   A note on the colour values, because the numbers are counter-intuitive. The
+   palette scale runs 0 = DARKEST → 9 = LIGHTEST. The --nav-* aliases were
+   seeded from a dark nav bar, so their shipped values (--nav-text: --color-8)
+   assume a dark background. On a light page they render near-white on white.
+   Core cannot fix that — the values are brand's to own — so every colour here
+   is read through a fallback that degrades to currentColor rather than to an
+   invisible token.
+
+   The mobile drawer (.nav-drawer*) lives at the bottom of this file. Its
+   markup is snippets/codey/mobile-nav.php, rendered from codey/frame.
+   ════════════════════════════════════════════════════════════════════ */
+
+.nav-bar {
+  /* Typographic defaults. Sans is the house default for navigation — it was
+     `font-sans` as a hardcoded utility until this file existed. */
+  --nav-face:     var(--font-sans);
+  --nav-weight:   var(--weight-body);
+  --nav-size:     var(--text-sm);
+  --nav-tracking: 0em;
+
+  /* Item spacing. `gap` rather than the padding-right pair this replaces:
+     gap needs no :last-child exception, so the override disappears rather
+     than moving down a tier. */
+  --nav-gap:      var(--spacing-3);
+  --nav-gap-wide: var(--spacing-4);
+
+  gap: var(--nav-gap);
+
+  font-family:    var(--nav-face);
+  font-weight:    var(--nav-weight);
+  font-size:      var(--nav-size);
+  letter-spacing: var(--nav-tracking);
+}
+
+.nav-bar-item {
+  color: var(--nav-text, currentColor);
+  text-decoration: none;
+}
+
+.nav-bar-item:where(:hover, :focus-visible) {
+  color: var(--nav-text-hover, var(--hover, currentColor));
+}
+
+/* The open page. --nav-item-bg-current has sat unread in brand/_theme-codey.css
+   since extraction; this is its first consumer. Kept as a background rather
+   than an underline so a project can switch to a pill treatment purely from
+   brand/, without touching core. */
+.nav-bar-item[aria-current="page"] {
+  color:      var(--nav-text-current, var(--nav-text, currentColor));
+  background: var(--nav-item-bg-current, transparent);
+}
+
+.nav-toggle {
+  color: var(--nav-toggle-text, var(--nav-text, currentColor));
+  cursor: pointer;
+}
+
+/* ── Responsive switch ──────────────────────────────────────────────────
+   These four rules replace `hidden md:flex` and `md:hidden`, which used to sit
+   as Tailwind utilities on core markup in codey/header.php. 48rem is Tailwind's
+   --breakpoint-md, which brand/_tokens.css does not reset — the same width
+   every `md:` utility in a Codey project uses, so the nav can never disagree
+   with the markup around it. A media CONDITION cannot read a custom property
+   (no browser resolves var() there), so the literal is a necessity, not a
+   preference — this is the one place the "make it a token" instinct fails. */
+.menu {
+  display: flex;
+  align-items: center;
+}
+
+.nav-bar {
+  display: none;            /* narrow: the drawer serves navigation instead */
+}
+
+.nav-toggle {
+  display: inline-flex;
+  align-items: center;
+}
+
+@media (min-width: 48rem) {
+  .nav-bar {
+    --nav-gap: var(--nav-gap-wide);
+    display: flex;
+    align-items: center;
+  }
+  .nav-toggle { display: none; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   MOBILE DRAWER — markup in snippets/codey/mobile-nav.php.
+
+   Wrapper is a full-viewport fixed layer that is `pointer-events: none`, so a
+   closed drawer cannot swallow clicks meant for the page. Only its children
+   take pointer events back. That is why the wrapper carries no x-show: it has
+   nothing to hide, and leaving it in the DOM gives the media query below a
+   single stable element to switch the whole subtree off from.
+
+   Hiding at desktop happens HERE, on the wrapper, and that placement is the
+   load-bearing part. Alpine's x-show writes an inline `display`, and an inline
+   style beats every @layer — so if the drawer were open when the viewport
+   crossed the breakpoint, a rule on the panel would lose. display:none on an
+   ancestor cannot be overridden by a descendant's inline style, so the fight
+   is won by never having it.
+   ════════════════════════════════════════════════════════════════════ */
+
+.nav-drawer {
+  --nav-drawer-width:    min(20rem, 80vw);
+  --nav-drawer-bg:       var(--color-background);
+  --nav-drawer-pad:      var(--spacing-5);
+  --nav-drawer-gap:      var(--spacing-3);
+  --nav-drawer-scrim-bg: oklch(0% 0 0 / 0.45);
+  --nav-drawer-duration: 250ms;
+  --nav-drawer-ease:     cubic-bezier(0.4, 0, 0.2, 1);
+  --nav-drawer-z:        50;
+
+  /* Sign of the off-screen resting position. Flipped by [data-side="left"]
+     below, so the direction is one token rather than a duplicated rule set. */
+  --nav-drawer-offset:   100%;
+
+  position: fixed;
+  inset: 0;
+  z-index: var(--nav-drawer-z);
+  pointer-events: none;
+}
+
+.nav-drawer > * { pointer-events: auto; }
+
+/* Alpine strips x-cloak on init. Until then the scrim would paint a
+   full-viewport 45% black layer over the page, because head.php loads Alpine
+   deferred and x-show has not run yet. Attribute selector out-specifies the
+   bare .nav-drawer rule, so no !important is needed. */
+.nav-drawer[x-cloak] { display: none; }
+
+.nav-drawer[data-side="left"] { --nav-drawer-offset: -100%; }
+
+.nav-drawer-scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--nav-drawer-scrim-bg);
+}
+
+.nav-drawer-panel {
+  position: absolute;
+  inset-block: 0;
+  inset-inline: auto 0;               /* right edge by default */
+  width: var(--nav-drawer-width);
+  padding: var(--nav-drawer-pad);
+  background: var(--nav-drawer-bg);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--nav-drawer-gap);
+  overflow-y: auto;
+
+  font-family: var(--nav-face, var(--font-sans));
+  font-size:   var(--nav-size, var(--text-sm));
+}
+
+.nav-drawer[data-side="left"] .nav-drawer-panel { inset-inline: 0 auto; }
+
+.nav-drawer-item {
+  color: var(--nav-text, currentColor);
+  text-decoration: none;
+}
+
+.nav-drawer-item:where(:hover, :focus-visible),
+.nav-drawer-item[aria-current="page"] {
+  color: var(--nav-text-current, var(--nav-text-hover, currentColor));
+}
+
+.nav-drawer-close {
+  align-self: flex-end;
+  color: var(--nav-toggle-text, var(--nav-text, currentColor));
+  cursor: pointer;
+}
+
+/* Transition classes referenced by the x-transition enter/leave stages in
+   mobile-nav.php. Plain CSS, because Alpine's transition MODIFIERS only offer
+   opacity and scale — neither of which is a slide. Animating `translate`
+   rather than `transform` leaves any future transform on the panel intact. */
+.nav-drawer-anim { transition: translate var(--nav-drawer-duration) var(--nav-drawer-ease); }
+.nav-drawer-out  { translate: var(--nav-drawer-offset) 0; }
+.nav-drawer-in   { translate: 0 0; }
+
+@media (min-width: 48rem) {
+  .nav-drawer { display: none; }
+}

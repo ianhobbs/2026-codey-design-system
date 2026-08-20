@@ -31,9 +31,15 @@
     $headSnippet = (($head ?? 'default') === 'hidden') ? 'head-hidden' : 'head';
 ?>
 <?php snippet($headSnippet) ?>
-<body lang="en" class="<?= $page->theme()->or('theme-codey') ?>" x-data="nav">
+<body lang="en" class="<?= $page->theme()->or('theme-codey') ?>" x-data="disclosure">
 
   <?php snippet('codey/header') ?>
+
+  <?php /* Mobile drawer. A SIBLING of <header>, never a child: layout.css
+           gives <header> a max-width, auto margins and padding-inline, and a
+           position:fixed overlay parented to it would inherit a containing
+           block it has to fight back out of. */ ?>
+  <?php snippet('codey/mobile-nav') ?>
 
   <?= $slots->intro ?? '' ?>
 

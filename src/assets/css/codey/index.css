@@ -18,6 +18,7 @@
    ════════════════════════════════════════════════════════════════════ */
 
 @import "./lib/layout.css"     layer(bespoke); /* two-axis page frame (WHERE a block sits) */
+@import "./lib/nav.css"        layer(bespoke); /* site navigation (header furniture) */
 @import "./lib/grid.css"       layer(bespoke); /* content grid devices (HOW it divides) */
 @import "./lib/typography.css" layer(base);    /* typographic base (Utopia/TW) */
 @import "./lib/elements.css"   layer(base);    /* aspect-ratio media boxes */
