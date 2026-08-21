@@ -36,13 +36,13 @@
 
 .grid-plain {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 0;
 }
 
 .grid-plain-padded {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   /* Literal carried over from the source project. A candidate for the fluid
      scale, but it is a visual decision — retune deliberately, don't
      "harmonise" it into a different look by accident. */
@@ -51,7 +51,7 @@
 
 .grid-cards {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 1.5rem;                                /* see note above */
   background-color: var(--color-1);
   border-radius: var(--radius-lg, 0.5rem);
@@ -63,7 +63,7 @@
   .grid-plain-padded,
   .grid-cards {
     --grid-gap: var(--spacing-4);
-    grid-template-columns: repeat(12, 1fr);
+    grid-template-columns: repeat(12, minmax(0, 1fr));
     gap: var(--grid-gap);
   }
 
