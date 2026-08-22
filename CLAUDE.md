@@ -44,10 +44,13 @@ Every file is in one tier, sorted by **what happens to it on a Codey update** �
 not by who wrote it. Getting this wrong is what broke the first version.
 
 ```text
-CORE — overwritten wholesale on update; a project must never hand-edit it
+CORE — overwritten wholesale on update; a project must never hand-edit it.
+       FIVE zones; scripts/codey-export.mjs's ZONES array is the authority.
   src/assets/css/codey/**       layout/grid/type/element RULES, ZERO brand values
   src/assets/js/codey/**
-  src/site/snippets/codey/**    the layout engine
+  src/site/snippets/codey/**    the layout engine + codey/blocks/** renderers
+  src/site/blueprints/codey/**  Panel schemas for core blocks
+  src/site/config/codey/**      config fragments core owns (srcset ladders)
 
 SEED — shipped once at clone time, then owned by the project forever.
        An update never touches it; it is never accepted back upstream.
@@ -57,6 +60,9 @@ PROJECT — Codey never had it
   src/assets/css/main.css       entry point + the opt-in component list
   src/assets/css/lib/**         generated Utopia scale
   src/site/{templates,controllers,blueprints,config}
+                                minus the codey/ subdirectories above. A block
+                                shim at blueprints/blocks/{type}.yml is PROJECT;
+                                the core file it extends is CORE.
 ```
 
 **The test:** a **value** (font, colour, measure) is SEED. A **rule** (how the grid
@@ -82,10 +88,21 @@ The producing side owns the tooling. In the Rosie Boylan project:
 ```bash
 npm run codey:export             # dry run
 npm run codey:export -- go       # apply here, unstaged, for review
-npm run codey:export -- --drift  # report divergence across the three core zones
+npm run codey:export -- --drift  # report divergence across the five core zones
 ```
 
 It never commits or pushes. Review the unstaged diff here, rebuild, commit yourself.
+
+**The export carries uncommitted work only** — it diffs `HEAD` against the
+producing repo's working tree (or one `--commit <sha>`). A clean tree there
+reports "nothing to export" even while `--drift` lists files as differing. When
+drift has built up across many commits on both sides, `--drift` plus a hand copy
+(after confirming the divergence is one-way) reaches the same unstaged-for-review
+end state. A brand-new core file also needs `git add -N` on the producing side,
+or the patch silently omits it.
+
+**Abbreviation:** this repo is **CDS** (Codey Design System) in conversation and
+in these docs.
 
 Note `docs/IMPLEMENTATION-GUIDE.md` §17 documents a `git pull` / cherry-pick update
 flow — that does not work for clones that severed history, which is all of them.

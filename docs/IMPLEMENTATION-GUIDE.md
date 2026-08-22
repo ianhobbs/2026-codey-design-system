@@ -358,8 +358,8 @@ because they never touch the same property.
 
 **Row axis (vertical).** `<body>` is a grid with three rows —
 `header / main / footer` — using `grid-template-rows: auto 1fr auto`, giving a
-sticky footer (main fills the gap). `header` and `footer` cap to the content
-measure and centre.
+sticky footer (main fills the gap). `footer` caps to the content measure and
+centres; `header` does **not** — see §10.2.
 
 **Column axis (horizontal).** `.frame` (normally on `<main>`) is a named-column
 grid:
@@ -397,6 +397,9 @@ padding. `none` (alias `zero`) sets both to `0` — flush to header and footer.
 
 **Nested containers** — `.track` uses `grid-template-columns: subgrid` to inherit
 the page's column tracks while running its own rows; `.track.bleed` spans full.
+
+**Partial bleed** — a row can reach *part* of the way out instead of choosing
+between framed and edge-to-edge. See §10.2.
 
 ---
 
@@ -444,6 +447,136 @@ identically wherever they appear:
   <div class="column" style="--span: 6">…</div>
 </section>
 ```
+
+## 10.2 Reaching past the measure — `--edge-reach`
+
+`.bleed` is binary: a row is either capped to the measure or flush to the
+viewport edge. `--edge-reach` is the continuous version of the same question —
+a **0–1 knob**, not another named preset:
+
+| Value | Result |
+|---|---|
+| `0` | capped to the content measure (the default everywhere) |
+| `0.3` | 30% of the way from the measure to the viewport edge |
+| `1` | flush to the edge — the same end state `.bleed` reaches |
+
+"Bleed 70%" is `--edge-reach: 0.7`, not a name to look up. Three elements carry
+it: `footer`, `header`/`.head-nav`, and the `.reach-wide` layout row.
+
+### `.reach-wide` — the partial-bleed layout row
+
+The Panel's **Row Width** select (§15.5) writes this class. It reaches ~30% of
+the way out, and its entire rule sits inside `@media (min-width: 780px)` — below
+that the class means nothing and the row is an ordinary framed child.
+
+**That is deliberate, and "just set `--edge-reach: 0`" is not the same thing.**
+At reach `0` the interpolation does hold the *content* in the right place, but
+the row is still placed on the `full` track, so its *box* runs edge to edge —
+invisible on `grid-plain`, obvious on `grid-cards`, which paints a background
+and a radius on that box. No reach has to mean no rule, not a rule evaluating
+to zero.
+
+Retune with `--edge-reach-wide` (default `0.3`):
+
+```css
+@layer bespoke {
+  .frame > .reach-wide { --edge-reach-wide: 0.5; }
+}
+```
+
+What it actually does, on the shipped `82rem` measure:
+
+| Viewport | Framed content | `.reach-wide` content | Gain |
+| --- | --- | --- | --- |
+| ≤ 779px | 337–729px | *(no rule — framed)* | — |
+| 780px | 730px | 745px | +15px |
+| 1280px | 1216px | 1235px | +19px |
+| 1440px | 1312px | 1350px | +38px |
+| 1920px | 1312px | 1494px | +182px |
+| 2560px | 1312px | 1686px | +374px |
+
+Note the shape of that curve. Below roughly 1376px (`--measure-page` plus two
+gutters) the viewport is *narrower than the cap*, so there is no margin to reach
+into and the formula degrades to shrinking the gutter by 30% — a handful of
+pixels. The effect only becomes a real bleed once the viewport exceeds the cap,
+which is exactly when a bleed is worth having. The box never exceeds the
+viewport at any width, so no horizontal scrollbar appears.
+
+Breakpoint note: 780px matches `.head-nav`, **not** `grid.css`'s 60rem column
+switch. Between 780px and 960px a `.reach-wide` row is therefore wider *and*
+still single-column. That is the two-axis model behaving correctly — framing
+and column division are independent — not a mismatch to correct.
+
+The formula is one interpolation, repeated:
+
+```css
+--edge-cap: calc(var(--measure-page) + 2 * var(--frame-gutter));
+max-width:      calc(var(--edge-cap) + (100% - var(--edge-cap)) * var(--edge-reach));
+padding-inline: calc(var(--frame-gutter) * (1 - var(--edge-reach)));
+```
+
+`100%` where the element sits on a grid track; `100dvw` where it does not
+(`header` and `footer` live *outside* `.frame`, so they have no track to
+measure). Prefer the percentage wherever a track exists — `dvw` can include the
+scrollbar gutter on some browser/OS combinations, and a box sized to `100dvw`
+then re-centred overshoots the true edges on both sides at once.
+
+Retune per project in `brand/_overrides.css`, never in core:
+
+```css
+@layer bespoke {
+  header, footer { --edge-reach: 0.3; }
+}
+```
+
+### Why `header` is never capped
+
+`header` is `position: sticky`, and a sticky element's job is to mask
+everything scrolling underneath it. At any reach short of `1`, a *capped*
+header's opaque box stops short of the true viewport edge, leaving a gap either
+side — through which a full-bleed section scrolling up is plainly visible. So
+`header` is now **always `width: 100%`, no cap, ever**, and its background is
+load-bearing rather than decorative.
+
+The inset that used to come from header's own `max-width` moved to
+**`.head-nav`**, the logo/nav row inside it, as padding:
+
+```css
+--edge-base: max(var(--frame-gutter), calc((100dvw - var(--measure-page)) / 2));
+padding-inline: calc(var(--edge-base) * (1 - var(--edge-reach, 0)));
+```
+
+`max()` floors the inset at `--frame-gutter`, so content never sits closer to
+the edge than that even on a viewport narrower than the measure. `--edge-reach`
+is declared on `header` rather than on `.head-nav` so an existing
+`header, footer { --edge-reach: … }` override keeps working — `.head-nav`
+inherits it.
+
+Two companions:
+
+- **`.header-fade`** — a gradient strip nested *inside* `<header>` (not a
+  sibling): `position: sticky` establishes a containing block for absolutely
+  positioned descendants exactly like `position: relative` does, so the fade
+  rides along with the stuck header with no JS measuring its height. Height is
+  `--header-fade-height`; the gradient's opaque end is
+  `--header-background-color`, the same token header itself uses, so the two
+  can never drift apart.
+- **`--header-z`** (default `10`) — stays below `nav.css`'s `--nav-drawer-z`
+  (`50`), so an open mobile drawer covers a stuck header rather than tucking
+  under it.
+
+### Sizing an inlined logo — `--logo-height`
+
+`.logo svg` is constrained by height, with `width: auto` and `display: block`.
+Neither SVG export convention can be trusted on its own: a file with a
+`viewBox` and no `width`/`height` has no intrinsic size and falls back to the
+browser's 300×150 default, while one with `width`/`height` baked in renders at
+whatever the artboard happened to be. Constraining height and letting width
+follow the `viewBox` makes both behave, and gives a project one knob
+(`--logo-height`, default `--spacing-3`) instead of an asset re-export.
+`display: block` kills the inline-level baseline gap under the mark.
+
+---
 
 ---
 
@@ -694,12 +827,12 @@ Closes `<main>`, renders a `<footer>` using the `.grid-12` column system, and
 emits the body-tail JS via `js(['@auto'])`. It's a generic scaffold — replace the
 inner content by shadowing the snippet.
 
-### 15.4 Layout-field renderer — `snippet('codey/frame'')`
+### 15.4 Layout-field renderer — `snippet('codey/layouts')`
 
 Renders a Kirby **layout field** into the content track:
 
 ```php
-<?php snippet('codey/frame'', ['field' => $page->layout()]) ?>
+<?php snippet('codey/layouts', ['field' => $page->layout()]) ?>
 ```
 
 Each layout row becomes:
@@ -711,10 +844,23 @@ Each layout row becomes:
 ```
 
 The row's `theme` attr is emitted as the class, and **that class is the grid** —
-`grid.css` defines the device on it (§10.1). The renderer adds no grid class of
+`grid.css` defines the device on it (§10.1). The renderer invents no class of
 its own, deliberately: choosing the device is the editor's decision in the Panel,
 not the renderer's. Each column carries its Panel width as an inline `--span`,
 which the 12-col devices consume at ≥60rem and `grid-bleed` ignores.
+
+The row's **`reach`** attr is emitted alongside it, from the second Panel
+select — two attrs, two classes, because they answer two independent questions:
+
+```html
+<section class="grid-plain-padded reach-wide" id="…">
+```
+
+`theme` decides how the row divides its width; `reach` decides where the row
+sits on the page's horizontal axis (§10.2). Values are `''` (framed — the
+default, emitting nothing, so an untouched row is byte-identical to its
+pre-field output), `reach-wide`, and `bleed`. The renderer `trim()`s the pair
+so the empty case leaves no trailing space inside `class=""`.
 
 ### 15.5 The layout blueprint field — `fields/layout`
 
@@ -741,10 +887,24 @@ fields:
 >   and pull, or override inline in the page blueprint after `extends:`.
 
 It provides a layout field with column presets (`1/1`, `1/2,1/2`, `1/3,1/3,1/3`,
-`1/4×4`, `2/3,1/3`, `1/3,2/3`), two per-row settings — a **Width** select
-(`frame` / `spread` / `bleed`, §10.1) and a **Layout Theme** select
-(`grid-plain` / `grid-plain-padded` / `grid-cards`) — and a generic fieldset
-set (heading, text, image, line, list, markdown, quote, gallery, code).
+`1/4×4`, `2/3,1/3`, `1/3,2/3`), a generic fieldset set (heading, text, image,
+line, list, markdown, quote, gallery, code), and **two per-row settings — one
+per axis**:
+
+| Setting | Values | Axis |
+| --- | --- | --- |
+| **Layout Theme** (`theme`) | `grid-plain` · `grid-plain-padded` · `grid-cards` · `grid-bleed` | how the row divides its width into columns (§10.1) |
+| **Row Width** (`reach`) | *(framed)* · `reach-wide` · `bleed` | where the row sits on the page's horizontal axis (§10.2) |
+
+They are two selects rather than one because they are genuinely independent —
+folding "wide" into `theme` would double the option list and merge the two axes
+the whole model exists to keep apart. Both values *are* class names; the
+renderer concatenates them (§15.4) and adds nothing.
+
+Picking `grid-bleed` **and** `reach-wide` together is reachable from the Panel
+and resolves to a centred, partially-bled auto-fit grid — source order in
+`layout.css` is arranged so it lands on the coherent reading rather than a
+capped row pinned left.
 
 ### 15.6 Templates — `default` · `home` · `note` · `notes`
 
@@ -755,7 +915,7 @@ renderer together:
 ```php
 <?php snippet('codey/frame', ['pad' => 'large'], slots: true) ?>
   <?php slot() ?>
-    <?php snippet('codey/frame'', ['field' => $page->layout()]) ?>
+    <?php snippet('codey/layouts', ['field' => $page->layout()]) ?>
   <?php endslot() ?>
 <?php endsnippet() ?>
 ```
@@ -820,10 +980,33 @@ npm run codey:export -- go        # apply upstream, unstaged, for human review
 npm run codey:export -- --drift   # how far have the core zones drifted?
 ```
 
-It exports only the three core zones (`src/assets/css/codey/`,
-`src/assets/js/codey/`, `src/site/snippets/codey/`), never commits, never pushes,
-refuses deletions, and warns when a file has diverged upstream — because a clean
-apply is not necessarily a correct apply.
+It exports only the **five** core zones — `src/assets/css/codey/`,
+`src/assets/js/codey/`, `src/site/snippets/codey/`,
+`src/site/blueprints/codey/`, `src/site/config/codey/` — never commits, never
+pushes, refuses deletions, and warns when a file has diverged upstream, because
+a clean apply is not necessarily a correct apply. The script's `ZONES` array is
+the authority; this list follows it.
+
+The last two zones arrived with the first core **block** (4.1.0). A block is not
+one artefact but three — a renderer, a Panel schema and rules — and Kirby
+resolves blocks at fixed paths (`snippets/blocks/{type}.php`,
+`blueprints/blocks/{type}.yml`) which *cannot* be core zones, since a project
+must stay free to add its own blocks there and a `kirby` CLI scaffold writes
+straight into them. So core files sit under a `codey/` subdirectory and each
+project keeps a one-line shim at the path Kirby expects. That shim is the seam:
+replace its body and the block stops tracking Codey.
+
+**Two limits of the export**, both worth knowing before trusting it:
+
+- It carries **uncommitted work only** — the patch is `git diff HEAD` (or one
+  `--commit <sha>`). A clean tree reports "nothing to export" even while
+  `--drift` lists files as differing. Where drift has accumulated across many
+  commits on both sides, use `--drift`, confirm the divergence runs one way,
+  then copy the file across and review `git diff` upstream — the same
+  unstaged-for-review end state the script produces.
+- A **new** core file must be `git add -N`ed first. The patch is built from the
+  diff, so an untracked file is silently omitted and the export reports success
+  having carried nothing.
 
 To pull a newer Codey *into* an existing project, diff the core zones by hand and
 copy across; there is deliberately no automated import. If you need many live sites
@@ -923,10 +1106,20 @@ Also in 2.0:
 | `data-reach="frame\|spread\|bleed"` | `.frame` | page mode; only `bleed` has a rule (gutter → 0) |
 | `data-pad="none\|narrow\|medium\|large"` | `.frame` | vertical rhythm on `<main>` (`none` = 0)  |
 | `.bleed`               | `.frame` child | opt a child out to the full (edge-to-edge) track   |
+| `.reach-wide`          | `.frame` child | partial bleed: ~30% of the way out, ≥780px only (§10.2) |
 | `.grid-plain(-padded)` / `.grid-cards` | layout row | 12-col grid device (grid.css)   |
 | `.grid-bleed`     | layout row      | auto-fit grid, edge to edge — ignores `--span`  |
 | `.track` / `.track.bleed` | nested        | subgrid container inheriting page columns          |
 | `.grid-12`         | section         | 12-track content grid (pairs with layout renderer) |
 | `.column` + `--span`| `.grid-12` child | span N of 12 tracks (stacks below 60rem)     |
+| `.head-nav`            | inside `header` | the logo/nav row; carries header's inline inset    |
+| `.header-fade`         | inside `header` | gradient strip under the sticky band               |
 | `--frame-gutter`       | `:root`/override| side gutter width                                  |
 | `--measure-page`     | `:root`/override| max content width (default 82rem)                  |
+| `--edge-reach`   | `header`/`footer`/`.reach-wide` | 0–1: how far past the measure (0 = capped, 1 = flush) |
+| `--edge-reach-wide`    | `.reach-wide`   | the `.reach-wide` preset's value (default `0.3`)   |
+| `--header-z`           | `header`        | stacking order; stays below `--nav-drawer-z` (50)  |
+| `--header-background-color` | `header`   | the stuck band's backing; also `.header-fade`'s opaque end |
+| `--header-fade-height` | `.header-fade`  | fade depth (default `1.3rem`)                      |
+| `--logo-height`        | `.logo`         | inlined logo SVG height (default `--spacing-3`)    |
+| `--section-gap`        | `.frame`        | row-gap between layout rows (default `--spacing-6`) |

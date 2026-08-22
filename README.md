@@ -149,7 +149,7 @@ up. Full detail in [deploy/README.md](deploy/README.md).
 
 - **Page shell** — `snippet('codey/frame', ['pad' => 'large'], slots: true)` wraps
   a page (two-axis frame; `pad` sets vertical rhythm, `mode` sets the track).
-- **Layout field** — `snippet('codey/frame'', ['field' => $page->layout()])`
+- **Layout field** — `snippet('codey/layouts', ['field' => $page->layout()])`
   renders a Kirby layout field into the content track.
 - **Panel field** — `extends: fields/layout` (and `fields/cover`) in a page blueprint.
 - **Grids** — the layout row's theme class *is* the grid: `grid-plain` ·

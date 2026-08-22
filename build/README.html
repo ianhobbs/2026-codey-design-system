@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1 id="codey">Codey</h1>
+
+<p>A Kirby design-system <strong>starter</strong>. You don&#8217;t install Codey into a project — Codey
+<em>is</em> the project. Clone it to begin a new site; it ships with the layout engine,
+CSS token system, blocks and starter templates already wired, and a normal
+<code>src/</code> → <code>build/</code> toolchain (Tailwind v4 + Alpine, compiled by CodeKit or npm).</p>
+
+<p>Delivery is pure Git, modelled on <a href="https://github.com/tobimori/kirby-baukasten">kirby-baukasten</a>:
+clone, install, build, run.</p>
+
+<hr />
+
+<h2 id="quickstart">Quickstart</h2>
+
+<pre><code class="bash"># 1. start a project from Codey
+git clone ianhobbs/2026-codey-design-system my-site &amp;&amp; cd my-site
+
+# 2. detach from the template — this clone is your project's own repo,
+
+rm -rf .git &amp;&amp; git init
+
+# 3. front-end deps
+npm install
+
+# 4. one-shot setup: composer install (Kirby) + seed content + build
+npm run setup
+
+# 5. run it
+npm run serve       # → http://localhost:8000  (Panel at /panel)
+</code></pre>
+
+<p><code>npm run setup</code> is <code>composer install</code> (Kirby into <code>build/</code>) → <code>npm run seed</code>
+(starter content) → <code>npm run build</code> (compile <code>src/assets → build/assets</code>, mirror
+<code>src/site → build/site</code>). While working, let CodeKit watch <code>src/</code>, or run
+<code>npm run css:watch</code> for live CSS. Note: CodeKit ignores <code>main.css</code> — that one is
+compiled by Tailwind (<code>npm run css</code>); CodeKit handles the <code>src → build</code> mirror.</p>
+
+<hr />
+
+<h2 id="howitslaidout">How it&#8217;s laid out</h2>
+
+<p><code>src/</code> is the <strong>single source of truth</strong> — you only ever edit <code>src/</code>. The build
+compiles it into <code>build/</code>, which Kirby serves.</p>
+
+<p><strong>Git hygiene</strong> (the server runs this repo directly, so compiled output is
+committed):</p>
+
+<ul>
+<li><strong>Committed:</strong> <code>src/**</code>, the compiled <code>build/assets/{css,js}</code> and the
+<code>build/site/**</code> mirror, and the <code>build/</code> bootstrap (<code>composer.json</code>, <code>index.php</code>,
+<code>.htaccess</code>). Rebuild after editing <code>src/</code> with <code>npm run build</code>.</li>
+<li><strong>Gitignored — Composer installs it:</strong> <code>build/kirby</code>, <code>build/vendor</code>,
+<code>build/site/plugins</code>. The server runs <code>composer install</code>.</li>
+<li><strong>Gitignored — rsynced separately:</strong> fonts and image/video binaries
+(<code>src/assets/fonts</code>, <code>*.woff2</code>, <code>*.png</code>, …).</li>
+<li><strong>Gitignored — runtime data:</strong> <code>build/content</code> (seed it from the committed
+<code>sample-content/</code> via <code>npm run seed</code>), <code>build/media</code>, caches, sessions.</li>
+</ul>
+
+<pre><code>src/
+  assets/
+    css/
+      main.css        ← YOURS — the entry Tailwind compiles
+      _brand.css      ← YOURS — brand tokens, fonts, overrides (wins over core)
+      codey/          ← CODEY CORE — versioned, do not edit
+        index.css       tokens (@theme), globals, default theme, lib/*
+        theme.css  globals.css  themes/  palettes/  lib/  templates/
+    js/codey/alpine.js  ← CODEY CORE
+    fonts/              ← project fonts (binaries rsynced, gitignored)
+  site/
+    snippets/codey/*    ← CODEY CORE — layout engine (layout, layouts, header, footer, card)
+    snippets/*.php      ← YOURS — starter head, cover-image, intro, prevnext, …
+    templates/*.php     ← YOURS — starter home, default, note(s)
+    blueprints/         ← blocks, fields (layout/cover), pages
+    controllers/        ← YOURS — starter notes/note
+    config/config.php   ← YOURS
+build/
+  composer.json  index.php  .htaccess   ← committed bootstrap (Composer installs Kirby here)
+  assets/  site/                         ← COMPILED from src/ — committed (server runs the repo)
+  kirby/  vendor/  site/plugins/         ← Composer-installed — gitignored
+  content/                               ← runtime data — gitignored (seed from sample-content/)
+sample-content/                          ← committed starter pages (npm run seed → build/content)
+package.json  config.codekit3  scripts/  docs/
+</code></pre>
+
+<hr />
+
+<h2 id="theonerule">The one rule</h2>
+
+<p><strong>Edit <code>src/</code>, never <code>build/</code>.</strong> Beyond that, every file sits in one of three
+tiers — sorted by <em>what happens on a Codey update</em>, not by who wrote it:</p>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Tier </th>
+	<th> On a Codey update </th>
+	<th> Where it lives </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <strong>CORE</strong> </td>
+	<td> overwritten wholesale </td>
+	<td> <code>src/assets/css/codey/**</code>, <code>src/assets/js/codey/**</code>, <code>src/site/snippets/codey/**</code> </td>
+</tr>
+<tr>
+	<td> <strong>SEED</strong> </td>
+	<td> never touched — Codey ships it once, you own it forever </td>
+	<td> <code>src/assets/css/brand/**</code> </td>
+</tr>
+<tr>
+	<td> <strong>PROJECT</strong> </td>
+	<td> Codey never had it </td>
+	<td> <code>src/assets/css/main.css</code>, <code>src/assets/js/**</code>, <code>src/site/{templates,snippets,controllers,blueprints,config}</code> </td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>The practical test:</strong> changing a <strong>value</strong> (a font, a colour, a measure) is a
+SEED edit — do it in <code>src/assets/css/brand/</code>. Changing a <strong>rule</strong> (how the grid
+resolves, how a block bleeds) is a CORE fix — do it in <code>codey/</code> and export it
+upstream so every Codey site benefits.</p>
+
+<p>CORE contains no brand values at all, which is what makes the rule checkable:
+<strong>any diff under <code>codey/</code> is either a core fix worth exporting, or a mistake.</strong></p>
+
+<p>The seed files:</p>
+
+<table>
+<colgroup>
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> File </th>
+	<th> What it holds </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <code>brand/tokens.css</code> </td>
+	<td> <code>@theme</code> type/space ramp + font tokens </td>
+</tr>
+<tr>
+	<td> <code>brand/globals.css</code> </td>
+	<td> <code>:root</code> globals, <code>@font-face</code> </td>
+</tr>
+<tr>
+	<td> <code>brand/theme-codey.css</code> </td>
+	<td> default colour flavour (semantic aliases) </td>
+</tr>
+<tr>
+	<td> <code>brand/palette-codey.css</code> </td>
+	<td> the shipped sample palette </td>
+</tr>
+<tr>
+	<td> <code>brand/palette.css</code> </td>
+	<td> your generated palette (<code>npm run palette</code>) </td>
+</tr>
+<tr>
+	<td> <code>brand/overrides.css</code> </td>
+	<td> loaded last — always wins </td>
+</tr>
+</tbody>
+</table>
+
+<blockquote>
+<p><strong>Earlier versions filed seed files under core</strong> (<code>codey/theme.css</code>,
+<code>codey/globals.css</code>), which made &#8220;don&#8217;t edit <code>codey/</code>&#8221; impossible to obey —
+the fonts had to go somewhere. Moving them to <code>brand/</code> is what makes the
+boundary true rather than aspirational.</p>
+</blockquote>
+
+<blockquote>
+<p><strong>Core boundary is by convention, not lock.</strong> Because Codey is cloned (not
+updated in place), the <code>codey/</code> folders mark what to leave alone so a future
+merge stays clean. If you later want several live sites to pull Codey updates in
+place, the layout engine under <code>snippets/codey/</code> can be promoted into an
+auto-loaded <code>site/plugins/codey/</code> — a mechanical change, documented in
+<a href="docs/ARCHITECTURE.md">docs/ARCHITECTURE.md</a>.</p>
+</blockquote>
+
+<hr />
+
+<h2 id="deploying">Deploying</h2>
+
+<p>Git + Composer ship the code; rsync carries only what they don&#8217;t. Set your server
+once, then push/pull:</p>
+
+<pre><code class="bash">cp deploy/deploy.config.example.sh deploy/deploy.config.sh   # fill in REMOTE / PORT / paths
+./deploy/deploy.sh pull content go     # server → local (content, accounts, licenses)
+./deploy/deploy.sh push go             # local → server (fonts + images)
+./deploy/deploy.sh glue go             # local → server (env / secrets, outside web root)
+</code></pre>
+
+<p><code>deploy.config.sh</code> and everything in <code>glue/</code> are gitignored. Content, accounts and
+licenses live on the server and are pulled down; fonts, images and env are pushed
+up. Full detail in <a href="deploy/README.md">deploy/README.md</a>.</p>
+
+<h2 id="usingit">Using it</h2>
+
+<ul>
+<li><strong>Page shell</strong> — <code>snippet('codey/frame', ['pad' =&gt; 'large'], slots: true)</code> wraps
+a page (two-axis frame; <code>pad</code> sets vertical rhythm, <code>mode</code> sets the track).</li>
+<li><strong>Layout field</strong> — <code>snippet('codey/layouts', ['field' =&gt; $page-&gt;layout()])</code>
+renders a Kirby layout field into the content track.</li>
+<li><strong>Panel field</strong> — <code>extends: fields/layout</code> (and <code>fields/cover</code>) in a page blueprint.</li>
+<li><strong>Grids</strong> — the layout row&#8217;s theme class <em>is</em> the grid: <code>grid-plain</code> ·
+<code>grid-plain-padded</code> · <code>grid-cards</code> (12-col family) · <code>grid-bleed</code>
+(auto-fit, edge to edge). Framing is a separate axis in <code>codey/lib/layout.css</code>.</li>
+<li><strong>Colours</strong> — semantic tokens over a <code>0–9</code> scale where <strong>0 is darkest</strong>. Generate
+a brand palette: <code>npm run palette -- --dark &quot;#111318&quot; --light &quot;#f6f8fb&quot; --mid &quot;#c8452f&quot;</code>
+→ writes <code>src/assets/css/_brand-palette.css</code>; import it from <code>_brand.css</code>.</li>
+<li><strong>Type &amp; tokens</strong> — the re-engineered Utopia fluid type/space ramps live in
+<code>codey/theme.css</code>; override any token in <code>_brand.css</code>.</li>
+</ul>
+
+<hr />
+
+<h2 id="clientstyleguide">Client style guide</h2>
+
+<p><code>styleguide-builder/</code> is a self-contained generator that reads the live tokens
+(colours, type, spacing, layouts) straight from <code>src/</code> and builds a static brand
+style guide clients can view.</p>
+
+<pre><code class="bash">npm run styleguide     # installs its deps, extracts tokens, writes build/styleguide/
+</code></pre>
+
+<p>Output lands at <code>build/styleguide/index.php</code> (served at <code>/styleguide/</code>). Re-run it
+after changing tokens or the palette. Configure source paths in
+<code>styleguide-builder/styleguide.config.js</code>.</p>
+
+<hr />
+
+<h2 id="docs">Docs</h2>
+
+<table>
+<colgroup>
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> </th>
+	<th> </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <a href="docs/ARCHITECTURE.md">ARCHITECTURE</a> </td>
+	<td> Why the system is shaped this way; the core/brand boundary; the plugin-promotion path </td>
+</tr>
+<tr>
+	<td> <a href="docs/DESIGN-SYSTEM.md">DESIGN-SYSTEM</a> </td>
+	<td> The CSS core, tokens, layout engine and override model </td>
+</tr>
+<tr>
+	<td> <a href="docs/IMPLEMENTATION-GUIDE.md">IMPLEMENTATION-GUIDE</a> </td>
+	<td> The full manual — every token, element and override </td>
+</tr>
+<tr>
+	<td> <a href="docs/codey-arch.md">codey-arch</a> </td>
+	<td> The two-axis layout + grid architecture (also feeds the style guide) </td>
+</tr>
+<tr>
+	<td> <a href="docs/ROADMAP.md">ROADMAP</a> </td>
+	<td> What&#8217;s done and what&#8217;s next </td>
+</tr>
+<tr>
+	<td> <a href="docs/Theme-Strategy.md">Theme-Strategy</a> </td>
+	<td> The delivery-model survey behind the move to Git </td>
+</tr>
+</tbody>
+</table>
+
+</body>
+</html>
+

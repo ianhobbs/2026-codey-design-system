@@ -20,6 +20,133 @@ entry claims the number and <code>package.json</code> was set back to match.</p>
 
 <hr />
 
+<h2 id="4.2.0—2026-08-22">4.2.0 — 2026&#8211;08&#8211;22</h2>
+
+<p>Everything here came back from <strong>2026-RosieBoy-sharp</strong>, Codey&#8217;s first real
+prototype build. Three fixes had been sitting in that project unexported, and
+one new measure was designed there against a live site. The point of a
+prototype is that it finds what a starter cannot find on its own; treat this
+release as that report.</p>
+
+<h3 id="added—.reach-wideapartialbleed">Added — <code>.reach-wide</code>, a partial bleed</h3>
+
+<p><code>.bleed</code> is binary: a row is either capped to the content measure or flush to
+the viewport edge. Real pages want the space between. <code>.reach-wide</code> reaches
+<strong><sub>30</sub>% of the way out</strong>, at 780px and up.</p>
+
+<pre><code>src/assets/css/codey/lib/layout.css     .frame &gt; .reach-wide
+src/site/blueprints/fields/layout.yml   `reach` select — SECOND per-row axis
+src/site/snippets/codey/layouts.php     emits theme + reach as two classes
+</code></pre>
+
+<p><strong>No new mechanism.</strong> It reuses <code>--edge-reach</code>, the 0–1 knob <code>header</code> and
+<code>footer</code> already carry — 0 capped, 1 flush, anything between a literal fraction
+of the way there. Retune per project with <code>--edge-reach-wide</code> in
+<code>brand/_overrides.css</code>; core never needs editing.</p>
+
+<p><strong>The whole rule lives inside <code>@media (min-width: 780px)</code></strong>, so below that the
+class means nothing and the row is an ordinary framed child. The first cut of
+this instead shipped a base rule with <code>--edge-reach: 0</code> and only raised the
+value in the media query — which looks equivalent and is not. At reach <code>0</code> the
+interpolation does hold the <em>content</em> in the right place, but the row is still
+placed on the <code>full</code> track, so its <em>box</em> runs edge to edge: invisible on
+<code>grid-plain</code>, obvious on <code>grid-cards</code>, which paints a background and a radius on
+that box. <strong>No reach has to mean no rule, not a rule that evaluates to zero.</strong></p>
+
+<p>Worth knowing about the curve: below roughly <code>--measure-page</code> + two gutters
+(<sub>1376px</sub> on the shipped 82rem measure) the viewport is narrower than the cap, so
+there is no margin to reach into and the formula degrades to shrinking the
+gutter by 30% — around +15–19px of content. The effect only becomes a real
+bleed once the viewport exceeds the cap (+182px at 1920, +374px at 2560), which
+is precisely when a bleed is worth having. The box never exceeds the viewport at
+any width, so no horizontal scrollbar appears.</p>
+
+<p><strong>It is a second Panel select, not more <code>theme</code> values.</strong> <code>theme</code> says how a row
+divides its width into columns; <code>reach</code> says where the row sits on the page&#8217;s
+horizontal axis. Those are the two axes the whole model exists to keep apart, so
+folding &#8220;wide&#8221; into <code>theme</code> would have doubled the option list <em>and</em> merged
+them. The renderer concatenates the two class names and still invents nothing.</p>
+
+<p>One detail worth copying elsewhere: <code>.reach-wide</code> interpolates against <code>100%</code>,
+not <code>100dvw</code>, because it sits on the <code>full</code> grid track and therefore has a real
+width to measure. <code>header</code>/<code>footer</code> use <code>dvw</code> only because they live outside
+<code>.frame</code> — and <code>dvw</code> can include the scrollbar gutter, so a box sized to it and
+re-centred overshoots both edges at once. <strong>Prefer percentage-of-track wherever
+a track exists.</strong></p>
+
+<h3 id="fixed—mobilegridregressiongrid.css">Fixed — mobile grid regression (<code>grid.css</code>)</h3>
+
+<p><code>2993b72</code> set out to harden <code>1fr</code> → <code>minmax(0, 1fr)</code> across the 12-column
+family, which was right. It applied the replacement to the <strong>base</strong> rules too,
+where the value was deliberately a single-column <code>1fr</code> — making the base
+identical to the <code>@media (min-width: 60rem)</code> block below it, so the media query
+became a no-op and every <code>.grid-plain</code> / <code>.grid-plain-padded</code> / <code>.grid-cards</code>
+row rendered as 12 tracks on a phone. The hardening is kept; the mobile-first
+base is restored.</p>
+
+<h3 id="fixed—stickyheadercouldnotmaskwhatscrolledunderit">Fixed — sticky header could not mask what scrolled under it</h3>
+
+<p><code>header</code> shared <code>footer</code>&#8217;s <code>max-width</code> + <code>margin-inline: auto</code> rule. For a
+<strong>sticky</strong> element that is wrong at any <code>--edge-reach</code> short of <code>1</code>: the opaque
+band stops short of the true viewport edge, and a full-bleed section scrolling
+up is plainly visible through the gap either side.</p>
+
+<p><code>header</code> is now <strong>always <code>width: 100%</code>, no cap, ever</strong>. The inline inset moved
+to <strong><code>.head-nav</code></strong>, a new wrapper inside it, as <code>padding-inline</code> floored at
+<code>--frame-gutter</code> by <code>max()</code>. <code>--edge-reach</code> is still declared on <code>header</code> so an
+existing <code>header, footer { --edge-reach: … }</code> override keeps working by
+inheritance.</p>
+
+<p>Arriving with it: <strong><code>.header-fade</code></strong> (a gradient strip nested <em>inside</em> <code>header</code>
+— <code>position: sticky</code> establishes a containing block for absolutely positioned
+descendants exactly like <code>position: relative</code>, so it rides along with no JS
+measuring header&#8217;s height), <code>--header-z</code> (below <code>nav.css</code>&#8217;s <code>--nav-drawer-z</code>, so
+an open drawer covers the stuck header), <code>--header-background-color</code> (one token
+shared by the band and the fade&#8217;s opaque end, so they cannot drift), and
+<strong><code>--logo-height</code></strong> on <code>.logo svg</code>.</p>
+
+<p><code>--logo-height</code> exists because neither SVG export convention can be trusted: a
+file with a <code>viewBox</code> and no <code>width</code>/<code>height</code> has no intrinsic size and falls
+back to the browser&#8217;s 300×150 default, while one with them baked in renders at
+whatever the artboard happened to be. Constrain height, let width follow the
+<code>viewBox</code>, and a project retunes one token instead of re-exporting an asset.</p>
+
+<h3 id="fixed—scroll-behavior:smoothneverworked">Fixed — <code>scroll-behavior: smooth</code> never worked</h3>
+
+<p>It was declared on <code>body</code>. CSSOM View states outright that <code>scroll-behavior</code> on
+the body element is <strong>not</strong> propagated to the viewport — unlike <code>overflow</code> and
+<code>background</code>, which are. So it parsed, won no argument with anything, and did
+nothing: anchor links and <code>scrollIntoView()</code> still jumped. Moved to <code>html</code>, and
+guarded behind <code>prefers-reduced-motion</code>, since a moving viewport is precisely
+what that query asks us not to do.</p>
+
+<h3 id="docs">Docs</h3>
+
+<p><code>data-pad</code>&#8217;s 4-step scale, the five export zones (the guide and both
+<code>CLAUDE.md</code> files still said three, two releases after 4.1.0 added
+<code>blueprints/codey/</code> and <code>config/codey/</code>), and a new <strong>§10.2</strong> covering
+<code>--edge-reach</code>, <code>.head-nav</code>, <code>.header-fade</code> and <code>--logo-height</code> — none of which
+had ever been documented, in either repo.</p>
+
+<p>Also corrected: the layout-field renderer is <code>snippet('codey/layouts')</code>. The
+guide, both READMEs and the project <code>CLAUDE.md</code> all carried <code>codey/frame''</code> — a
+typo that had propagated everywhere by copy-paste.</p>
+
+<p><strong>Two limits of <code>codey-export</code> are now written down</strong>, both hit while shipping
+this release. It carries <em>uncommitted</em> work only (<code>git diff HEAD</code>), so a clean
+producing tree reports &#8220;nothing to export&#8221; even while <code>--drift</code> lists files as
+differing — which is exactly the state four months of accumulated drift leaves
+you in. And a brand-new core file needs <code>git add -N</code> first, or the patch
+silently omits it and the export reports success having carried nothing.</p>
+
+<h3 id="knowngap">Known gap</h3>
+
+<p><code>fields/layout.yml</code> does not list <code>hero</code> in its <code>fieldsets</code>, so the block
+shipped in 4.1.0 is still unreachable from the Panel in a fresh clone. Not
+fixed here — flagged.</p>
+
+<hr />
+
 <h2 id="4.1.0—2026-08-19">4.1.0 — 2026&#8211;08&#8211;19</h2>
 
 <p>Codey ships its first <strong>block</strong>, and grows the two export zones a block needs.

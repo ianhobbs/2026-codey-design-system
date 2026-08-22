@@ -30,6 +30,26 @@ settings:
           text: Cards grid — background + padding
         - value: grid-bleed
           text: Full bleed — edge to edge, auto-fit columns
+    # SECOND AXIS, deliberately not folded into `theme` above. `theme` says how
+    # a row divides its own width into columns; `reach` says where the row sits
+    # on the page's horizontal axis. They are independent — that is the whole
+    # two-axis model — so a combined select would multiply the option list and
+    # merge the two things the architecture keeps apart.
+    #
+    # The values ARE class names (like `theme`); the renderer emits both onto
+    # the section. Framed is the empty string so the default row emits exactly
+    # what it emitted before this field existed.
+    reach:
+      label: Row Width
+      type: select
+      default: ''
+      options:
+        - value: ''
+          text: Framed — capped to the content measure
+        - value: reach-wide
+          text: Wide — reaches ~30% toward the edges (780px and up)
+        - value: bleed
+          text: Full bleed — edge to edge
 layouts:
   - "1/1"
   - "1/2, 1/2"

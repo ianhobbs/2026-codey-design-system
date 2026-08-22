@@ -49,10 +49,13 @@ the sibling <code>scripts/brand-palette.cjs</code>. Keep new CommonJS build scri
 <p>Every file is in one tier, sorted by <strong>what happens to it on a Codey update</strong> —
 not by who wrote it. Getting this wrong is what broke the first version.</p>
 
-<pre><code class="text">CORE — overwritten wholesale on update; a project must never hand-edit it
+<pre><code class="text">CORE — overwritten wholesale on update; a project must never hand-edit it.
+       FIVE zones; scripts/codey-export.mjs's ZONES array is the authority.
   src/assets/css/codey/**       layout/grid/type/element RULES, ZERO brand values
   src/assets/js/codey/**
-  src/site/snippets/codey/**    the layout engine
+  src/site/snippets/codey/**    the layout engine + codey/blocks/** renderers
+  src/site/blueprints/codey/**  Panel schemas for core blocks
+  src/site/config/codey/**      config fragments core owns (srcset ladders)
 
 SEED — shipped once at clone time, then owned by the project forever.
        An update never touches it; it is never accepted back upstream.
@@ -62,6 +65,9 @@ PROJECT — Codey never had it
   src/assets/css/main.css       entry point + the opt-in component list
   src/assets/css/lib/**         generated Utopia scale
   src/site/{templates,controllers,blueprints,config}
+                                minus the codey/ subdirectories above. A block
+                                shim at blueprints/blocks/{type}.yml is PROJECT;
+                                the core file it extends is CORE.
 </code></pre>
 
 <p><strong>The test:</strong> a <strong>value</strong> (font, colour, measure) is SEED. A <strong>rule</strong> (how the grid
@@ -86,10 +92,21 @@ and a diff against it applies cleanly across disjoint histories.</p>
 
 <pre><code class="bash">npm run codey:export             # dry run
 npm run codey:export -- go       # apply here, unstaged, for review
-npm run codey:export -- --drift  # report divergence across the three core zones
+npm run codey:export -- --drift  # report divergence across the five core zones
 </code></pre>
 
 <p>It never commits or pushes. Review the unstaged diff here, rebuild, commit yourself.</p>
+
+<p><strong>The export carries uncommitted work only</strong> — it diffs <code>HEAD</code> against the
+producing repo&#8217;s working tree (or one <code>--commit &lt;sha&gt;</code>). A clean tree there
+reports &#8220;nothing to export&#8221; even while <code>--drift</code> lists files as differing. When
+drift has built up across many commits on both sides, <code>--drift</code> plus a hand copy
+(after confirming the divergence is one-way) reaches the same unstaged-for-review
+end state. A brand-new core file also needs <code>git add -N</code> on the producing side,
+or the patch silently omits it.</p>
+
+<p><strong>Abbreviation:</strong> this repo is <strong>CDS</strong> (Codey Design System) in conversation and
+in these docs.</p>
 
 <p>Note <code>docs/IMPLEMENTATION-GUIDE.md</code> §17 documents a <code>git pull</code> / cherry-pick update
 flow — that does not work for clones that severed history, which is all of them.</p>

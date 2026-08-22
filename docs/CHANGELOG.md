@@ -13,6 +13,134 @@ entry claims the number and `package.json` was set back to match.
 
 ---
 
+## 4.2.0 — 2026-08-22
+
+Everything here came back from **2026-RosieBoy-sharp**, Codey's first real
+prototype build. Three fixes had been sitting in that project unexported, and
+one new measure was designed there against a live site. The point of a
+prototype is that it finds what a starter cannot find on its own; treat this
+release as that report.
+
+### Added — `.reach-wide`, a partial bleed
+
+`.bleed` is binary: a row is either capped to the content measure or flush to
+the viewport edge. Real pages want the space between. `.reach-wide` reaches
+**~30% of the way out**, at 780px and up.
+
+```
+src/assets/css/codey/lib/layout.css     .frame > .reach-wide
+src/site/blueprints/fields/layout.yml   `reach` select — SECOND per-row axis
+src/site/snippets/codey/layouts.php     emits theme + reach as two classes
+```
+
+**No new mechanism.** It reuses `--edge-reach`, the 0–1 knob `header` and
+`footer` already carry — 0 capped, 1 flush, anything between a literal fraction
+of the way there. Retune per project with `--edge-reach-wide` in
+`brand/_overrides.css`; core never needs editing.
+
+**The whole rule lives inside `@media (min-width: 780px)`**, so below that the
+class means nothing and the row is an ordinary framed child. The first cut of
+this instead shipped a base rule with `--edge-reach: 0` and only raised the
+value in the media query — which looks equivalent and is not. At reach `0` the
+interpolation does hold the *content* in the right place, but the row is still
+placed on the `full` track, so its *box* runs edge to edge: invisible on
+`grid-plain`, obvious on `grid-cards`, which paints a background and a radius on
+that box. **No reach has to mean no rule, not a rule that evaluates to zero.**
+
+Worth knowing about the curve: below roughly `--measure-page` + two gutters
+(~1376px on the shipped 82rem measure) the viewport is narrower than the cap, so
+there is no margin to reach into and the formula degrades to shrinking the
+gutter by 30% — around +15–19px of content. The effect only becomes a real
+bleed once the viewport exceeds the cap (+182px at 1920, +374px at 2560), which
+is precisely when a bleed is worth having. The box never exceeds the viewport at
+any width, so no horizontal scrollbar appears.
+
+**It is a second Panel select, not more `theme` values.** `theme` says how a row
+divides its width into columns; `reach` says where the row sits on the page's
+horizontal axis. Those are the two axes the whole model exists to keep apart, so
+folding "wide" into `theme` would have doubled the option list *and* merged
+them. The renderer concatenates the two class names and still invents nothing.
+
+One detail worth copying elsewhere: `.reach-wide` interpolates against `100%`,
+not `100dvw`, because it sits on the `full` grid track and therefore has a real
+width to measure. `header`/`footer` use `dvw` only because they live outside
+`.frame` — and `dvw` can include the scrollbar gutter, so a box sized to it and
+re-centred overshoots both edges at once. **Prefer percentage-of-track wherever
+a track exists.**
+
+### Fixed — mobile grid regression (`grid.css`)
+
+`2993b72` set out to harden `1fr` → `minmax(0, 1fr)` across the 12-column
+family, which was right. It applied the replacement to the **base** rules too,
+where the value was deliberately a single-column `1fr` — making the base
+identical to the `@media (min-width: 60rem)` block below it, so the media query
+became a no-op and every `.grid-plain` / `.grid-plain-padded` / `.grid-cards`
+row rendered as 12 tracks on a phone. The hardening is kept; the mobile-first
+base is restored.
+
+### Fixed — sticky header could not mask what scrolled under it
+
+`header` shared `footer`'s `max-width` + `margin-inline: auto` rule. For a
+**sticky** element that is wrong at any `--edge-reach` short of `1`: the opaque
+band stops short of the true viewport edge, and a full-bleed section scrolling
+up is plainly visible through the gap either side.
+
+`header` is now **always `width: 100%`, no cap, ever**. The inline inset moved
+to **`.head-nav`**, a new wrapper inside it, as `padding-inline` floored at
+`--frame-gutter` by `max()`. `--edge-reach` is still declared on `header` so an
+existing `header, footer { --edge-reach: … }` override keeps working by
+inheritance.
+
+Arriving with it: **`.header-fade`** (a gradient strip nested *inside* `header`
+— `position: sticky` establishes a containing block for absolutely positioned
+descendants exactly like `position: relative`, so it rides along with no JS
+measuring header's height), `--header-z` (below `nav.css`'s `--nav-drawer-z`, so
+an open drawer covers the stuck header), `--header-background-color` (one token
+shared by the band and the fade's opaque end, so they cannot drift), and
+**`--logo-height`** on `.logo svg`.
+
+`--logo-height` exists because neither SVG export convention can be trusted: a
+file with a `viewBox` and no `width`/`height` has no intrinsic size and falls
+back to the browser's 300×150 default, while one with them baked in renders at
+whatever the artboard happened to be. Constrain height, let width follow the
+`viewBox`, and a project retunes one token instead of re-exporting an asset.
+
+### Fixed — `scroll-behavior: smooth` never worked
+
+It was declared on `body`. CSSOM View states outright that `scroll-behavior` on
+the body element is **not** propagated to the viewport — unlike `overflow` and
+`background`, which are. So it parsed, won no argument with anything, and did
+nothing: anchor links and `scrollIntoView()` still jumped. Moved to `html`, and
+guarded behind `prefers-reduced-motion`, since a moving viewport is precisely
+what that query asks us not to do.
+
+### Docs
+
+`data-pad`'s 4-step scale, the five export zones (the guide and both
+`CLAUDE.md` files still said three, two releases after 4.1.0 added
+`blueprints/codey/` and `config/codey/`), and a new **§10.2** covering
+`--edge-reach`, `.head-nav`, `.header-fade` and `--logo-height` — none of which
+had ever been documented, in either repo.
+
+Also corrected: the layout-field renderer is `snippet('codey/layouts')`. The
+guide, both READMEs and the project `CLAUDE.md` all carried `codey/frame''` — a
+typo that had propagated everywhere by copy-paste.
+
+**Two limits of `codey-export` are now written down**, both hit while shipping
+this release. It carries *uncommitted* work only (`git diff HEAD`), so a clean
+producing tree reports "nothing to export" even while `--drift` lists files as
+differing — which is exactly the state four months of accumulated drift leaves
+you in. And a brand-new core file needs `git add -N` first, or the patch
+silently omits it and the export reports success having carried nothing.
+
+### Known gap
+
+`fields/layout.yml` does not list `hero` in its `fieldsets`, so the block
+shipped in 4.1.0 is still unreachable from the Panel in a fresh clone. Not
+fixed here — flagged.
+
+---
+
 ## 4.1.0 — 2026-08-19
 
 Codey ships its first **block**, and grows the two export zones a block needs.

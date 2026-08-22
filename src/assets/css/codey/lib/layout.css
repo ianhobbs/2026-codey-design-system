@@ -34,31 +34,156 @@ body {
   grid-template-rows: auto 1fr auto;   /* header · main(fills) · footer */
 }
 
-/* ── Header & footer: cap to the content measure and centre ── */
-header,
+/* ── Footer: cap to the content measure and centre ──
+   footer sits OUTSIDE .frame — a sibling of <main class="frame"> in the body
+   row grid above, not a child of it. That's why .bleed, .bleed-viewport and
+   data-reach="bleed" don't reach it: those all work by placing an element on
+   .frame's named grid column `full` (below), a trick that only exists inside
+   that grid. footer never had a track to opt into, so it gets its own
+   mechanism instead of borrowing that one.
+
+   --edge-reach is a continuous 0–1 knob, not another named preset: 0 is
+   today's behaviour, capped to the content measure; 1 is full edge-to-edge;
+   anything between is a literal fraction of the way there — "bleed 70%" is
+   --edge-reach: 0.7, not a name to look up. Declared here with no fallback,
+   same as --hero-height on .hero: the block owns its default, a project
+   retunes the value in brand/_overrides.css.
+
+   100dvw reuses the exact viewport-bleed idiom .bleed-viewport already uses
+   below — same scrollbar trade-off that pattern already carries elsewhere in
+   this file, not a new risk this introduces.
+
+   header used to share this exact rule. It doesn't any more — see the
+   comment above .head-nav for why a STICKY element can't use a capped
+   max-width for this without leaving a gap. footer isn't sticky and was
+   never the broken half, so its mechanism is unchanged. */
 footer {
-  max-width: calc(var(--measure-page) + 2 * var(--frame-gutter));
+  --edge-reach: 0;
+  --edge-cap: calc(var(--measure-page) + 2 * var(--frame-gutter));
+
+  max-width: calc(var(--edge-cap) + (100dvw - var(--edge-cap)) * var(--edge-reach));
+  padding-inline: calc(var(--frame-gutter) * (1 - var(--edge-reach)));
   margin-inline: auto;
-  padding-inline: var(--frame-gutter);
   width: 100%;
 }
 /* Was `flex items-center` as Tailwind utilities on codey/header.php. Same
    boundary rule as the nav: core markup carries semantic classes only.
    codey/footer.php also emits .logo, where display:flex is harmless. */
 .logo {
+  --logo-height: var(--spacing-3);
   display: flex;
   align-items: center;
 }
 
+/* Size the inlined logo, because neither export convention can be trusted to
+   do it. An SVG with a viewBox and NO width/height has no intrinsic size, so
+   a browser falls back to the 300x150 default; one with width/height baked in
+   renders at whatever the artboard happened to be. Constraining height and
+   letting width follow the viewBox makes both behave, and gives a project one
+   knob (--logo-height) instead of an asset re-export.
+
+   display:block kills the inline-level baseline gap under the mark. */
+.logo svg {
+  display: block;
+  height: var(--logo-height);
+  width: auto;
+}
+
 header {
+  /* position:sticky needs align-self:start — a grid item's default is
+     stretch, which would make header fill its row track's full height and
+     leave nothing for "stuck" to mean. body has no overflow set (grid.css's
+     overflow-x:clip is scoped to .bleed-viewport-clip, not an ancestor here),
+     so the viewport is what header sticks against, not some clipped box.
+
+     --header-z stays below nav.css's --nav-drawer-z (50), so an open mobile
+     drawer always covers a stuck header rather than tucking under it.
+     background-color is load-bearing, not decoration: without it, page
+     content scrolling underneath would show through the stuck band.
+
+     --header-background-color exists as its own token, not just inline
+     var(--color-background), because .header-fade below needs the exact same
+     colour as its gradient's opaque end — one token, two consumers, so they
+     can never drift out of sync. A project can retune just the header's
+     backing (and the fade with it) without touching the page background.
+
+     width IS ALWAYS 100% — no cap, ever. header used to share footer's
+     max-width+margin-auto rule above, interpolated toward full-bleed by
+     --edge-reach. That was wrong specifically because header is sticky: at
+     any reach short of 1, header's own opaque box stopped short of the true
+     viewport edge, leaving a gap either side. A full-bleed section scrolling
+     up underneath a stuck header was visible through exactly that gap — the
+     band is supposed to mask everything beneath it, and a capped box can't.
+
+     --edge-reach is declared HERE, not on .head-nav below, purely so a
+     project's existing `header, footer { --edge-reach: … }` override in
+     brand/_overrides.css keeps working unchanged — .head-nav inherits the
+     value from its parent rather than owning its own copy of the default. */
+  --header-z: 10;
+  --header-background-color: var(--color-background);
+  --edge-reach: 0;
+
+  align-self: start;                   /* sticky-ready; not stretched by its row */
+  position: sticky;
+  top: 0;
+  z-index: var(--header-z);
+  background-color: var(--header-background-color);
+  width: 100%;
+}
+
+/* ── .head-nav — the logo/nav row, inset from header's now-always-full edge ──
+   Everything header itself used to carry directly — the spread-flex rule,
+   the vertical padding, the inline inset that used to come from header's own
+   max-width cap — lives here instead, so header can stay a bare
+   positioning/background shell with a guaranteed-flush edge.
+
+   --edge-base is the padding that visually reproduces the old capped, centred
+   column on a container that is now always 100dvw wide: max() floors it at
+   --frame-gutter so content never sits closer to the edge than that, even on
+   a viewport narrower than --measure-page. At --edge-reach: 0 this is the
+   full inset (today's look, unchanged); at 1 it interpolates to flush against
+   the edge — the same end-state footer's own formula above reaches. */
+.head-nav {
+  --edge-base: max(var(--frame-gutter), calc((100dvw - var(--measure-page)) / 2));
+
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  align-self: start;                   /* sticky-ready; not stretched by its row */
-  padding-block: var(--spacing-1) var(--spacing-8);
+  padding-inline: calc(var(--edge-base) * (1 - var(--edge-reach, 0)));
+  padding-block: var(--spacing-1) var(--spacing-2);
 }
 @media (min-width: 780px) {
-  header { padding-block-start: var(--spacing-2); }
+  .head-nav { padding-block-start: var(--spacing-2); }
+}
+
+/* ── Fade beneath the sticky header ──
+   Content scrolling up meets a soft edge instead of vanishing behind a hard
+   line. Nested INSIDE <header>, not a sibling: position:sticky establishes a
+   containing block for absolutely-positioned descendants exactly like
+   position:relative does, so this rides along with header's stuck position
+   automatically — no JS measuring header's rendered height.
+
+   left:0; width:100% — matching the parent exactly, not escaping it. This
+   used to be left:50%; width:100dvw; translate:-50% 0, back when header was
+   still capped and centred and this needed to break OUT of that box to reach
+   the true viewport edges. header is now genuinely edge-to-edge itself (see
+   the comment on header above), so this no longer needs to escape anything —
+   and dropping the vw-based version also drops a real, if subtle, bug it
+   carried: `dvw` can include the scrollbar gutter on some browser/OS
+   combinations, so a box sized to 100dvw and re-centred via transform
+   overshoots the true edges by half that amount, on BOTH sides at once.
+   Percentage-of-parent has no such quirk, because header's own width is
+   already the real, scrollbar-safe available width. */
+.header-fade {
+  --header-fade-height: 1.3rem;
+
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: var(--header-fade-height);
+  background: linear-gradient(to bottom, var(--header-background-color), transparent);
+  pointer-events: none;
 }
 
 /* ── Column axis (horizontal): .frame named column tracks (on <main>) ── */
@@ -88,6 +213,64 @@ header {
   grid-column: full;
   width: 100%;
   margin-inline: 0;
+}
+
+/* ── Partial bleed — reach PART of the way out, non-mobile only ────────
+   .bleed above is binary: content track or full track, nothing between.
+   .reach-wide is the continuous version, and it reuses the exact --edge-reach
+   knob header and footer already carry rather than inventing a second
+   mechanism: 0 is framed, 1 is flush, anything between is a literal fraction
+   of the way there. One vocabulary, three consumers.
+
+   Two deliberate differences from the header/footer formula:
+
+   • 100%, not 100dvw. This row sits on the `full` grid track, so 100% IS the
+     frame's real available width. header and footer live OUTSIDE .frame and
+     have no track to measure, which is the only reason they reach for dvw —
+     and dvw can include the scrollbar gutter on some browser/OS combinations.
+     Prefer percentage-of-track wherever a track exists.
+
+   • The WHOLE rule lives inside the media query, so below 780px `.reach-wide`
+     means nothing at all and the row is an ordinary framed child. A partial
+     bleed on a 390px viewport spends a few pixels to buy nothing; the measure
+     only has margin worth reaching into once the viewport exceeds it.
+
+     Setting only `--edge-reach: 0` in a base rule is NOT the same thing and
+     was the first version of this. At reach 0 the interpolation does hold the
+     CONTENT in the right place — max-width exceeds the viewport, so width:100%
+     governs, and padding-inline is the full gutter. But the row is still
+     placed on the `full` track, so its BOX runs edge to edge. Invisible for
+     grid-plain, obvious for grid-cards, which paints a background and a
+     border-radius on that box. "No reach" has to mean no rule, not a rule
+     that evaluates to zero.
+
+   --edge-reach-wide is the project seam. Core declares 0.3 as the fallback
+   here, the same way --hero-height and --edge-reach are declared on the blocks
+   that own them; a project retunes it in brand/_overrides.css with
+   `.frame > .reach-wide { --edge-reach-wide: 0.5 }` and never touches core.
+
+   Breakpoint note: 780px matches .head-nav above, NOT grid.css's 60rem column
+   switch. So between 780px and 960px a .reach-wide row is wider while still
+   single-column. That is the two-axis model behaving correctly — framing and
+   column division are independent — not a bug to "fix" by aligning them.
+
+   Placed AFTER the bleed helpers above on purpose. The Panel lets an editor
+   pick theme `grid-bleed` and reach `reach-wide` together, and those two rules
+   have equal specificity, so source order decides. Later wins, which makes the
+   combination resolve to a centred, partially-bled auto-fit grid — a coherent
+   thing to have asked for. Reversed, it would resolve to a capped row pinned
+   left, which is not. */
+@media (min-width: 780px) {
+  .frame > .reach-wide {
+    --edge-reach: var(--edge-reach-wide, 0.3);
+    --edge-cap: calc(var(--measure-page) + 2 * var(--frame-gutter));
+
+    grid-column: full;
+    width: 100%;
+    max-width: calc(var(--edge-cap) + (100% - var(--edge-cap)) * var(--edge-reach));
+    margin-inline: auto;
+    padding-inline: calc(var(--frame-gutter) * (1 - var(--edge-reach)));
+  }
 }
 
 /* ── Reach switch — data-reach on the frame root ───────────────────────

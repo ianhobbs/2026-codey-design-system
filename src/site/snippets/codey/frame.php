@@ -35,10 +35,19 @@
 
   <?php snippet('codey/header') ?>
 
-  <?php /* Mobile drawer. A SIBLING of <header>, never a child: layout.css
-           gives <header> a max-width, auto margins and padding-inline, and a
-           position:fixed overlay parented to it would inherit a containing
-           block it has to fight back out of. */ ?>
+  <?php /* Mobile drawer. A SIBLING of <header>, never a child: <header> is
+           position:sticky, which establishes a containing block for
+           absolutely- AND fixed-positioned descendants exactly like
+           position:relative does. A position:fixed overlay parented to it
+           would therefore be laid out against the header's box rather than
+           the viewport — a containing block it has to fight back out of.
+           (.header-fade is nested inside header precisely BECAUSE of that
+           same rule; it wants to ride along with the stuck band. The drawer
+           wants the opposite, so it stays outside.)
+
+           The inline inset lives on .head-nav inside <header>, not on
+           <header> itself — see the comment above `header` in layout.css for
+           why a sticky element can never carry a max-width cap. */ ?>
   <?php snippet('codey/mobile-nav') ?>
 
   <?= $slots->intro ?? '' ?>

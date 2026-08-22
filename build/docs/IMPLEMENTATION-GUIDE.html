@@ -394,8 +394,8 @@ because they never touch the same property.</p>
 
 <p><strong>Row axis (vertical).</strong> <code>&lt;body&gt;</code> is a grid with three rows —
 <code>header / main / footer</code> — using <code>grid-template-rows: auto 1fr auto</code>, giving a
-sticky footer (main fills the gap). <code>header</code> and <code>footer</code> cap to the content
-measure and centre.</p>
+sticky footer (main fills the gap). <code>footer</code> caps to the content measure and
+centres; <code>header</code> does <strong>not</strong> — see §10.2.</p>
 
 <p><strong>Column axis (horizontal).</strong> <code>.frame</code> (normally on <code>&lt;main&gt;</code>) is a named-column
 grid:</p>
@@ -464,6 +464,9 @@ padding. <code>none</code> (alias <code>zero</code>) sets both to <code>0</code>
 
 <p><strong>Nested containers</strong> — <code>.track</code> uses <code>grid-template-columns: subgrid</code> to inherit
 the page&#8217;s column tracks while running its own rows; <code>.track.bleed</code> spans full.</p>
+
+<p><strong>Partial bleed</strong> — a row can reach <em>part</em> of the way out instead of choosing
+between framed and edge-to-edge. See §10.2.</p>
 
 <hr />
 
@@ -542,6 +545,205 @@ identically wherever they appear:</p>
   &lt;div class=&quot;column&quot; style=&quot;--span: 6&quot;&gt;…&lt;/div&gt;
 &lt;/section&gt;
 </code></pre>
+
+<h2 id="10.2reachingpastthemeasure—--edge-reach">10.2 Reaching past the measure — <code>--edge-reach</code></h2>
+
+<p><code>.bleed</code> is binary: a row is either capped to the measure or flush to the
+viewport edge. <code>--edge-reach</code> is the continuous version of the same question —
+a <strong>0–1 knob</strong>, not another named preset:</p>
+
+<table>
+<colgroup>
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Value </th>
+	<th> Result </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <code>0</code> </td>
+	<td> capped to the content measure (the default everywhere) </td>
+</tr>
+<tr>
+	<td> <code>0.3</code> </td>
+	<td> 30% of the way from the measure to the viewport edge </td>
+</tr>
+<tr>
+	<td> <code>1</code> </td>
+	<td> flush to the edge — the same end state <code>.bleed</code> reaches </td>
+</tr>
+</tbody>
+</table>
+
+<p>&#8220;Bleed 70%&#8221; is <code>--edge-reach: 0.7</code>, not a name to look up. Three elements carry
+it: <code>footer</code>, <code>header</code>/<code>.head-nav</code>, and the <code>.reach-wide</code> layout row.</p>
+
+<h3 id=".reach-wide—thepartial-bleedlayoutrow"><code>.reach-wide</code> — the partial-bleed layout row</h3>
+
+<p>The Panel&#8217;s <strong>Row Width</strong> select (§15.5) writes this class. It reaches <sub>30</sub>% of
+the way out, and its entire rule sits inside <code>@media (min-width: 780px)</code> — below
+that the class means nothing and the row is an ordinary framed child.</p>
+
+<p><strong>That is deliberate, and &#8220;just set <code>--edge-reach: 0</code>&#8221; is not the same thing.</strong>
+At reach <code>0</code> the interpolation does hold the <em>content</em> in the right place, but
+the row is still placed on the <code>full</code> track, so its <em>box</em> runs edge to edge —
+invisible on <code>grid-plain</code>, obvious on <code>grid-cards</code>, which paints a background
+and a radius on that box. No reach has to mean no rule, not a rule evaluating
+to zero.</p>
+
+<p>Retune with <code>--edge-reach-wide</code> (default <code>0.3</code>):</p>
+
+<pre><code class="css">@layer bespoke {
+  .frame &gt; .reach-wide { --edge-reach-wide: 0.5; }
+}
+</code></pre>
+
+<p>What it actually does, on the shipped <code>82rem</code> measure:</p>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Viewport </th>
+	<th> Framed content </th>
+	<th> <code>.reach-wide</code> content </th>
+	<th> Gain </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> ≤ 779px </td>
+	<td> 337–729px </td>
+	<td> <em>(no rule — framed)</em> </td>
+	<td> — </td>
+</tr>
+<tr>
+	<td> 780px </td>
+	<td> 730px </td>
+	<td> 745px </td>
+	<td> +15px </td>
+</tr>
+<tr>
+	<td> 1280px </td>
+	<td> 1216px </td>
+	<td> 1235px </td>
+	<td> +19px </td>
+</tr>
+<tr>
+	<td> 1440px </td>
+	<td> 1312px </td>
+	<td> 1350px </td>
+	<td> +38px </td>
+</tr>
+<tr>
+	<td> 1920px </td>
+	<td> 1312px </td>
+	<td> 1494px </td>
+	<td> +182px </td>
+</tr>
+<tr>
+	<td> 2560px </td>
+	<td> 1312px </td>
+	<td> 1686px </td>
+	<td> +374px </td>
+</tr>
+</tbody>
+</table>
+
+<p>Note the shape of that curve. Below roughly 1376px (<code>--measure-page</code> plus two
+gutters) the viewport is <em>narrower than the cap</em>, so there is no margin to reach
+into and the formula degrades to shrinking the gutter by 30% — a handful of
+pixels. The effect only becomes a real bleed once the viewport exceeds the cap,
+which is exactly when a bleed is worth having. The box never exceeds the
+viewport at any width, so no horizontal scrollbar appears.</p>
+
+<p>Breakpoint note: 780px matches <code>.head-nav</code>, <strong>not</strong> <code>grid.css</code>&#8217;s 60rem column
+switch. Between 780px and 960px a <code>.reach-wide</code> row is therefore wider <em>and</em>
+still single-column. That is the two-axis model behaving correctly — framing
+and column division are independent — not a mismatch to correct.</p>
+
+<p>The formula is one interpolation, repeated:</p>
+
+<pre><code class="css">--edge-cap: calc(var(--measure-page) + 2 * var(--frame-gutter));
+max-width:      calc(var(--edge-cap) + (100% - var(--edge-cap)) * var(--edge-reach));
+padding-inline: calc(var(--frame-gutter) * (1 - var(--edge-reach)));
+</code></pre>
+
+<p><code>100%</code> where the element sits on a grid track; <code>100dvw</code> where it does not
+(<code>header</code> and <code>footer</code> live <em>outside</em> <code>.frame</code>, so they have no track to
+measure). Prefer the percentage wherever a track exists — <code>dvw</code> can include the
+scrollbar gutter on some browser/OS combinations, and a box sized to <code>100dvw</code>
+then re-centred overshoots the true edges on both sides at once.</p>
+
+<p>Retune per project in <code>brand/_overrides.css</code>, never in core:</p>
+
+<pre><code class="css">@layer bespoke {
+  header, footer { --edge-reach: 0.3; }
+}
+</code></pre>
+
+<h3 id="whyheaderisnevercapped">Why <code>header</code> is never capped</h3>
+
+<p><code>header</code> is <code>position: sticky</code>, and a sticky element&#8217;s job is to mask
+everything scrolling underneath it. At any reach short of <code>1</code>, a <em>capped</em>
+header&#8217;s opaque box stops short of the true viewport edge, leaving a gap either
+side — through which a full-bleed section scrolling up is plainly visible. So
+<code>header</code> is now <strong>always <code>width: 100%</code>, no cap, ever</strong>, and its background is
+load-bearing rather than decorative.</p>
+
+<p>The inset that used to come from header&#8217;s own <code>max-width</code> moved to
+<strong><code>.head-nav</code></strong>, the logo/nav row inside it, as padding:</p>
+
+<pre><code class="css">--edge-base: max(var(--frame-gutter), calc((100dvw - var(--measure-page)) / 2));
+padding-inline: calc(var(--edge-base) * (1 - var(--edge-reach, 0)));
+</code></pre>
+
+<p><code>max()</code> floors the inset at <code>--frame-gutter</code>, so content never sits closer to
+the edge than that even on a viewport narrower than the measure. <code>--edge-reach</code>
+is declared on <code>header</code> rather than on <code>.head-nav</code> so an existing
+<code>header, footer { --edge-reach: … }</code> override keeps working — <code>.head-nav</code>
+inherits it.</p>
+
+<p>Two companions:</p>
+
+<ul>
+<li><strong><code>.header-fade</code></strong> — a gradient strip nested <em>inside</em> <code>&lt;header&gt;</code> (not a
+sibling): <code>position: sticky</code> establishes a containing block for absolutely
+positioned descendants exactly like <code>position: relative</code> does, so the fade
+rides along with the stuck header with no JS measuring its height. Height is
+<code>--header-fade-height</code>; the gradient&#8217;s opaque end is
+<code>--header-background-color</code>, the same token header itself uses, so the two
+can never drift apart.</li>
+<li><strong><code>--header-z</code></strong> (default <code>10</code>) — stays below <code>nav.css</code>&#8217;s <code>--nav-drawer-z</code>
+(<code>50</code>), so an open mobile drawer covers a stuck header rather than tucking
+under it.</li>
+</ul>
+
+<h3 id="sizinganinlinedlogo—--logo-height">Sizing an inlined logo — <code>--logo-height</code></h3>
+
+<p><code>.logo svg</code> is constrained by height, with <code>width: auto</code> and <code>display: block</code>.
+Neither SVG export convention can be trusted on its own: a file with a
+<code>viewBox</code> and no <code>width</code>/<code>height</code> has no intrinsic size and falls back to the
+browser&#8217;s 300×150 default, while one with <code>width</code>/<code>height</code> baked in renders at
+whatever the artboard happened to be. Constraining height and letting width
+follow the <code>viewBox</code> makes both behave, and gives a project one knob
+(<code>--logo-height</code>, default <code>--spacing-3</code>) instead of an asset re-export.
+<code>display: block</code> kills the inline-level baseline gap under the mark.</p>
+
+<hr />
 
 <hr />
 
@@ -848,11 +1050,11 @@ by defining your own <code>codey/header</code> snippet at site level, which wins
 emits the body-tail JS via <code>js(['@auto'])</code>. It&#8217;s a generic scaffold — replace the
 inner content by shadowing the snippet.</p>
 
-<h3 id="15.4layout-fieldrenderer—snippetcodeyframe">15.4 Layout-field renderer — <code>snippet('codey/frame'')</code></h3>
+<h3 id="15.4layout-fieldrenderer—snippetcodeylayouts">15.4 Layout-field renderer — <code>snippet('codey/layouts')</code></h3>
 
 <p>Renders a Kirby <strong>layout field</strong> into the content track:</p>
 
-<pre><code class="php">&lt;?php snippet('codey/frame'', ['field' =&gt; $page-&gt;layout()]) ?&gt;
+<pre><code class="php">&lt;?php snippet('codey/layouts', ['field' =&gt; $page-&gt;layout()]) ?&gt;
 </code></pre>
 
 <p>Each layout row becomes:</p>
@@ -863,10 +1065,22 @@ inner content by shadowing the snippet.</p>
 </code></pre>
 
 <p>The row&#8217;s <code>theme</code> attr is emitted as the class, and <strong>that class is the grid</strong> —
-<code>grid.css</code> defines the device on it (§10.1). The renderer adds no grid class of
+<code>grid.css</code> defines the device on it (§10.1). The renderer invents no class of
 its own, deliberately: choosing the device is the editor&#8217;s decision in the Panel,
 not the renderer&#8217;s. Each column carries its Panel width as an inline <code>--span</code>,
 which the 12-col devices consume at ≥60rem and <code>grid-bleed</code> ignores.</p>
+
+<p>The row&#8217;s <strong><code>reach</code></strong> attr is emitted alongside it, from the second Panel
+select — two attrs, two classes, because they answer two independent questions:</p>
+
+<pre><code class="html">&lt;section class=&quot;grid-plain-padded reach-wide&quot; id=&quot;…&quot;&gt;
+</code></pre>
+
+<p><code>theme</code> decides how the row divides its width; <code>reach</code> decides where the row
+sits on the page&#8217;s horizontal axis (§10.2). Values are <code>''</code> (framed — the
+default, emitting nothing, so an untouched row is byte-identical to its
+pre-field output), <code>reach-wide</code>, and <code>bleed</code>. The renderer <code>trim()</code>s the pair
+so the empty case leaves no trailing space inside <code>class=&quot;&quot;</code>.</p>
 
 <h3 id="15.5thelayoutblueprintfield—fieldslayout">15.5 The layout blueprint field — <code>fields/layout</code></h3>
 
@@ -896,10 +1110,48 @@ and pull, or override inline in the page blueprint after <code>extends:</code>.<
 </blockquote>
 
 <p>It provides a layout field with column presets (<code>1/1</code>, <code>1/2,1/2</code>, <code>1/3,1/3,1/3</code>,
-<code>1/4×4</code>, <code>2/3,1/3</code>, <code>1/3,2/3</code>), two per-row settings — a <strong>Width</strong> select
-(<code>frame</code> / <code>spread</code> / <code>bleed</code>, §10.1) and a <strong>Layout Theme</strong> select
-(<code>grid-plain</code> / <code>grid-plain-padded</code> / <code>grid-cards</code>) — and a generic fieldset
-set (heading, text, image, line, list, markdown, quote, gallery, code).</p>
+<code>1/4×4</code>, <code>2/3,1/3</code>, <code>1/3,2/3</code>), a generic fieldset set (heading, text, image,
+line, list, markdown, quote, gallery, code), and <strong>two per-row settings — one
+per axis</strong>:</p>
+
+<table>
+<colgroup>
+<col />
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Setting </th>
+	<th> Values </th>
+	<th> Axis </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <strong>Layout Theme</strong> (<code>theme</code>) </td>
+	<td> <code>grid-plain</code> · <code>grid-plain-padded</code> · <code>grid-cards</code> · <code>grid-bleed</code> </td>
+	<td> how the row divides its width into columns (§10.1) </td>
+</tr>
+<tr>
+	<td> <strong>Row Width</strong> (<code>reach</code>) </td>
+	<td> <em>(framed)</em> · <code>reach-wide</code> · <code>bleed</code> </td>
+	<td> where the row sits on the page&#8217;s horizontal axis (§10.2) </td>
+</tr>
+</tbody>
+</table>
+
+<p>They are two selects rather than one because they are genuinely independent —
+folding &#8220;wide&#8221; into <code>theme</code> would double the option list and merge the two axes
+the whole model exists to keep apart. Both values <em>are</em> class names; the
+renderer concatenates them (§15.4) and adds nothing.</p>
+
+<p>Picking <code>grid-bleed</code> <strong>and</strong> <code>reach-wide</code> together is reachable from the Panel
+and resolves to a centred, partially-bled auto-fit grid — source order in
+<code>layout.css</code> is arranged so it lands on the coherent reading rather than a
+capped row pinned left.</p>
 
 <h3 id="15.6templates—default·home·note·notes">15.6 Templates — <code>default</code> · <code>home</code> · <code>note</code> · <code>notes</code></h3>
 
@@ -909,7 +1161,7 @@ renderer together:</p>
 
 <pre><code class="php">&lt;?php snippet('codey/frame', ['pad' =&gt; 'large'], slots: true) ?&gt;
   &lt;?php slot() ?&gt;
-    &lt;?php snippet('codey/frame'', ['field' =&gt; $page-&gt;layout()]) ?&gt;
+    &lt;?php snippet('codey/layouts', ['field' =&gt; $page-&gt;layout()]) ?&gt;
   &lt;?php endslot() ?&gt;
 &lt;?php endsnippet() ?&gt;
 </code></pre>
@@ -974,10 +1226,35 @@ npm run codey:export -- go        # apply upstream, unstaged, for human review
 npm run codey:export -- --drift   # how far have the core zones drifted?
 </code></pre>
 
-<p>It exports only the three core zones (<code>src/assets/css/codey/</code>,
-<code>src/assets/js/codey/</code>, <code>src/site/snippets/codey/</code>), never commits, never pushes,
-refuses deletions, and warns when a file has diverged upstream — because a clean
-apply is not necessarily a correct apply.</p>
+<p>It exports only the <strong>five</strong> core zones — <code>src/assets/css/codey/</code>,
+<code>src/assets/js/codey/</code>, <code>src/site/snippets/codey/</code>,
+<code>src/site/blueprints/codey/</code>, <code>src/site/config/codey/</code> — never commits, never
+pushes, refuses deletions, and warns when a file has diverged upstream, because
+a clean apply is not necessarily a correct apply. The script&#8217;s <code>ZONES</code> array is
+the authority; this list follows it.</p>
+
+<p>The last two zones arrived with the first core <strong>block</strong> (4.1.0). A block is not
+one artefact but three — a renderer, a Panel schema and rules — and Kirby
+resolves blocks at fixed paths (<code>snippets/blocks/{type}.php</code>,
+<code>blueprints/blocks/{type}.yml</code>) which <em>cannot</em> be core zones, since a project
+must stay free to add its own blocks there and a <code>kirby</code> CLI scaffold writes
+straight into them. So core files sit under a <code>codey/</code> subdirectory and each
+project keeps a one-line shim at the path Kirby expects. That shim is the seam:
+replace its body and the block stops tracking Codey.</p>
+
+<p><strong>Two limits of the export</strong>, both worth knowing before trusting it:</p>
+
+<ul>
+<li>It carries <strong>uncommitted work only</strong> — the patch is <code>git diff HEAD</code> (or one
+<code>--commit &lt;sha&gt;</code>). A clean tree reports &#8220;nothing to export&#8221; even while
+<code>--drift</code> lists files as differing. Where drift has accumulated across many
+commits on both sides, use <code>--drift</code>, confirm the divergence runs one way,
+then copy the file across and review <code>git diff</code> upstream — the same
+unstaged-for-review end state the script produces.</li>
+<li>A <strong>new</strong> core file must be <code>git add -N</code>ed first. The patch is built from the
+diff, so an untracked file is silently omitted and the export reports success
+having carried nothing.</li>
+</ul>
 
 <p>To pull a newer Codey <em>into</em> an existing project, diff the core zones by hand and
 copy across; there is deliberately no automated import. If you need many live sites
@@ -1144,6 +1421,11 @@ them from <code>_brand.css</code>.</li>
 	<td> opt a child out to the full (edge-to-edge) track </td>
 </tr>
 <tr>
+	<td> <code>.reach-wide</code>   </td>
+	<td> <code>.frame</code> child </td>
+	<td> partial bleed: <sub>30</sub>% of the way out, ≥780px only (§10.2) </td>
+</tr>
+<tr>
 	<td> <code>.grid-plain(-padded)</code> / <code>.grid-cards</code> </td>
 	<td> layout row </td>
 	<td> 12-col grid device (grid.css) </td>
@@ -1169,6 +1451,16 @@ them from <code>_brand.css</code>.</li>
 	<td> span N of 12 tracks (stacks below 60rem)  </td>
 </tr>
 <tr>
+	<td> <code>.head-nav</code>   </td>
+	<td> inside <code>header</code> </td>
+	<td> the logo/nav row; carries header&#8217;s inline inset </td>
+</tr>
+<tr>
+	<td> <code>.header-fade</code>   </td>
+	<td> inside <code>header</code> </td>
+	<td> gradient strip under the sticky band    </td>
+</tr>
+<tr>
 	<td> <code>--frame-gutter</code>  </td>
 	<td> <code>:root</code>/override</td>
 	<td> side gutter width         </td>
@@ -1177,6 +1469,41 @@ them from <code>_brand.css</code>.</li>
 	<td> <code>--measure-page</code>  </td>
 	<td> <code>:root</code>/override</td>
 	<td> max content width (default 82rem)     </td>
+</tr>
+<tr>
+	<td> <code>--edge-reach</code> </td>
+	<td> <code>header</code>/<code>footer</code>/<code>.reach-wide</code> </td>
+	<td> 0–1: how far past the measure (0 = capped, 1 = flush) </td>
+</tr>
+<tr>
+	<td> <code>--edge-reach-wide</code> </td>
+	<td> <code>.reach-wide</code> </td>
+	<td> the <code>.reach-wide</code> preset&#8217;s value (default <code>0.3</code>) </td>
+</tr>
+<tr>
+	<td> <code>--header-z</code>   </td>
+	<td> <code>header</code>  </td>
+	<td> stacking order; stays below <code>--nav-drawer-z</code> (50) </td>
+</tr>
+<tr>
+	<td> <code>--header-background-color</code> </td>
+	<td> <code>header</code> </td>
+	<td> the stuck band&#8217;s backing; also <code>.header-fade</code>&#8217;s opaque end </td>
+</tr>
+<tr>
+	<td> <code>--header-fade-height</code> </td>
+	<td> <code>.header-fade</code> </td>
+	<td> fade depth (default <code>1.3rem</code>)      </td>
+</tr>
+<tr>
+	<td> <code>--logo-height</code>  </td>
+	<td> <code>.logo</code>   </td>
+	<td> inlined logo SVG height (default <code>--spacing-3</code>) </td>
+</tr>
+<tr>
+	<td> <code>--section-gap</code>  </td>
+	<td> <code>.frame</code>  </td>
+	<td> row-gap between layout rows (default <code>--spacing-6</code>) </td>
 </tr>
 </tbody>
 </table>
